@@ -6,10 +6,10 @@ import Image from "next/image"
 import { Menu, Search, User, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
-
+import { useRouter } from "next/navigation"
 function Header() {
     const [isMenuOpen, setIsMenuOpen] = useState(false)
-
+    const router = useRouter()
     const toggleMenu = () => {
         setIsMenuOpen(!isMenuOpen)
     }
@@ -28,19 +28,19 @@ function Header() {
                         <Link href="/" className="border-b-2 border-primary pb-1 text-primary font-medium">
                             Home
                         </Link>
-                        <Link href="/gem-recommendation" className="text-gray-700 hover:text-primary transition-colors">
+                        <Link href="/-/gem-recommendation" className="text-gray-700 hover:text-primary transition-colors">
                             Gem Recommendation
                         </Link>
-                        <Link href="/gemstones" className="text-gray-700 hover:text-primary transition-colors">
+                        <Link href="/-/gemStone" className="text-gray-700 hover:text-primary transition-colors">
                             Gemstones
                         </Link>
-                        <Link href="/jewellery" className="text-gray-700 hover:text-primary transition-colors">
+                        <Link href="/-/gemstones-jewellery" className="text-gray-700 hover:text-primary transition-colors">
                             Gemstones Jewellery
                         </Link>
-                        <Link href="/service" className="text-gray-700 hover:text-primary transition-colors">
+                        <Link href="/-/service" className="text-gray-700 hover:text-primary transition-colors">
                             Service
                         </Link>
-                        <Link href="/about" className="text-gray-700 hover:text-primary transition-colors">
+                        <Link href="/-/about" className="text-gray-700 hover:text-primary transition-colors">
                             About
                         </Link>
                     </nav>
