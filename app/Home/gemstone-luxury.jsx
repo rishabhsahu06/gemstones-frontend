@@ -46,12 +46,12 @@ export default function LuxuryGemstones() {
             {/* Jewelry Grid Layout */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {/* Left Column - Pendants */}
-                <div className="rounded-lg overflow-hidden shadow-sm">
+                <div className="overflow-hidden shadow-2xl rounded-2xl  p-2">
                     <div className="relative h-96">
                         <img
                             src={jewelryItems[0].image}
                             alt={jewelryItems[0].title}
-                            className="w-full h-full object-cover"
+                            className="w-full h-full rounded-xl object-cover"
                         />
                     </div>
                     <div className="p-4 text-center bg-white">
@@ -67,7 +67,7 @@ export default function LuxuryGemstones() {
                             <img
                                 src={jewelryItems[1].image}
                                 alt={jewelryItems[1].title}
-                                className="w-full h-full object-cover"
+                                className="w-full  object-cover"
                             />
                         </div>
                         <div className="p-4 text-center bg-white">
@@ -76,7 +76,7 @@ export default function LuxuryGemstones() {
                     </div>
 
                     {/* Earrings */}
-                    <div className="rounded-lg overflow-hidden shadow-sm">
+                    <div className="rounded-2xl overflow-hidden shadow-2xl">
                         <div className="relative h-44">
                             <img
                                 src={jewelryItems[2].image}
@@ -91,12 +91,12 @@ export default function LuxuryGemstones() {
                 </div>
 
                 {/* Right Column - Rings */}
-                <div className="rounded-lg overflow-hidden shadow-sm">
+                <div className="rounded-2xl overflow-hidden shadow-2xl p-2">
                     <div className="relative h-96">
                         <img
                             src={jewelryItems[3].image}
                             alt={jewelryItems[3].title}
-                            className="w-full h-full object-cover"
+                            className="w-full h-full rounded-2xl object-cover"
                         />
                     </div>
                     <div className="p-4 text-center bg-white">

@@ -5,25 +5,25 @@ import { Button } from "@/components/ui/button";
 
 function Authenticity() {
     return (
-        <div className="container mx-auto mt-16 mt-12 ">
+        <div className="container mx-auto  ">
             {/* Top Section */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 items-center">
+            <div className="flex gap-6 mb-8 items-center xl:mt-[50px] ">
                 {/* Left Image - Made smaller to match design */}
-                <div className="rounded-lg overflow-hidden mx-auto md:mx-0 max-w-lg">
+                <div className="rounded-lg col-span-1 overflow-hidden mx-auto md:mx-0 max-w-lg">
                     <Image
                         src="/left-ring.png"
                         alt="Gemstone Jewelry"
                         width={500}
                         height={345}
-                        className="h-auto object-cover rounded-lg"
+                        className=" h-[350px] object-cover rounded-lg"
                     /></div>
 
                 {/* Right Content */}
-                <div className="bg-white rounded-2xl p-6 shadow-sm border">
-                    <h1 className="text-3xl md:text-4xl font-bold text-center mb-2">
+                <div className="bg-white col-span-1 max-h-[374px] rounded-2xl  p-6 shadow-sm border">
+                    <h1 className="text-xl md:text-2xl font-bold  text-center mb-2">
                         Authenticity You Can Trust
                     </h1>
-                    <h2 className="text-xl md:text-2xl font-semibold text-center mb-4">
+                    <h2 className="text-xl md:text-2xl   font-bold text-center mb-4">
                         Natural, Certified & Ethically Sourced Gemstone
                     </h2>
 

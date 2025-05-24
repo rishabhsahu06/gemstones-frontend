@@ -47,7 +47,7 @@ const stoneCategories = [
 function PerfectStones() {
     return (
         <div className="container mx-auto px-4 mt-12">
-            <h1 className="text-4xl md:text-5xl font-bold text-center mb-2 mt-16">Find your Perfect Stone</h1>
+            <h1 className="text-2xl md:text-3xl font-bold text-center mb-2 mt-16">Find your Perfect Stone</h1>
             <p className="text-xl text-center text-gray-600 mb-10">Shop by Categories</p>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
