@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useRef, useEffect } from "react"
-import { motion } from "framer-motion"
 import { Play, ChevronLeft, ChevronRight } from "lucide-react"
 
 // Sample data for the reels
@@ -9,58 +8,50 @@ const initialReelItems = [
     {
         id: 1,
         type: "image",
-        src: "/blog-img1.png",
+        src: "/api/placeholder/400/300",
         title: "Ruby Collection",
     },
     {
         id: 2,
         type: "image",
-        src: "/blog-img2.png",
+        src: "/api/placeholder/500/400",
         title: "Sapphire Collection",
     },
     {
         id: 3,
         type: "image",
-        src: "/blog-img3.png",
+        src: "/api/placeholder/400/300",
         title: "Emerald Collection",
     },
     {
         id: 4,
         type: "video",
         src: "/placeholder-video.mp4",
-        thumbnail: "/placeholder-ieybm.png",
+        thumbnail: "/api/placeholder/400/300",
         title: "Diamond Collection",
     },
     {
         id: 5,
         type: "image",
-        src: "/amethyst-jewelry-set.png",
+        src: "/api/placeholder/400/300",
         title: "Amethyst Collection",
     },
 ]
 
 function ReelsSection() {
     const [reelItems, setReelItems] = useState(initialReelItems)
-    const [currentIndex, setCurrentIndex] = useState(1)
-    const [width, setWidth] = useState(0)
+    const [currentIndex, setCurrentIndex] = useState(0)
     const [hoveredId, setHoveredId] = useState(null)
     const [isPlaying, setIsPlaying] = useState({})
 
-    const carousel = useRef(null)
     const videoRefs = useRef({})
 
-    useEffect(() => {
-        if (carousel.current) {
-            setWidth(carousel.current.scrollWidth - carousel.current.offsetWidth)
-        }
-    }, [reelItems])
-
     const nextSlide = () => {
-        setCurrentIndex((prevIndex) => (prevIndex === reelItems.length - 2 ? 0 : prevIndex + 1))
+        setCurrentIndex((prevIndex) => (prevIndex === reelItems.length - 1 ? 0 : prevIndex + 1))
     }
 
     const prevSlide = () => {
-        setCurrentIndex((prevIndex) => (prevIndex === 0 ? reelItems.length - 2 : prevIndex - 1))
+        setCurrentIndex((prevIndex) => (prevIndex === 0 ? reelItems.length - 1 : prevIndex - 1))
     }
 
     const goToSlide = (index) => {
@@ -100,57 +91,94 @@ function ReelsSection() {
         }
     }
 
+    // Check if mobile view
+    const [isMobile, setIsMobile] = useState(false)
+
+    useEffect(() => {
+        const checkIsMobile = () => {
+            setIsMobile(window.innerWidth < 768)
+        }
+
+        checkIsMobile()
+        window.addEventListener('resize', checkIsMobile)
+
+        return () => window.removeEventListener('resize', checkIsMobile)
+    }, [])
+
+    // Get the items to display based on screen size
+    const getVisibleItems = () => {
+        if (isMobile) {
+            // Mobile: show only current item
+            return [{ ...reelItems[currentIndex], position: 'center' }]
+        } else {
+            // Desktop: show 3 items (previous, current, next)
+            const prevIndex = currentIndex === 0 ? reelItems.length - 1 : currentIndex - 1
+            const nextIndex = currentIndex === reelItems.length - 1 ? 0 : currentIndex + 1
+
+            return [
+                { ...reelItems[prevIndex], position: 'left' },
+                { ...reelItems[currentIndex], position: 'center' },
+                { ...reelItems[nextIndex], position: 'right' }
+            ]
+        }
+    }
+
+    const visibleItems = getVisibleItems()
+
     return (
-        <div className="container mx-auto px-4 py-12 overflow-hidden">
+        <div className="container mx-auto  overflow-hidden">
             {/* Heading Section */}
-            <div className="text-center mb-10">
-                <h2 className="text-4xl md:text-5xl font-bold mb-6">Discover the Sparkle: Gemstone Stories</h2>
-                <p className="text-lg max-w-4xl mx-auto text-gray-700">
+            <div className="text-center mb-8 md:mb-10 mt-12">
+                <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 md:mb-6 px-4 ">Discover the Sparkle: Gemstone Stories</h2>
+                <p className="text-base md:text-lg max-w-4xl mx-auto text-gray-700 px-4">
                     Explore the fascinating journey of each gemstone — from deep within the earth to stunning works of art. Dive
                     into captivating videos that reveal the beauty, craftsmanship, and unique stories behind every sparkling gem.
                 </p>
             </div>
 
             {/* Carousel Section */}
-            <div className="relative">
+            <div className="relative max-w-6xl mx-auto">
                 {/* Left Navigation Arrow */}
                 <button
                     onClick={prevSlide}
-                    className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white/80 rounded-full p-2 shadow-lg hover:bg-white transition-all"
+                    className={`absolute ${isMobile ? 'left-2' : 'left-4'} top-1/2 -translate-y-1/2 z-10 bg-white/80 rounded-full ${isMobile ? 'p-2' : 'p-3'} shadow-lg hover:bg-white transition-all`}
                     aria-label="Previous slide"
                 >
-                    <ChevronLeft className="h-6 w-6" />
+                    <ChevronLeft className={`${isMobile ? 'h-5 w-5' : 'h-6 w-6'}`} />
                 </button>
 
                 {/* Carousel Container */}
-                <div ref={carousel} className="overflow-hidden mx-12">
-                    <motion.div
-                        className="flex gap-4"
-                        animate={{ x: -currentIndex * (100 / 3) + "%" }}
-                        transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                    >
-                        {reelItems.map((item) => (
-                            <motion.div
-                                key={item.id}
-                                className="min-w-[calc(33.333%-16px)] md:min-w-[calc(33.333%-16px)] relative rounded-lg overflow-hidden aspect-square"
-                                whileHover={{ scale: 1.02 }}
-                                transition={{ duration: 0.3 }}
+                <div className={`flex items-center justify-center ${isMobile ? 'gap-0 px-12' : 'gap-4 px-16'}`}>
+                    {visibleItems.map((item, index) => {
+                        const isCenter = item.position === 'center'
+                        let itemSize
+
+                        if (isMobile) {
+                            itemSize = 'h-80 w-72'
+                        } else {
+                            itemSize = isCenter ? 'h-96 w-80' : 'h-72 w-64'
+                        }
+
+                        return (
+                            <div
+                                key={`${item.id}-${item.position}`}
+                                className={`${itemSize} relative rounded-2xl overflow-hidden transition-all duration-500 ease-in-out ${isMobile ? 'shadow-2xl' :
+                                    isCenter ? 'shadow-2xl scale-105' : 'shadow-lg opacity-75'
+                                    }`}
                                 onMouseEnter={() => handleMouseEnter(item.id)}
                                 onMouseLeave={() => handleMouseLeave(item.id)}
                             >
                                 {item.type === "image" ? (
-                                    <motion.img
-                                        src={item.src || "/placeholder.svg"}
+                                    <img
+                                        src={item.src}
                                         alt={item.title}
-                                        className="w-full h-full object-cover"
-                                        animate={hoveredId === item.id ? { scale: 1.05 } : { scale: 1 }}
-                                        transition={{ duration: 0.5 }}
+                                        className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
                                     />
                                 ) : (
                                     <>
                                         {!isPlaying[item.id] && (
                                             <img
-                                                src={item.thumbnail || "/placeholder.svg"}
+                                                src={item.thumbnail}
                                                 alt={`${item.title} thumbnail`}
                                                 className="w-full h-full object-cover"
                                             />
@@ -165,7 +193,9 @@ function ReelsSection() {
                                         />
                                     </>
                                 )}
-                                <div className="absolute inset-0 flex items-center justify-center">
+
+                                {/* Play Button Overlay */}
+                                <div className="absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 hover:opacity-100 transition-opacity duration-300">
                                     <button
                                         className="bg-white/30 backdrop-blur-sm hover:bg-white/50 transition-all rounded-full p-4"
                                         aria-label={`Play ${item.title} ${item.type}`}
@@ -174,28 +204,35 @@ function ReelsSection() {
                                         <Play className="h-8 w-8 text-white" fill="white" />
                                     </button>
                                 </div>
-                            </motion.div>
-                        ))}
-                    </motion.div>
+
+                                {/* Title Overlay */}
+                                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
+                                    <h3 className={`text-white font-semibold ${isMobile ? 'text-base' : 'text-lg'}`}>{item.title}</h3>
+                                </div>
+                            </div>
+                        )
+                    })}
                 </div>
 
                 {/* Right Navigation Arrow */}
                 <button
                     onClick={nextSlide}
-                    className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white/80 rounded-full p-2 shadow-lg hover:bg-white transition-all"
+                    className={`absolute ${isMobile ? 'right-2' : 'right-4'} top-1/2 -translate-y-1/2 z-10 bg-white/80 rounded-full ${isMobile ? 'p-2' : 'p-3'} shadow-lg hover:bg-white transition-all`}
                     aria-label="Next slide"
                 >
-                    <ChevronRight className="h-6 w-6" />
+                    <ChevronRight className={`${isMobile ? 'h-5 w-5' : 'h-6 w-6'}`} />
                 </button>
             </div>
 
             {/* Pagination Dots */}
-            <div className="flex justify-center gap-2 mt-6">
+            <div className="flex justify-center gap-2 mt-6 md:mt-8">
                 {reelItems.map((_, index) => (
                     <button
                         key={index}
                         onClick={() => goToSlide(index)}
-                        className={`h-2 rounded-full transition-all ${currentIndex === index ? "w-4 bg-amber-500" : "w-2 bg-gray-300"
+                        className={`${isMobile ? 'h-2' : 'h-3'} rounded-full transition-all duration-300 ${currentIndex === index ?
+                            `${isMobile ? 'w-6' : 'w-8'} bg-amber-500` :
+                            `${isMobile ? 'w-2' : 'w-3'} bg-gray-300 hover:bg-gray-400`
                             }`}
                         aria-label={`Go to slide ${index + 1}`}
                     />
