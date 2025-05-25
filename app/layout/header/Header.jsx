@@ -130,7 +130,7 @@ function Header() {
                                                 {category.gemstones.map((gemstone, gemIndex) => (
                                                     <Link
                                                         key={gemIndex}
-                                                        href={`/-/gemstone/${gemstone.name.toLowerCase().replace(/[^a-z0-9]/g, '-')}`}
+                                                        href={`/-/gemStone/${gemstone.name.toLowerCase().replace(/[^a-z0-9]/g, '-')}`}
                                                         className="flex items-center space-x-3 text-gray-600 hover:text-primary transition-colors group"
                                                         onClick={() => setIsGemstonesDropdownOpen(false)}
                                                     >
