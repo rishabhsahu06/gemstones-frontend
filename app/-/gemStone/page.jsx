@@ -1,6 +1,6 @@
 import Image from "next/image"
 import Link from "next/link"
-import { useSearchParams } from "next/navigation"
+
 const gemstones = [
   // Row 1
   {
@@ -121,7 +121,7 @@ const gemstones = [
 ]
 
 function Page() {
-  
+
   return (
     <div className="container mx-auto">
       <h1 className="text-3xl font-bold text-start mb-8 mt-12 px-4">Gemstones</h1>
