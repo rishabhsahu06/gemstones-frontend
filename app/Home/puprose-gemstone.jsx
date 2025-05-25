@@ -4,8 +4,8 @@ function PurposefulGemstone() {
     return (
         <div className="container mx-auto px-4 py-12 max-w-6xl">
             <div className="text-center mb-10">
-                <h1 className="text-4xl md:text-5xl font-bold mb-4 mt-12">Purposeful Gemstones</h1>
-                <p className="text-xl text-gray-600">Let Every Stone Reflect Your Purpose and Strength</p>
+                <h1 className="text-2xl md:text-3xl font-bold text-center mb-2 mt-16">Purposeful Gemstones</h1>
+                <p className="text-[16px] md-text-[20px] font-helvatica text-center text-[#4F4F4F] mb-10">Let Every Stone Reflect Your Purpose and Strength</p>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 md:gap-4">

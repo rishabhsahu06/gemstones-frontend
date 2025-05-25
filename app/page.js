@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button'
 import React from 'react'
-import Hero from './Home/Hero'
+
 import Authenticity from './Home/Authenticity'
 import PerfectSTones from './Home/perfect-stone'
 import LuxuryGemstones from './Home/gemstone-luxury'
@@ -10,6 +10,7 @@ import ReelsSection from './Home/reels-section'
 import BookService from './Home/book-service'
 import AstrologyPopup from './components/popup'
 import JwelleryBanner from './Home/jwellery-banner'
+import Hero from './Home/Hero'
 
 function page() {
   return (

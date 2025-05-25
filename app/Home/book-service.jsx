@@ -75,10 +75,10 @@ export default function BookService() {
                 <div className="w-full lg:w-1/2 p-8 md:p-12 overflow-y-auto">
                     <div className="max-w-2xl mx-auto">
                         <div className="text-center mb-8">
-                            <h1 className="text-2xl md:text-3xl font-bold text-black">
+                            <h1 className="text-2xl md:text-3xl font-bold text-center mb-2 mt-16">
                                 Gem Recommendation Service | Online Astrology & Stone Picker
                             </h1>
-                            <p className="mt-4 text-gray-700">
+                            <p className="text-[16px] md-text-[20px] font-helvatica text-center text-[#4F4F4F] mb-10">
                                 Find your ideal gemstone using your birth details and zodiac sign. Get personalized, astrology-based stone
                                 recommendations to boost luck, success, and balance.
                             </p>

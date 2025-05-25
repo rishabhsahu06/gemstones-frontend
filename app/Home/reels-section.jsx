@@ -204,10 +204,10 @@ function ReelsSection() {
         <div className="container mx-auto overflow-hidden">
             {/* Header Section */}
             <div className="text-center mb-8 md:mb-10 mt-12">
-                <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 md:mb-6 px-4">
+                <h2 className="text-2xl md:text-3xl font-bold text-center mb-2 mt-16">
                     Discover the Sparkle: Gemstone Stories
                 </h2>
-                <p className="text-base md:text-lg max-w-4xl mx-auto text-gray-700 px-4">
+                <p className="text-[16px] md-text-[20px] font-helvatica text-center text-[#4F4F4F] mb-10 px-4 md:px-0">
                     Explore the fascinating journey of each gemstone — from deep within the earth to stunning works of art.
                     Dive into captivating videos that reveal the beauty, craftsmanship, and unique stories behind every sparkling gem.
                 </p>
@@ -276,8 +276,8 @@ function ReelsSection() {
                         key={index}
                         onClick={() => goToSlide(index)}
                         className={`${isMobile ? 'h-2' : 'h-3'} rounded-full transition-all duration-300 ${currentIndex === index
-                                ? `${isMobile ? 'w-6' : 'w-8'} bg-amber-500`
-                                : `${isMobile ? 'w-2' : 'w-3'} bg-gray-300 hover:bg-gray-400`
+                            ? `${isMobile ? 'w-6' : 'w-8'} bg-amber-500`
+                            : `${isMobile ? 'w-2' : 'w-3'} bg-gray-300 hover:bg-gray-400`
                             }`}
                         aria-label={`Go to slide ${index + 1}`}
                     />

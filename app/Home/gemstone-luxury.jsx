@@ -39,8 +39,8 @@ export default function LuxuryGemstones() {
         <div className="container mx-auto ">
             {/* Header Section */}
             <div className="text-center mb-10 mt-12">
-                <h1 className="text-4xl font-bold mb-2">The Art of Gemstone Luxury</h1>
-                <p className="text-gray-600">Elevate your style with the unmatched allure of fine gemstones.</p>
+                <h1 className="text-2xl md:text-3xl font-bold text-center mb-2 mt-16">The Art of Gemstone Luxury</h1>
+                <p className="text-[16px] md-text-[20px] font-helvatica text-center text-[#4F4F4F] mb-10">Elevate your style with the unmatched allure of fine gemstones.</p>
             </div>
 
             {/* Jewelry Grid Layout */}
