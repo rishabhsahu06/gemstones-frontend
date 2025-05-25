@@ -12,7 +12,7 @@ import {
 
 // Gemstone data
 const gemstoneData = {
-    "yellow-sapphire": {
+    "yellow-sapphire-pukhraj": {
         name: "Yellow Sapphire",
         altName: "Pukhraj",
         description:
@@ -20,7 +20,7 @@ const gemstoneData = {
         benefits: ["Financial Growth", "Promotes Good Health", "Stability in domestic life", "Good for education"],
         image: "/yellow-stone.png",
     },
-    "blue-sapphire": {
+    "blue-sapphire-neelam": {
         name: "Blue Sapphire",
         altName: "Neelam",
         description:
@@ -88,8 +88,10 @@ const sampleProducts = Array.from({ length: 8 }, (_, i) => ({
 }));
 
 export default function GemstoneDetailPage({ params }) {
-    const gemstone = gemstoneData[params.slug];
-
+    // console.log("Gemstone Detail Page Params:", params)
+console.log(params.slug,"yoyo")
+    const gemstone = gemstoneData[params.slug.toLowerCase()];
+    console.log("Gemstone Data:", gemstone);
     if (!gemstone) {
         return <div>Gemstone not found</div>;
     }

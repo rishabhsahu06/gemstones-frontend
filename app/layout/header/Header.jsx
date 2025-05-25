@@ -261,43 +261,41 @@ function Header() {
                                 "w-[280px] sm:w-[400px] md:w-[600px] lg:w-[700px] xl:w-[800px] 2xl:w-[900px]",
                                 isGemstonesDropdownOpen ? "opacity-100 visible translate-y-0" : "opacity-0 invisible -translate-y-2"
                             )}>
-                                <div className="p-4 lg:p-6">
-                                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-6">
-                                        {gemstoneCategories.map((category, categoryIndex) => (
-                                            <div key={categoryIndex} className="space-y-3">
-                                                <h3 className="text-sm lg:text-base xl:text-lg font-semibold text-gray-900 border-b pb-2">
-                                                    {category.title}
-                                                </h3>
-                                                <div className="space-y-2">
-                                                    {category.gemstones.map((gemstone, gemIndex) => (
-                                                        <button
-                                                            key={gemIndex}
-                                                            onClick={(e) => handleGemstoneClick(gemstone.name, e)}
-                                                            className="flex items-center space-x-2 lg:space-x-3 text-gray-600 hover:text-primary transition-colors group p-1 rounded hover:bg-gray-50 w-full text-left cursor-pointer"
-                                                        >
-                                                            <div className="w-4 h-4 lg:w-5 lg:h-5 xl:w-6 xl:h-6 rounded-full overflow-hidden flex-shrink-0">
-                                                                <Image
-                                                                    src={gemstone.image}
-                                                                    alt={gemstone.name}
-                                                                    width={24}
-                                                                    height={24}
-                                                                    className="w-full h-full object-cover"
-                                                                />
-                                                            </div>
-                                                            <span className="text-xs lg:text-sm xl:text-base group-hover:text-primary">
-                                                                {gemstone.name}
-                                                            </span>
-                                                        </button>
-                                                    ))}
-                                                </div>
+                                <div className="grid grid-cols-3 gap-8">
+                                    {gemstoneCategories.map((category, categoryIndex) => (
+                                        <div key={categoryIndex} className="space-y-4">
+                                            <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">
+                                                {category.title}
+                                            </h3>
+                                            <div className="space-y-3">
+                                                {category.gemstones.map((gemstone, gemIndex) => (
+                                                    <Link
+                                                        key={gemIndex}
+                                                        href={`/-/gemStone/${gemstone.name.toLowerCase().replace(/[^a-z0-9]/g, '-')}`}
+                                                        className="flex items-center space-x-3 text-gray-600 hover:text-primary transition-colors group"
+                                                        onClick={() => setIsGemstonesDropdownOpen(false)}
+                                                    >
+                                                        <div className="w-6 h-6 rounded-full overflow-hidden flex-shrink-0">
+                                                            <Image
+                                                                src={gemstone.image}
+                                                                alt={gemstone.name}
+                                                                width={24}
+                                                                height={24}
+                                                                className="w-full h-full object-cover"
+                                                            />
+                                                        </div>
+                                                        <span className="text-sm group-hover:text-primary">
+                                                            {gemstone.name}
+                                                        </span>
+                                                    </Link>
+                                                ))}
                                             </div>
-                                        ))}
-                                    </div>
+                                        </div>
+                                    ))}
                                 </div>
                             </div>
                         </div>
-
-                        <Link href="/-/gemstones-jewellery" className="text-gray-700 hover:text-primary transition-colors text-sm xl:text-base whitespace-nowrap">
+                        <Link href="/-/gemstones-jewellery" className="text-gray-700 hover:text-primary transition-colors">
                             Gemstones Jewellery
                         </Link>
 
