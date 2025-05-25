@@ -8,6 +8,8 @@ import PurposefullGemstone from './Home/puprose-gemstone'
 import Blogs from './Home/blog'
 import ReelsSection from './Home/reels-section'
 import BookService from './Home/book-service'
+import AstrologyPopup from './components/popup'
+import JwelleryBanner from './Home/jwellery-banner'
 
 function page() {
   return (
@@ -16,10 +18,13 @@ function page() {
       <Authenticity />
       <PerfectSTones />
       <LuxuryGemstones />
+      <JwelleryBanner />
       <PurposefullGemstone />
       <Blogs />
       <ReelsSection />
       <BookService />
+
+
     </div>
   )
 }
