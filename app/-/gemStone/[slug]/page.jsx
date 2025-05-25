@@ -87,11 +87,11 @@ const sampleProducts = Array.from({ length: 8 }, (_, i) => ({
     image: "/yellow-stone.png",
 }));
 
-export default function GemstoneDetailPage({ params }) {
+export default async function GemstoneDetailPage({ params }) {
     // console.log("Gemstone Detail Page Params:", params)
-console.log(params.slug,"yoyo")
-    const gemstone = gemstoneData[params.slug.toLowerCase()];
-    console.log("Gemstone Data:", gemstone);
+
+    const gemstone = params.slug && gemstoneData[params.slug.toLowerCase()];
+
     if (!gemstone) {
         return <div>Gemstone not found</div>;
     }
