@@ -50,7 +50,7 @@ function PerfectStones() {
             <h1 className="text-2xl md:text-3xl font-bold text-center mb-2 mt-16">Find your Perfect Stone</h1>
             <p className="text-[16px] md-text-[20px] font-helvatica text-center text-[#4F4F4F] mb-10">Shop by Categories</p>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 {stoneCategories.map((stone, index) => (
                     <div key={index} className="flex flex-col items-center">
                         <div
@@ -73,7 +73,7 @@ function PerfectStones() {
             </div>
 
             <div className="flex justify-center  mt-8">
-                <Button className="bg-[#BA8E49] px-16 py-8 text-xl">View all</Button>
+                <Button className="bg-[#BA8E49] px-8 py-8 md:px-16 md:py-8 text-xl">View all</Button>
             </div>
         </div>
     );
