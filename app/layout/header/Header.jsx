@@ -261,7 +261,7 @@ function Header() {
                                 "w-[280px] sm:w-[400px] md:w-[600px] lg:w-[700px] xl:w-[800px] 2xl:w-[900px]",
                                 isGemstonesDropdownOpen ? "opacity-100 visible translate-y-0" : "opacity-0 invisible -translate-y-2"
                             )}>
-                                <div className="grid grid-cols-3 gap-8">
+                                <div className="grid grid-cols-3 gap-8 p-5 " >
                                     {gemstoneCategories.map((category, categoryIndex) => (
                                         <div key={categoryIndex} className="space-y-4">
                                             <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">
