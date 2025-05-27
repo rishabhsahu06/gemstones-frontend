@@ -65,17 +65,17 @@ export default function BookService() {
 
     return (
         <div className="container mx-auto">
-            <div className="flex flex-col lg:flex-row min-h-screen mt-12">
+            <div className="flex flex-col border  lg:flex-row min-h-screen mt-12">
                 {/* Image Side */}
-                <div className="w-full lg:w-1/2 relative">
-                    <Image src="/stones.png" alt="Colorful gemstones collection" fill className="object-cover" priority />
+                <div className="w-full  lg:w-1/2 relative">
+                    <Image src="/stones.png" alt="Colorful gemstones collection" fill className="" priority />
                 </div>
 
                 {/* Form Side */}
-                <div className="w-full lg:w-1/2 p-8 md:p-12 overflow-y-auto">
+                <div className="w-full lg:w-1/2 p-8 md:p-10 overflow-y-auto">
                     <div className="max-w-2xl mx-auto">
                         <div className="text-center mb-8">
-                            <h1 className="text-2xl md:text-3xl font-bold text-center mb-2 mt-16">
+                            <h1 className="text-2xl md:text-3xl font-bold text-center mb-2 mt-4">
                                 Gem Recommendation Service | Online Astrology & Stone Picker
                             </h1>
                             <p className="text-[16px] md-text-[20px] font-helvatica text-center text-[#4F4F4F] mb-10">
@@ -85,8 +85,8 @@ export default function BookService() {
                         </div>
 
                         <Form {...form}>
-                            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6   ">
+                                <div className="grid grid-cols-1 md:grid-cols-2  gap-6">
                                     {/* Name */}
                                     <FormField
                                         control={form.control}
@@ -305,13 +305,13 @@ export default function BookService() {
                                     <Button
                                         type="button"
                                         variant="outline"
-                                        className="border-amber-700 text-amber-700 hover:bg-amber-50 rounded-md px-8 py-6 font-medium"
+                                        className="border-[#BA8E49] text-[#BA8E49] hover:bg-amber-50 rounded-md px-8 py-6 font-medium"
                                     >
                                         CALL US
                                     </Button>
                                     <Button
                                         type="submit"
-                                        className="bg-amber-700 hover:bg-amber-800 text-white rounded-md px-8 py-6 font-medium"
+                                        className="bg-[#BA8E49] hover:bg-amber-800 text-white rounded-md px-8 py-6 font-medium"
                                     >
                                         GET RECOMMENDATION NOW
                                     </Button>

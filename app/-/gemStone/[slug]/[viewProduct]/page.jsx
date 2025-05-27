@@ -3,6 +3,8 @@
 import { useState } from "react"
 import { Check, ChevronRight, MessageCircle } from "lucide-react"
 import Image from "next/image"
+import FAQ from "@/app/Home/faq"
+import BookService from "@/app/Home/book-service"
 
 const GemstonePageViewPage = ({ productData }) => {
   console.log("Product Data:", productData)
@@ -105,7 +107,7 @@ const GemstonePageViewPage = ({ productData }) => {
           {/* Product Info Section */}
           <div className="space-y-6">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900 mb-3">{data.name}</h1>
+              <h1 className="text-2xl  font-bold text-gray-900 mb-3">{data.name}</h1>
               <div className="flex items-center space-x-4 mb-3">
                 <span className="text-2xl font-bold text-gray-900">Rs. {data.discountedPrice?.toLocaleString()}</span>
                 <span className="bg-red-100 text-red-600 px-2 py-1 rounded text-sm font-medium">Only 1 Left</span>
@@ -148,7 +150,7 @@ const GemstonePageViewPage = ({ productData }) => {
 
             {/* Selection Options */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-3">
+              <label className="block  text-sm font-medium text-gray-700 mb-3">
                 Select For Ring / Pendant / Bracelet <span className="text-red-500">*</span>
               </label>
               <div className="grid grid-cols-4 gap-3">
@@ -161,7 +163,8 @@ const GemstonePageViewPage = ({ productData }) => {
                   <button
                     key={option.name}
                     onClick={() => setSelectedOption(option.name)}
-                    className={`p-4 text-center border rounded-lg transition-colors flex flex-col items-center space-y-2 ${
+                    title="This option is not available for now"
+                    className={`p-4 cursor-not-allowed text-center border rounded-lg transition-colors flex flex-col items-center space-y-2 ${
                       selectedOption === option.name
                         ? "border-orange-400 bg-orange-50"
                         : "border-gray-300 hover:border-gray-400"
@@ -175,7 +178,7 @@ const GemstonePageViewPage = ({ productData }) => {
             </div>
 
             {/* Add to Cart Button */}
-            <button className="w-full bg-[#BA8E49] text-white py-4 px-6 rounded-md font-bold text-lg hover:bg-[#BA8E49] cursor-pointer transition-colors">
+            <button className="w-full bg-[#BA8E49] text-white py-2 px-6 rounded-md font-bold text-lg hover:bg-[#BA8E49] cursor-pointer transition-colors">
               ADD CART
             </button>
           </div>
@@ -225,7 +228,7 @@ const GemstonePageViewPage = ({ productData }) => {
           </div>
 
           {/* Specifications Table */}
-          <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+          <div className="bg-white rounded-lg border border-gray-300 overflow-hidden">
             <table className="w-full">
               <tbody>
                 <tr className="border-b border-gray-200">
@@ -306,6 +309,9 @@ const GemstonePageViewPage = ({ productData }) => {
       <button className="fixed bottom-6 right-6 bg-green-500 text-white p-4 rounded-full shadow-lg hover:bg-green-600 transition-colors z-50">
         <MessageCircle className="w-6 h-6" />
       </button>
+
+      <FAQ />  
+      <BookService />
     </div>
   )
 }

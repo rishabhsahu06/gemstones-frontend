@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { ChevronDown, ChevronUp } from "lucide-react"
-
+import { useEffect, useRef } from "react"
 // Removed TypeScript interface
 const faqData = [
     {
@@ -56,20 +56,16 @@ function FAQ() {
         <div className="container mx-auto ">
             {/* Header Section */}
             <div className="text-center mb-12 lg:mb-16 mt-12">
-                <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
+                <h1 className="text-3xl md:text-4xl 2xl:text-5xl font-bold text-gray-900 mb-6">
                     Frequently Asked Question
                 </h1>
                 <p className="text-gray-600 text-base md:text-lg lg:text-xl max-w-4xl mx-auto leading-relaxed">
-                    Got questions? We've got answers. From gemstone authenticity and care
-                    tips to shipping details and customization options—find everything you
-                    need to know right here. Explore our most commonly asked questions to
-                    make your shopping experience smooth and informed.
+                   Got questions? We’ve got answers. From gemstone authenticity and care tips to shipping details and customization options—find everything you need to know right here. Explore our most commonly asked questions to make your shopping experience smooth and informed.
                 </p>
             </div>
 
             {/* Main Content */}
             <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-start">
-                {/* Left Image Section */}
                 <div className="order-2 lg:order-1">
                     <div className="relative rounded-2xl overflow-hidden shadow-lg">
                         <img
@@ -77,42 +73,56 @@ function FAQ() {
                             alt="Dr. Sunita Dubey - Gemstone Expert"
                             className="w-full h-auto object-cover"
                         />
-
                     </div>
                 </div>
 
-                {/* Right FAQ Section */}
                 <div className="order-1 lg:order-2 space-y-4">
-                    {faqData.map((item) => (
-                        <div
-                            key={item.id}
-                            className="border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200"
-                        >
-                            <button
-                                onClick={() => toggleItem(item.id)}
-                                className="w-full px-6 py-4 text-left flex justify-between items-center hover:bg-gray-50 transition-colors duration-200"
-                            >
-                                <h3 className="text-lg md:text-xl font-semibold text-gray-900 pr-4">
-                                    {item.question}
-                                </h3>
-                                <div className="flex-shrink-0">
-                                    {openItems.includes(item.id) ? (
-                                        <ChevronUp className="w-5 h-5 text-gray-600" />
-                                    ) : (
-                                        <ChevronDown className="w-5 h-5 text-gray-600" />
-                                    )}
-                                </div>
-                            </button>
+                    {faqData.map((item) => {
+                        const isOpen = openItems.includes(item.id)
+                        const contentRef = useRef(null)
+                        const [height, setHeight] = useState("0px")
 
-                            {openItems.includes(item.id) && (
-                                <div className="px-6 pb-4">
-                                    <div className="border-t border-gray-100 pt-4">
+                        useEffect(() => {
+                            if (isOpen && contentRef.current) {
+                                setHeight(`${contentRef.current.scrollHeight}px`)
+                            } else {
+                                setHeight("0px")
+                            }
+                        }, [isOpen])
+
+                        return (
+                            <div
+                                key={item.id}
+                                className="border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200"
+                            >
+                                <button
+                                    onClick={() => toggleItem(item.id)}
+                                    className="w-full px-6 py-4 text-left flex justify-between items-center hover:bg-gray-50 transition-colors duration-200"
+                                >
+                                    <h3 className="text-lg md:text-xl font-semibold text-gray-900 pr-4">
+                                        {item.question}
+                                    </h3>
+                                    <div className="flex-shrink-0">
+                                        {isOpen ? (
+                                            <ChevronUp className="w-5 h-5 text-gray-600" />
+                                        ) : (
+                                            <ChevronDown className="w-5 h-5 text-gray-600" />
+                                        )}
+                                    </div>
+                                </button>
+
+                                <div
+                                    ref={contentRef}
+                                    className="px-6 transition-all duration-300 ease-in-out overflow-hidden "
+                                    style={{ maxHeight: height }}
+                                >
+                                    <div className="border-t  mb-2 border-gray-100 py-4">
                                         <p className="text-gray-600 leading-relaxed">{item.answer}</p>
                                     </div>
                                 </div>
-                            )}
-                        </div>
-                    ))}
+                            </div>
+                        )
+                    })}
                 </div>
             </div>
         </div>
