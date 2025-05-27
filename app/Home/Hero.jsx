@@ -32,7 +32,7 @@ function Hero() {
     }, [images.length]);
 
     return (
-        <div className='container mx-auto'>
+        <div className='container mx-auto px-4'>
             <div className="relative w-full h-[600px] md:h-[700px] lg:h-[800px] overflow-hidden mt-6 rounded-2xl">
                 {/* Background Images with Animation */}
                 <div className="absolute inset-0">
