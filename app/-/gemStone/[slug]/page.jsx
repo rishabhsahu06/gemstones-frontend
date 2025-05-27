@@ -97,28 +97,28 @@ export default async function GemstoneDetailPage({ params }) {
     }
 
     return (
-        <div className="min-h-screen bg-white">
+        <div className="min-h-screen bg-white mt-4">
             {/* Breadcrumb */}
-            <div className="container mx-auto px-4 py-4">
+            <div className="container mx-auto px-4 py-4 ">
                 <nav className="flex items-center space-x-2 text-sm text-gray-600">
                     <Link href="/" className="hover:text-gray-900">
                         Home
                     </Link>
                     <ChevronRight className="w-4 h-4" />
-                    <Link href="/gemstones" className="hover:text-gray-900">
+                    <div className="hover:text-gray-900">
                         Gemstones
-                    </Link>
+                    </div>
                     <ChevronRight className="w-4 h-4" />
                     <span className="text-gray-900 font-medium">{gemstone.name}</span>
                 </nav>
             </div>
 
-            <div className="container mx-auto px-4 pb-12">
-                <h1 className="text-4xl font-bold text-gray-900 mb-4">
+            <div className="container mx-auto px-4 pb-12 ">
+                <h1 className="text-4xl font-bold text-gray-900 my-4 ">
                     {gemstone.name} ({gemstone.altName})
                 </h1>
 
-                <p className="text-gray-700 text-lg leading-relaxed mb-8 max-w-4xl">{gemstone.description}</p>
+                <p className="text-gray-700 text-lg leading-relaxed mb-5 max-w-4xl">{gemstone.description}</p>
 
                 {/* Benefits section */}
                 <div className="mb-8">
@@ -128,10 +128,10 @@ export default async function GemstoneDetailPage({ params }) {
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                         {gemstone.benefits.map((benefit, index) => (
                             <div key={index} className="flex items-center space-x-3">
-                                <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
-                                    <Check className="w-4 h-4 text-green-600" />
+                                <div className="w-6 h-6 rounded-full bg- border border-[#BA8E49] flex items-center justify-center flex-shrink-0">
+                                    <Check className="w-4 h-4 text-[#BA8E49]" />
                                 </div>
-                                <span className="text-gray-700 font-medium">{benefit}</span>
+                                <span className="text-gray-700 font-semibold">{benefit}</span>
                             </div>
                         ))}
                     </div>
@@ -141,7 +141,7 @@ export default async function GemstoneDetailPage({ params }) {
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
                     <Select>
                         <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Price" />
+                            <SelectValue  placeholder="Price" />
                         </SelectTrigger>
                         <SelectContent>
                             <SelectItem value="low-to-high">Low to High</SelectItem>
@@ -187,14 +187,16 @@ export default async function GemstoneDetailPage({ params }) {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     {sampleProducts.map((product) => (
                         <div key={product.id} className="bg-white rounded-lg overflow-hidden">
-                            <div className="aspect-square bg-gradient-to-br from-yellow-200 to-yellow-400 p-8 flex items-center justify-center">
-                                <Image
-                                    src={gemstone.image || "/placeholder.svg"}
-                                    alt={product.title}
-                                    width={200}
-                                    height={200}
-                                    className="w-full h-full object-contain"
-                                />
+                            <div  className="aspect-square  bg-gradient-to-br from-yellow-200 to-yellow-400 p-8 flex items-center justify-center">
+                              <Link href={`/-/gemStone/${params.slug}/${product.id}`}>
+    <Image
+        src={product.image || "/placeholder.svg"}
+        alt={product.title}
+        width={200}
+        height={200}
+        className="object-cover w-full h-full"
+    />
+</Link>
                             </div>
                             <div className="p-4 text-center">
                                 <h3 className="font-semibold text-gray-900 mb-1">{product.title}</h3>
