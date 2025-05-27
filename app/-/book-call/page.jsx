@@ -1,3 +1,4 @@
+import FAQ from '@/app/Home/faq'
 import Image from 'next/image'
 import React from 'react'
 
@@ -39,6 +40,8 @@ function BookCall() {
                     </div>
                 </div>
             </div>
+
+            <FAQ />
         </div>
     )
 }
