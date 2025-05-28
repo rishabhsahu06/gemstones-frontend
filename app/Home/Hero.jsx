@@ -6,6 +6,8 @@ import { useState, useEffect } from 'react';
 
 function Hero() {
     const [currentImage, setCurrentImage] = useState(0);
+    const [isLoading, setIsLoading] = useState(true);
+    const [loadedImages, setLoadedImages] = useState(new Set());
 
     const images = [
         {
@@ -22,20 +24,71 @@ function Hero() {
         }
     ];
 
-    // Auto-rotate images every 5 seconds
+    // Handle image load
+    const handleImageLoad = (index) => {
+        setLoadedImages(prev => {
+            const newSet = new Set(prev);
+            newSet.add(index);
+
+            // If all images are loaded, hide skeleton
+            if (newSet.size === images.length) {
+                setIsLoading(false);
+            }
+
+            return newSet;
+        });
+    };
+
+    // Auto-rotate images every 3 seconds (only when not loading)
     useEffect(() => {
+        if (isLoading) return;
+
         const interval = setInterval(() => {
             setCurrentImage((prev) => (prev + 1) % images.length);
         }, 3000);
 
         return () => clearInterval(interval);
-    }, [images.length]);
+    }, [images.length, isLoading]);
 
     return (
         <div className='container mx-auto px-4'>
             <div className="relative w-full h-[600px] md:h-[700px] lg:h-[800px] overflow-hidden mt-6 rounded-2xl">
+
+                {/* Skeleton Loading State */}
+                {isLoading && (
+                    <div className="absolute inset-0 bg-gradient-to-br from-gray-200 via-gray-100 to-gray-300 animate-pulse">
+                        {/* Skeleton Content */}
+                        <div className="relative h-full flex flex-col items-center justify-center text-center px-4 md:px-8 lg:px-16">
+                            {/* Title Skeleton */}
+                            <div className="space-y-3 mb-6">
+                                <div className="h-8 md:h-12 lg:h-16 bg-gray-300 rounded-lg w-full max-w-4xl animate-pulse"></div>
+                                <div className="h-8 md:h-12 lg:h-16 bg-gray-300 rounded-lg w-3/4 max-w-3xl animate-pulse"></div>
+                            </div>
+
+                            {/* Description Skeleton */}
+                            <div className="space-y-2 mb-10">
+                                <div className="h-5 md:h-6 bg-gray-300 rounded w-full max-w-2xl animate-pulse"></div>
+                                <div className="h-5 md:h-6 bg-gray-300 rounded w-2/3 max-w-xl animate-pulse"></div>
+                            </div>
+
+                            {/* Button Skeleton */}
+                            <div className="h-12 w-32 bg-gray-300 rounded-full animate-pulse"></div>
+                        </div>
+
+                        {/* Skeleton Indicators */}
+                        <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 flex space-x-3">
+                            {images.map((_, index) => (
+                                <div
+                                    key={index}
+                                    className="w-3 h-3 rounded-full bg-gray-300 animate-pulse"
+                                />
+                            ))}
+                        </div>
+                    </div>
+                )}
+
                 {/* Background Images with Animation */}
-                <div className="absolute inset-0">
+                <div className={`absolute inset-0 transition-opacity duration-500 ${isLoading ? 'opacity-0' : 'opacity-100'}`}>
                     {images.map((image, index) => (
                         <div
                             key={index}
@@ -48,16 +101,19 @@ function Hero() {
                                 fill
                                 priority={index === 0}
                                 className="object-cover transform transition-transform duration-[7000ms] ease-out hover:scale-105"
+                                onLoad={() => handleImageLoad(index)}
                             />
                         </div>
                     ))}
                 </div>
 
                 {/* Enhanced Overlay for better text readability */}
-                <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/10 to-black/30"></div>
+                <div className={`absolute inset-0 bg-gradient-to-b from-black/20 via-black/10 to-black/30 transition-opacity duration-500 ${isLoading ? 'opacity-0' : 'opacity-100'
+                    }`}></div>
 
                 {/* Content Container with subtle animations */}
-                <div className="relative h-full flex flex-col items-center justify-center text-center px-4 md:px-8 lg:px-16">
+                <div className={`relative h-full flex flex-col items-center justify-center text-center px-4 md:px-8 lg:px-16 transition-opacity duration-500 ${isLoading ? 'opacity-0' : 'opacity-100'
+                    }`}>
                     <h1 className="text-4xl font-bold md:text-5xl lg:text-6xl font-serif text-white leading-tight max-w-4xl mb-6 animate-fade-in-up">
                         Harness the Power of the Stars with Authentic Gemstones
                     </h1>
@@ -67,14 +123,15 @@ function Hero() {
                         stars.
                     </p>
 
-                    <button className="bg-white  text-gray-800 hover:bg-gray-100 hover:shadow-lg transition-all duration-300 px-8 py-3 rounded-full flex items-center gap-2 font-medium animate-fade-in-up animation-delay-400 hover:-translate-y-1">
+                    <button className="bg-white text-gray-800 hover:bg-gray-100 hover:shadow-lg transition-all duration-300 px-8 py-3 rounded-full flex items-center gap-2 font-medium animate-fade-in-up animation-delay-400 hover:-translate-y-1">
                         Contact Us
                         <ChevronDown className="h-5 w-5 transition-transform group-hover:translate-y-1" />
                     </button>
                 </div>
 
                 {/* Image Indicators */}
-                <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 flex space-x-3">
+                <div className={`absolute bottom-6 left-1/2 transform -translate-x-1/2 flex space-x-3 transition-opacity duration-500 ${isLoading ? 'opacity-0' : 'opacity-100'
+                    }`}>
                     {images.map((_, index) => (
                         <button
                             key={index}
@@ -84,23 +141,28 @@ function Hero() {
                                 : 'bg-white/50 hover:bg-white/70'
                                 }`}
                             aria-label={`Go to image ${index + 1}`}
+                            disabled={isLoading}
                         />
                     ))}
                 </div>
 
-                {/* Navigation Arrows (Optional) */}
+                {/* Navigation Arrows */}
                 <button
                     onClick={() => setCurrentImage((prev) => (prev - 1 + images.length) % images.length)}
-                    className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-full p-2 transition-all duration-300 opacity-0 hover:opacity-100 group-hover:opacity-100"
+                    className={`absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-full p-2 transition-all duration-300 opacity-0 hover:opacity-100 group-hover:opacity-100 ${isLoading ? 'pointer-events-none' : ''
+                        }`}
                     aria-label="Previous image"
+                    disabled={isLoading}
                 >
                     <ChevronDown className="h-6 w-6 text-white rotate-90" />
                 </button>
 
                 <button
                     onClick={() => setCurrentImage((prev) => (prev + 1) % images.length)}
-                    className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-full p-2 transition-all duration-300 opacity-0 hover:opacity-100 group-hover:opacity-100"
+                    className={`absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-full p-2 transition-all duration-300 opacity-0 hover:opacity-100 group-hover:opacity-100 ${isLoading ? 'pointer-events-none' : ''
+                        }`}
                     aria-label="Next image"
+                    disabled={isLoading}
                 >
                     <ChevronDown className="h-6 w-6 text-white -rotate-90" />
                 </button>
@@ -135,6 +197,19 @@ function Hero() {
 
                 .group:hover .group-hover\\:opacity-100 {
                     opacity: 1;
+                }
+
+                @keyframes pulse {
+                    0%, 100% {
+                        opacity: 1;
+                    }
+                    50% {
+                        opacity: 0.5;
+                    }
+                }
+
+                .animate-pulse {
+                    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
                 }
             `}</style>
         </div>

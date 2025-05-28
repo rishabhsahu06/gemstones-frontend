@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { Users, Shield, Zap } from "lucide-react";
+import FAQ from "@/app/Home/faq";
 
 export default function About() {
   return (
@@ -98,6 +99,10 @@ export default function About() {
           </div>
         </div>
       </div>
+
+      {/* Faq Section */}
+
+      <FAQ />
     </div>
   );
 }

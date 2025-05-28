@@ -56,11 +56,11 @@ function FAQ() {
         <div className="container mx-auto ">
             {/* Header Section */}
             <div className="text-center mb-12 lg:mb-16 mt-12">
-                <h1 className="text-3xl md:text-4xl 2xl:text-5xl font-bold text-gray-900 mb-6">
+                <h1 className="text-2xl md:text-4xl 2xl:text-5xl font-bold text-black mb-6">
                     Frequently Asked Question
                 </h1>
-                <p className="text-gray-600 text-base md:text-lg lg:text-xl max-w-4xl mx-auto leading-relaxed">
-                   Got questions? We’ve got answers. From gemstone authenticity and care tips to shipping details and customization options—find everything you need to know right here. Explore our most commonly asked questions to make your shopping experience smooth and informed.
+                <p className="text-[#4F4F4F] text-base md:text-lg  mx-auto leading-relaxed">
+                    Got questions? We’ve got answers. From gemstone authenticity and care tips to shipping details and customization options—find everything you need to know right here. Explore our most commonly asked questions to make your shopping experience smooth and informed.
                 </p>
             </div>
 
@@ -99,7 +99,7 @@ function FAQ() {
                                     onClick={() => toggleItem(item.id)}
                                     className="w-full px-6 py-4 text-left flex justify-between items-center hover:bg-gray-50 transition-colors duration-200"
                                 >
-                                    <h3 className="text-lg md:text-xl font-semibold text-gray-900 pr-4">
+                                    <h3 className="text-md md:text-lg font-semibold text-black pr-4">
                                         {item.question}
                                     </h3>
                                     <div className="flex-shrink-0">
@@ -117,7 +117,7 @@ function FAQ() {
                                     style={{ maxHeight: height }}
                                 >
                                     <div className="border-t  mb-2 border-gray-100 py-4">
-                                        <p className="text-gray-600 leading-relaxed">{item.answer}</p>
+                                        <p className="text-[#4F4F4F] font-normal text-sm md:text-base leading-relaxed">{item.answer}</p>
                                     </div>
                                 </div>
                             </div>

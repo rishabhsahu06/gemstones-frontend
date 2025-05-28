@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef, useEffect, useCallback } from "react"
 import { Play, Pause, ChevronLeft, ChevronRight } from "lucide-react"
 
 // Sample data for the reels - Video only
@@ -37,18 +37,37 @@ const initialReelItems = [
     },
 ]
 
+// Skeleton Component
+const VideoSkeleton = ({ className = "" }) => (
+    <div className={`bg-gray-900 animate-pulse ${className}`}>
+        <div className="w-full h-full bg-gradient-to-r from-gray-800 via-gray-700 to-gray-800 bg-[length:400%_100%] animate-[shimmer_2s_ease-in-out_infinite]">
+            <div className="absolute inset-0 flex items-center justify-center">
+                <div className="w-16 h-16 bg-gray-600 rounded-full flex items-center justify-center animate-pulse">
+                    <Play className="w-6 h-6 text-gray-400" />
+                </div>
+            </div>
+            <div className="absolute bottom-0 left-0 right-0 p-4">
+                <div className="h-4 bg-gray-600 rounded w-3/4 animate-pulse"></div>
+            </div>
+        </div>
+    </div>
+)
+
 function ReelsSection() {
     // State management
     const [reelItems] = useState(initialReelItems)
     const [currentIndex, setCurrentIndex] = useState(0)
     const [hoveredId, setHoveredId] = useState(null)
     const [playingVideos, setPlayingVideos] = useState({})
+    const [loadingVideos, setLoadingVideos] = useState({})
+    const [errorVideos, setErrorVideos] = useState({})
     const [isMobile, setIsMobile] = useState(false)
     const [isTransitioning, setIsTransitioning] = useState(false)
     const [slideDirection, setSlideDirection] = useState('')
 
     // Refs
     const videoRefs = useRef({})
+    const containerRef = useRef(null)
 
     // Mobile detection effect
     useEffect(() => {
@@ -61,8 +80,25 @@ function ReelsSection() {
         return () => window.removeEventListener('resize', checkIsMobile)
     }, [])
 
+    // Video loading handlers
+    const handleVideoLoadStart = useCallback((id) => {
+        setLoadingVideos(prev => ({ ...prev, [id]: true }))
+        setErrorVideos(prev => ({ ...prev, [id]: false }))
+    }, [])
+
+    const handleVideoCanPlay = useCallback((id) => {
+        setLoadingVideos(prev => ({ ...prev, [id]: false }))
+    }, [])
+
+    const handleVideoError = useCallback((id, error) => {
+        console.error(`Video ${id} failed to load:`, error)
+        setLoadingVideos(prev => ({ ...prev, [id]: false }))
+        setErrorVideos(prev => ({ ...prev, [id]: true }))
+        setPlayingVideos(prev => ({ ...prev, [id]: false }))
+    }, [])
+
     // Navigation functions with animation
-    const navigateToSlide = (direction) => {
+    const navigateToSlide = useCallback((direction) => {
         if (isTransitioning) return
 
         setIsTransitioning(true)
@@ -89,9 +125,9 @@ function ReelsSection() {
             setIsTransitioning(false)
             setSlideDirection('')
         }, 500)
-    }
+    }, [isTransitioning, playingVideos, reelItems.length])
 
-    const goToSlide = (index) => {
+    const goToSlide = useCallback((index) => {
         if (isTransitioning || index === currentIndex) return
 
         setIsTransitioning(true)
@@ -113,58 +149,93 @@ function ReelsSection() {
             setIsTransitioning(false)
             setSlideDirection('')
         }, 500)
-    }
+    }, [isTransitioning, currentIndex, playingVideos])
 
     // Video control functions
-    const playVideo = async (id) => {
+    const playVideo = useCallback(async (id) => {
         const video = videoRefs.current[id]
-        if (!video) return
+        if (!video || errorVideos[id]) return
 
         try {
             await video.play()
             setPlayingVideos(prev => ({ ...prev, [id]: true }))
         } catch (error) {
             console.error('Video play error:', error)
+            handleVideoError(id, error)
         }
-    }
+    }, [errorVideos, handleVideoError])
 
-    const pauseVideo = (id) => {
+    const pauseVideo = useCallback((id) => {
         const video = videoRefs.current[id]
         if (!video) return
 
-        video.pause()
-        setPlayingVideos(prev => ({ ...prev, [id]: false }))
-    }
+        try {
+            video.pause()
+            setPlayingVideos(prev => ({ ...prev, [id]: false }))
+        } catch (error) {
+            console.error('Video pause error:', error)
+        }
+    }, [])
 
-    const toggleVideoPlayback = (id) => {
+    const toggleVideoPlayback = useCallback((id) => {
+        if (errorVideos[id] || loadingVideos[id] || isTransitioning) return
+
         const isPlaying = playingVideos[id]
         if (isPlaying) {
             pauseVideo(id)
         } else {
             playVideo(id)
         }
-    }
+    }, [errorVideos, loadingVideos, isTransitioning, playingVideos, pauseVideo, playVideo])
 
     // Mouse event handlers
-    const handleMouseEnter = (id) => {
-        if (isTransitioning) return
+    const handleMouseEnter = useCallback((id) => {
+        if (isTransitioning || errorVideos[id] || loadingVideos[id]) return
         setHoveredId(id)
         const item = reelItems.find(item => item.id === id)
         if (item?.type === "video") {
             playVideo(id)
         }
-    }
+    }, [isTransitioning, errorVideos, loadingVideos, reelItems, playVideo])
 
-    const handleMouseLeave = (id) => {
+    const handleMouseLeave = useCallback((id) => {
         setHoveredId(null)
         const item = reelItems.find(item => item.id === id)
         if (item?.type === "video") {
             pauseVideo(id)
         }
-    }
+    }, [reelItems, pauseVideo])
+
+    // Keyboard navigation
+    useEffect(() => {
+        const handleKeyDown = (event) => {
+            if (isTransitioning) return
+
+            switch (event.key) {
+                case 'ArrowLeft':
+                    event.preventDefault()
+                    navigateToSlide('prev')
+                    break
+                case 'ArrowRight':
+                    event.preventDefault()
+                    navigateToSlide('next')
+                    break
+                case ' ':
+                    event.preventDefault()
+                    const centerItem = getVisibleItems().find(item => item.position === 'center')
+                    if (centerItem) {
+                        toggleVideoPlayback(centerItem.id)
+                    }
+                    break
+            }
+        }
+
+        window.addEventListener('keydown', handleKeyDown)
+        return () => window.removeEventListener('keydown', handleKeyDown)
+    }, [isTransitioning, navigateToSlide, toggleVideoPlayback])
 
     // Get visible items based on screen size
-    const getVisibleItems = () => {
+    const getVisibleItems = useCallback(() => {
         if (isMobile) {
             return [{ ...reelItems[currentIndex], position: 'center' }]
         }
@@ -177,7 +248,7 @@ function ReelsSection() {
             { ...reelItems[currentIndex], position: 'center' },
             { ...reelItems[nextIndex], position: 'right' }
         ]
-    }
+    }, [isMobile, currentIndex, reelItems])
 
     // Get item size classes
     const getItemSizeClasses = (position) => {
@@ -190,7 +261,7 @@ function ReelsSection() {
     // Get item styling classes with transition animations
     const getItemStyleClasses = (position) => {
         let baseClasses = 'transition-all duration-500 ease-in-out transform-gpu bg-black'
-        
+
         if (isTransitioning) {
             if (slideDirection === 'next') {
                 if (position === 'center') {
@@ -214,7 +285,7 @@ function ReelsSection() {
         if (isMobile) {
             return `${baseClasses} shadow-2xl`
         }
-        
+
         return position === 'center'
             ? `${baseClasses} shadow-2xl scale-105 z-10`
             : `${baseClasses} shadow-lg opacity-75`
@@ -224,43 +295,92 @@ function ReelsSection() {
 
     // Render media content
     const renderMediaContent = (item) => {
+        const isLoading = loadingVideos[item.id]
+        const hasError = errorVideos[item.id]
+
         if (item.type === "image") {
             return (
                 <img
                     src={item.src}
                     alt={item.title}
                     className="w-full h-full object-cover transition-transform duration-700 hover:scale-110"
+                    onError={() => handleVideoError(item.id, 'Image failed to load')}
                 />
             )
         }
 
         return (
-            <video
-                ref={(el) => (videoRefs.current[item.id] = el)}
-                src={item.src}
-                className="w-full h-full object-cover cursor-pointer transition-transform duration-300 bg-black"
-                loop
-                playsInline
-                // muted 
-                preload="metadata"
-                onClick={() => !isTransitioning && toggleVideoPlayback(item.id)}
-                style={{ backgroundColor: '#000000' }}
-            />
+            <div className="relative w-full h-full bg-black">
+                {/* Video Element */}
+                <video
+                    ref={(el) => {
+                        if (el) {
+                            videoRefs.current[item.id] = el
+                        }
+                    }}
+                    src={item.src}
+                    className={`w-full h-full object-cover cursor-pointer transition-all duration-300 bg-black ${isLoading || hasError ? 'opacity-0 absolute' : 'opacity-100 relative'
+                        }`}
+                    loop
+                    playsInline
+                    muted
+                    preload="metadata"
+                    onClick={() => !isTransitioning && toggleVideoPlayback(item.id)}
+                    onLoadStart={() => handleVideoLoadStart(item.id)}
+                    onCanPlay={() => handleVideoCanPlay(item.id)}
+                    onError={(e) => handleVideoError(item.id, e)}
+                    onLoadedData={() => handleVideoCanPlay(item.id)}
+                    style={{ backgroundColor: '#000000' }}
+                />
+
+                {/* Skeleton Loading State */}
+                {(isLoading || hasError) && (
+                    <div className="absolute inset-0">
+                        <VideoSkeleton className="w-full h-full relative" />
+                        {hasError && (
+                            <div className="absolute inset-0 flex items-center justify-center bg-black/80">
+                                <div className="text-center text-white p-4">
+                                    <div className="text-4xl mb-2">⚠️</div>
+                                    <p className="text-sm">Failed to load video</p>
+                                    <button
+                                        onClick={() => {
+                                            setErrorVideos(prev => ({ ...prev, [item.id]: false }))
+                                            setLoadingVideos(prev => ({ ...prev, [item.id]: true }))
+                                            const video = videoRefs.current[item.id]
+                                            if (video) {
+                                                video.load()
+                                            }
+                                        }}
+                                        className="mt-2 px-3 py-1 bg-white/20 rounded text-xs hover:bg-white/30 transition-colors"
+                                    >
+                                        Retry
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                )}
+            </div>
         )
     }
 
     // Render play button overlay
     const renderPlayOverlay = (item) => {
         const isVideoPlaying = playingVideos[item.id]
+        const isLoading = loadingVideos[item.id]
+        const hasError = errorVideos[item.id]
         const IconComponent = isVideoPlaying ? Pause : Play
 
+        if (isLoading || hasError) return null
+
         return (
-            <div className={`absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 hover:opacity-100 transition-opacity duration-300 ${isTransitioning ? 'pointer-events-none' : ''}`}>
+            <div className={`absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 hover:opacity-100 transition-opacity duration-300 ${isTransitioning ? 'pointer-events-none' : ''
+                }`}>
                 <button
-                    className="bg-white/30 backdrop-blur-sm hover:bg-white/50 transition-all duration-300 rounded-full p-4 transform hover:scale-110"
+                    className="bg-white/30 backdrop-blur-sm hover:bg-white/50 transition-all duration-300 rounded-full p-4 transform hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed"
                     aria-label={`${isVideoPlaying ? 'Pause' : 'Play'} ${item.title}`}
                     onClick={() => !isTransitioning && toggleVideoPlayback(item.id)}
-                    disabled={isTransitioning}
+                    disabled={isTransitioning || isLoading || hasError}
                 >
                     <IconComponent
                         className="h-8 w-8 text-white transition-transform duration-200"
@@ -272,13 +392,13 @@ function ReelsSection() {
     }
 
     return (
-        <div className="container mx-auto overflow-hidden">
+        <div className="container mx-auto overflow-hidden" ref={containerRef}>
             {/* Header Section */}
             <div className="text-center mb-8 md:mb-10 mt-12">
                 <h2 className="text-2xl md:text-3xl font-bold text-center mb-2 mt-16 transform transition-all duration-300 hover:scale-105">
                     Discover the Sparkle: Gemstone Stories
                 </h2>
-                <p className="text-[16px] md-text-[20px] font-helvatica text-center text-[#4F4F4F] mb-10 px-4 md:px-0 transition-opacity duration-300">
+                <p className="text-[16px] md:text-[20px] font-helvetica text-center text-[#4F4F4F] mb-10 px-4 md:px-0 transition-opacity duration-300">
                     Explore the fascinating journey of each gemstone — from deep within the earth to stunning works of art.
                     Dive into captivating videos that reveal the beauty, craftsmanship, and unique stories behind every sparkling gem.
                 </p>
@@ -293,7 +413,7 @@ function ReelsSection() {
                     className={`absolute ${isMobile ? 'left-2' : 'left-4'} top-1/2 -translate-y-1/2 z-20 
                                bg-white/80 rounded-full ${isMobile ? 'p-2' : 'p-3'} shadow-lg 
                                hover:bg-white hover:shadow-xl transition-all duration-300 
-                               transform hover:scale-110 active:scale-95
+                               transform hover:scale-110 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed
                                ${isTransitioning ? 'opacity-50 cursor-not-allowed' : 'hover:-translate-x-1'}`}
                     aria-label="Previous slide"
                 >
@@ -306,7 +426,7 @@ function ReelsSection() {
                     className={`absolute ${isMobile ? 'right-2' : 'right-4'} top-1/2 -translate-y-1/2 z-20 
                                bg-white/80 rounded-full ${isMobile ? 'p-2' : 'p-3'} shadow-lg 
                                hover:bg-white hover:shadow-xl transition-all duration-300 
-                               transform hover:scale-110 active:scale-95
+                               transform hover:scale-110 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed
                                ${isTransitioning ? 'opacity-50 cursor-not-allowed' : 'hover:translate-x-1'}`}
                     aria-label="Next slide"
                 >
@@ -343,7 +463,8 @@ function ReelsSection() {
                                 {/* Title Overlay */}
                                 <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4 transition-opacity duration-300">
                                     <h3 className={`text-white font-semibold ${isMobile ? 'text-base' : 'text-lg'} 
-                                                    transform transition-transform duration-300 ${hoveredId === item.id ? 'translate-y-[-2px]' : ''}`}>
+                                                    transform transition-transform duration-300 ${hoveredId === item.id ? 'translate-y-[-2px]' : ''
+                                        }`}>
                                         {item.title}
                                     </h3>
                                 </div>
@@ -368,19 +489,28 @@ function ReelsSection() {
                         onClick={() => goToSlide(index)}
                         disabled={isTransitioning}
                         className={`${isMobile ? 'h-2' : 'h-3'} rounded-full transition-all duration-300 
-                                   transform hover:scale-125 active:scale-95
+                                   transform hover:scale-125 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed
                                    ${isTransitioning ? 'opacity-50 cursor-not-allowed' : ''}
                                    ${currentIndex === index
-                                       ? `${isMobile ? 'w-6' : 'w-8'} bg-amber-500 shadow-lg`
-                                       : `${isMobile ? 'w-2' : 'w-3'} bg-gray-300 hover:bg-gray-400 hover:shadow-md`
-                                   }`}
+                                ? `${isMobile ? 'w-6' : 'w-8'} bg-amber-500 shadow-lg`
+                                : `${isMobile ? 'w-2' : 'w-3'} bg-gray-300 hover:bg-gray-400 hover:shadow-md`
+                            }`}
                         aria-label={`Go to slide ${index + 1}`}
                     />
                 ))}
             </div>
 
-            {/* Custom CSS for additional animations */}
+            {/* Custom Styles */}
             <style jsx>{`
+                @keyframes shimmer {
+                    0% {
+                        background-position: -400% 0;
+                    }
+                    100% {
+                        background-position: 400% 0;
+                    }
+                }
+
                 @keyframes slideInFromRight {
                     from {
                         transform: translateX(100px);
@@ -418,18 +548,6 @@ function ReelsSection() {
                         opacity: 1;
                         background-color: #000000;
                     }
-                }
-
-                .animate-slide-in-right {
-                    animation: slideInFromRight 0.5s ease-out;
-                }
-
-                .animate-slide-in-left {
-                    animation: slideInFromLeft 0.5s ease-out;
-                }
-
-                .animate-fade-in-scale {
-                    animation: fadeInScale 0.5s ease-out;
                 }
 
                 /* Prevent white flash during video loading */
