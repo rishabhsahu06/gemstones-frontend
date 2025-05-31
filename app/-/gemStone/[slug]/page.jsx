@@ -1,3 +1,4 @@
+
 import Image from "next/image";
 import Link from "next/link";
 import { ChevronRight, Check } from "lucide-react";
@@ -9,10 +10,12 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
+import CategoryCard from "@/app/components/category-cards/categoryCards"
 
 // Gemstone data
 const gemstoneData = {
     "yellow-sapphire-pukhraj": {
+        id: 1,
         name: "Yellow Sapphire",
         altName: "Pukhraj",
         description:
@@ -21,6 +24,7 @@ const gemstoneData = {
         image: "/yellow-stone.png",
     },
     "blue-sapphire-neelam": {
+        id: 2,
         name: "Blue Sapphire",
         altName: "Neelam",
         description:
@@ -29,6 +33,7 @@ const gemstoneData = {
         image: "/blue-stone.png",
     },
     emerald: {
+        id: 3,
         name: "Emerald",
         altName: "Panna",
         description:
@@ -37,6 +42,7 @@ const gemstoneData = {
         image: "/green-stone.png",
     },
     ruby: {
+        id: 4,
         name: "Ruby",
         altName: "Manik",
         description:
@@ -45,6 +51,7 @@ const gemstoneData = {
         image: "/red-stone.png",
     },
     opal: {
+        id: 5,
         name: "Opal",
         altName: "Dudhiya Ratna",
         description:
@@ -53,6 +60,7 @@ const gemstoneData = {
         image: "/opal-stone.png",
     },
     "orange-sapphire": {
+        id: 6,
         name: "Orange Sapphire",
         altName: "Padparadscha",
         description:
@@ -61,6 +69,7 @@ const gemstoneData = {
         image: "/blue-stone.png",
     },
     pearl: {
+        id: 7,
         name: "Pearl",
         altName: "Moti",
         description:
@@ -69,6 +78,7 @@ const gemstoneData = {
         image: "/pearl-stone.png",
     },
     "pink-sapphire": {
+        id: 8,
         name: "Pink Sapphire",
         altName: "Gulabi Neelam",
         description:
@@ -89,7 +99,14 @@ const sampleProducts = Array.from({ length: 8 }, (_, i) => ({
 
 export default async function GemstoneDetailPage({ params }) {
     // console.log("Gemstone Detail Page Params:", params)
-
+const token = false
+    const AddToCart = (productId) => {
+        if (!token) {
+           alert("Please login to add products to cart.");
+        } else {
+            console.log("Adding product to cart:", productId);
+        }
+    };
     const gemstone = params.slug && gemstoneData[params.slug.toLowerCase()];
 
     if (!gemstone) {
@@ -184,40 +201,11 @@ export default async function GemstoneDetailPage({ params }) {
                 </div>
 
                 {/* Products grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    {sampleProducts.map((product) => (
-                        <div key={product.id} className="bg-white rounded-lg overflow-hidden">
-                            <div  className="aspect-square  bg-gradient-to-br from-yellow-200 to-yellow-400 p-8 flex items-center justify-center">
-                              <Link href={`/-/gemStone/${params.slug}/${product.id}`}>
-    <Image
-        src={product.image || "/placeholder.svg"}
-        alt={product.title}
-        width={200}
-        height={200}
-        className="object-cover w-full h-full"
-    />
-</Link>
-                            </div>
-                            <div className="p-4 text-center">
-                                <h3 className="font-semibold text-gray-900 mb-1">{product.title}</h3>
-                                <p className="text-sm text-gray-600 mb-2">Origin: {product.origin}</p>
-                                <p className="text-lg font-bold text-gray-900 mb-4">{product.price}</p>
-                                <div className="flex space-x-2">
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        className="flex-1 text-amber-700 border-amber-700 hover:bg-amber-50"
-                                    >
-                                        ADD CART
-                                    </Button>
-                                    <Button size="sm" className="flex-1 bg-amber-700 hover:bg-amber-800">
-                                        BUY NOW
-                                    </Button>
-                                </div>
-                            </div>
-                        </div>
-                    ))}
-                </div>
+               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+  {sampleProducts.map((product) => (
+    <CategoryCard key={product.id} product={product} slug={params.slug} />
+  ))}
+</div>
             </div>
         </div>
     );
