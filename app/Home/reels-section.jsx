@@ -8,50 +8,34 @@ const initialReelItems = [
     {
         id: 1,
         type: "video",
-        src: "/video1.mp4",
+        src: "video-1.mp4",
         title: "Ruby Collection",
     },
     {
         id: 2,
         type: "video",
-        src: "/video1.mp4",
+        src: "video-1.mp4",
         title: "Sapphire Collection",
     },
     {
         id: 3,
         type: "video",
-        src: "/video1.mp4",
+        src: "video-1.mp4",
         title: "Emerald Collection",
     },
     {
         id: 4,
         type: "video",
-        src: "/video1.mp4",
+        src: "video-1.mp4",
         title: "Diamond Collection",
     },
     {
         id: 5,
         type: "video",
-        src: "/video1.mp4",
+        src: "video-1.mp4",
         title: "Amethyst Collection",
     },
 ]
-
-// Skeleton Component
-const VideoSkeleton = ({ className = "" }) => (
-    <div className={`bg-gray-900 animate-pulse ${className}`}>
-        <div className="w-full h-full bg-gradient-to-r from-gray-800 via-gray-700 to-gray-800 bg-[length:400%_100%] animate-[shimmer_2s_ease-in-out_infinite]">
-            <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-16 h-16 bg-gray-600 rounded-full flex items-center justify-center animate-pulse">
-                    <Play className="w-6 h-6 text-gray-400" />
-                </div>
-            </div>
-            <div className="absolute bottom-0 left-0 right-0 p-4">
-                <div className="h-4 bg-gray-600 rounded w-3/4 animate-pulse"></div>
-            </div>
-        </div>
-    </div>
-)
 
 function ReelsSection() {
     // State management
@@ -59,7 +43,7 @@ function ReelsSection() {
     const [currentIndex, setCurrentIndex] = useState(0)
     const [hoveredId, setHoveredId] = useState(null)
     const [playingVideos, setPlayingVideos] = useState({})
-    const [loadingVideos, setLoadingVideos] = useState({})
+    const [loadedVideos, setLoadedVideos] = useState({})
     const [errorVideos, setErrorVideos] = useState({})
     const [isMobile, setIsMobile] = useState(false)
     const [isTransitioning, setIsTransitioning] = useState(false)
@@ -81,20 +65,23 @@ function ReelsSection() {
     }, [])
 
     // Video loading handlers
-    const handleVideoLoadStart = useCallback((id) => {
-        setLoadingVideos(prev => ({ ...prev, [id]: true }))
+    const handleVideoCanPlay = useCallback((id) => {
+        console.log(`Video ${id} can play`)
+        setLoadedVideos(prev => ({ ...prev, [id]: true }))
         setErrorVideos(prev => ({ ...prev, [id]: false }))
     }, [])
 
-    const handleVideoCanPlay = useCallback((id) => {
-        setLoadingVideos(prev => ({ ...prev, [id]: false }))
+    const handleVideoLoadedData = useCallback((id) => {
+        console.log(`Video ${id} loaded data`)
+        setLoadedVideos(prev => ({ ...prev, [id]: true }))
+        setErrorVideos(prev => ({ ...prev, [id]: false }))
     }, [])
 
     const handleVideoError = useCallback((id, error) => {
         console.error(`Video ${id} failed to load:`, error)
-        setLoadingVideos(prev => ({ ...prev, [id]: false }))
         setErrorVideos(prev => ({ ...prev, [id]: true }))
         setPlayingVideos(prev => ({ ...prev, [id]: false }))
+        setLoadedVideos(prev => ({ ...prev, [id]: false }))
     }, [])
 
     // Navigation functions with animation
@@ -178,7 +165,7 @@ function ReelsSection() {
     }, [])
 
     const toggleVideoPlayback = useCallback((id) => {
-        if (errorVideos[id] || loadingVideos[id] || isTransitioning) return
+        if (errorVideos[id] || isTransitioning) return
 
         const isPlaying = playingVideos[id]
         if (isPlaying) {
@@ -186,17 +173,17 @@ function ReelsSection() {
         } else {
             playVideo(id)
         }
-    }, [errorVideos, loadingVideos, isTransitioning, playingVideos, pauseVideo, playVideo])
+    }, [errorVideos, isTransitioning, playingVideos, pauseVideo, playVideo])
 
     // Mouse event handlers
     const handleMouseEnter = useCallback((id) => {
-        if (isTransitioning || errorVideos[id] || loadingVideos[id]) return
+        if (isTransitioning || errorVideos[id]) return
         setHoveredId(id)
         const item = reelItems.find(item => item.id === id)
-        if (item?.type === "video") {
+        if (item?.type === "video" && loadedVideos[id]) {
             playVideo(id)
         }
-    }, [isTransitioning, errorVideos, loadingVideos, reelItems, playVideo])
+    }, [isTransitioning, errorVideos, reelItems, playVideo, loadedVideos])
 
     const handleMouseLeave = useCallback((id) => {
         setHoveredId(null)
@@ -295,8 +282,8 @@ function ReelsSection() {
 
     // Render media content
     const renderMediaContent = (item) => {
-        const isLoading = loadingVideos[item.id]
         const hasError = errorVideos[item.id]
+        const isLoaded = loadedVideos[item.id]
 
         if (item.type === "image") {
             return (
@@ -319,45 +306,60 @@ function ReelsSection() {
                         }
                     }}
                     src={item.src}
-                    className={`w-full h-full object-cover cursor-pointer transition-all duration-300 bg-black ${isLoading || hasError ? 'opacity-0 absolute' : 'opacity-100 relative'
+                    className={`w-full h-full object-cover cursor-pointer transition-all duration-300 bg-black ${hasError ? 'opacity-0' : 'opacity-100'
                         }`}
                     loop
                     playsInline
                     muted
-                    preload="metadata"
-                    onClick={() => !isTransitioning && toggleVideoPlayback(item.id)}
-                    onLoadStart={() => handleVideoLoadStart(item.id)}
+                    preload="auto"
+                    crossOrigin="anonymous"
+                    onClick={(e) => {
+                        e.stopPropagation()
+                        if (!isTransitioning && isLoaded) {
+                            toggleVideoPlayback(item.id)
+                        }
+                    }}
                     onCanPlay={() => handleVideoCanPlay(item.id)}
-                    onError={(e) => handleVideoError(item.id, e)}
-                    onLoadedData={() => handleVideoCanPlay(item.id)}
+                    onLoadedData={() => handleVideoLoadedData(item.id)}
+                    onError={(e) => {
+                        console.error('Video error event:', e.target.error)
+                        handleVideoError(item.id, e.target.error)
+                    }}
+                    onLoadStart={() => {
+                        console.log(`Video ${item.id} started loading`)
+                        setErrorVideos(prev => ({ ...prev, [item.id]: false }))
+                    }}
                     style={{ backgroundColor: '#000000' }}
                 />
 
-                {/* Skeleton Loading State */}
-                {(isLoading || hasError) && (
-                    <div className="absolute inset-0">
-                        <VideoSkeleton className="w-full h-full relative" />
-                        {hasError && (
-                            <div className="absolute inset-0 flex items-center justify-center bg-black/80">
-                                <div className="text-center text-white p-4">
-                                    <div className="text-4xl mb-2">⚠️</div>
-                                    <p className="text-sm">Failed to load video</p>
-                                    <button
-                                        onClick={() => {
-                                            setErrorVideos(prev => ({ ...prev, [item.id]: false }))
-                                            setLoadingVideos(prev => ({ ...prev, [item.id]: true }))
-                                            const video = videoRefs.current[item.id]
-                                            if (video) {
-                                                video.load()
-                                            }
-                                        }}
-                                        className="mt-2 px-3 py-1 bg-white/20 rounded text-xs hover:bg-white/30 transition-colors"
-                                    >
-                                        Retry
-                                    </button>
-                                </div>
-                            </div>
-                        )}
+                {/* Error State */}
+                {hasError && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-black">
+                        <div className="text-center text-white p-4">
+                            <div className="text-4xl mb-2">⚠️</div>
+                            <p className="text-sm">Failed to load video</p>
+                            <button
+                                onClick={(e) => {
+                                    e.stopPropagation()
+                                    setErrorVideos(prev => ({ ...prev, [item.id]: false }))
+                                    setLoadedVideos(prev => ({ ...prev, [item.id]: false }))
+                                    const video = videoRefs.current[item.id]
+                                    if (video) {
+                                        video.load()
+                                    }
+                                }}
+                                className="mt-2 px-3 py-1 bg-white/20 rounded text-xs hover:bg-white/30 transition-colors"
+                            >
+                                Retry
+                            </button>
+                        </div>
+                    </div>
+                )}
+
+                {/* Loading State - Simple dark background */}
+                {!isLoaded && !hasError && (
+                    <div className="absolute inset-0 bg-black flex items-center justify-center">
+                        <div className="text-white text-sm">Loading...</div>
                     </div>
                 )}
             </div>
@@ -367,11 +369,11 @@ function ReelsSection() {
     // Render play button overlay
     const renderPlayOverlay = (item) => {
         const isVideoPlaying = playingVideos[item.id]
-        const isLoading = loadingVideos[item.id]
         const hasError = errorVideos[item.id]
+        const isLoaded = loadedVideos[item.id]
         const IconComponent = isVideoPlaying ? Pause : Play
 
-        if (isLoading || hasError) return null
+        if (hasError || !isLoaded) return null
 
         return (
             <div className={`absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 hover:opacity-100 transition-opacity duration-300 ${isTransitioning ? 'pointer-events-none' : ''
@@ -379,8 +381,13 @@ function ReelsSection() {
                 <button
                     className="bg-white/30 backdrop-blur-sm hover:bg-white/50 transition-all duration-300 rounded-full p-4 transform hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed"
                     aria-label={`${isVideoPlaying ? 'Pause' : 'Play'} ${item.title}`}
-                    onClick={() => !isTransitioning && toggleVideoPlayback(item.id)}
-                    disabled={isTransitioning || isLoading || hasError}
+                    onClick={(e) => {
+                        e.stopPropagation()
+                        if (!isTransitioning && isLoaded) {
+                            toggleVideoPlayback(item.id)
+                        }
+                    }}
+                    disabled={isTransitioning || !isLoaded || hasError}
                 >
                     <IconComponent
                         className="h-8 w-8 text-white transition-transform duration-200"
@@ -502,15 +509,6 @@ function ReelsSection() {
 
             {/* Custom Styles */}
             <style jsx>{`
-                @keyframes shimmer {
-                    0% {
-                        background-position: -400% 0;
-                    }
-                    100% {
-                        background-position: 400% 0;
-                    }
-                }
-
                 @keyframes slideInFromRight {
                     from {
                         transform: translateX(100px);

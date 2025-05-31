@@ -1,7 +1,7 @@
 "use client"
 import Image from "next/image"
 import Link from "next/link"
-import { CalendarIcon, Clock } from "lucide-react"
+import { } from "lucide-react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
@@ -65,9 +65,9 @@ export default function BookService() {
 
     return (
         <div className="container mx-auto">
-            <div className="flex flex-col border  lg:flex-row min-h-screen mt-12">
+            <div className="flex flex-col border lg:flex-row min-h-screen mt-12">
                 {/* Image Side */}
-                <div className="w-full  lg:w-1/2 relative">
+                <div className="w-full lg:w-1/2 relative">
                     <Image src="/stones.png" alt="Colorful gemstones collection" fill className="" priority />
                 </div>
 
@@ -85,19 +85,19 @@ export default function BookService() {
                         </div>
 
                         <Form {...form}>
-                            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6   ">
-                                <div className="grid grid-cols-1 md:grid-cols-2  gap-6">
+                            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     {/* Name */}
                                     <FormField
                                         control={form.control}
                                         name="name"
                                         render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel className="font-medium">
+                                            <FormItem className="w-full">
+                                                <FormLabel className="font-semibold text-sm">
                                                     Name<span className="text-red-500">*</span>
                                                 </FormLabel>
                                                 <FormControl>
-                                                    <Input placeholder="Enter Your Name" {...field} className="rounded-md" />
+                                                    <Input placeholder="Enter Your Name" {...field} className="rounded-md text-sm font-normal w-full" />
                                                 </FormControl>
                                             </FormItem>
                                         )}
@@ -108,13 +108,13 @@ export default function BookService() {
                                         control={form.control}
                                         name="gender"
                                         render={({ field }) => (
-                                            <FormItem>
+                                            <FormItem className="w-full">
                                                 <FormLabel className="font-medium">
                                                     Select<span className="text-red-500">*</span>
                                                 </FormLabel>
                                                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                                                     <FormControl>
-                                                        <SelectTrigger className="rounded-md">
+                                                        <SelectTrigger className="rounded-md w-full">
                                                             <SelectValue placeholder="Gender" />
                                                         </SelectTrigger>
                                                     </FormControl>
@@ -133,12 +133,12 @@ export default function BookService() {
                                         control={form.control}
                                         name="email"
                                         render={({ field }) => (
-                                            <FormItem>
+                                            <FormItem className="w-full">
                                                 <FormLabel className="font-medium">
                                                     Email<span className="text-red-500">*</span>
                                                 </FormLabel>
                                                 <FormControl>
-                                                    <Input type="email" placeholder="Enter Your Email" {...field} className="rounded-md" />
+                                                    <Input type="email" placeholder="Enter Your Email" {...field} className="rounded-md w-full" />
                                                 </FormControl>
                                             </FormItem>
                                         )}
@@ -149,12 +149,12 @@ export default function BookService() {
                                         control={form.control}
                                         name="phone"
                                         render={({ field }) => (
-                                            <FormItem>
+                                            <FormItem className="w-full">
                                                 <FormLabel className="font-medium">
                                                     Phone Number<span className="text-red-500">*</span>
                                                 </FormLabel>
                                                 <FormControl>
-                                                    <Input type="tel" placeholder="Enter Phone Number" {...field} className="rounded-md" />
+                                                    <Input type="tel" placeholder="Enter Phone Number" {...field} className="rounded-md w-full" />
                                                 </FormControl>
                                             </FormItem>
                                         )}
@@ -165,21 +165,18 @@ export default function BookService() {
                                         control={form.control}
                                         name="dob"
                                         render={({ field }) => (
-                                            <FormItem>
+                                            <FormItem className="w-full">
                                                 <FormLabel className="font-medium">
                                                     Date Of Birth<span className="text-red-500">*</span>
                                                 </FormLabel>
                                                 <FormControl>
-                                                    <div className="relative">
-                                                        <Input
-                                                            placeholder="MM/DD/YYYY"
-                                                            {...field}
-                                                            className="rounded-md"
-                                                            onFocus={(e) => (e.target.type = "date")}
-                                                            onBlur={(e) => (e.target.type = "text")}
-                                                        />
-                                                        <CalendarIcon className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-                                                    </div>
+                                                    <Input
+                                                        placeholder="MM/DD/YYYY"
+                                                        {...field}
+                                                        className="rounded-md w-full"
+                                                        onFocus={(e) => (e.target.type = "date")}
+                                                        onBlur={(e) => (e.target.type = "text")}
+                                                    />
                                                 </FormControl>
                                             </FormItem>
                                         )}
@@ -190,21 +187,18 @@ export default function BookService() {
                                         control={form.control}
                                         name="time"
                                         render={({ field }) => (
-                                            <FormItem>
+                                            <FormItem className="w-full">
                                                 <FormLabel className="font-medium">
                                                     Time Of Birth<span className="text-red-500">*</span>
                                                 </FormLabel>
                                                 <FormControl>
-                                                    <div className="relative">
-                                                        <Input
-                                                            placeholder="00:00:00"
-                                                            {...field}
-                                                            className="rounded-md"
-                                                            onFocus={(e) => (e.target.type = "time")}
-                                                            onBlur={(e) => (e.target.type = "text")}
-                                                        />
-                                                        <Clock className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-                                                    </div>
+                                                    <Input
+                                                        placeholder="00:00:00"
+                                                        {...field}
+                                                        className="rounded-md w-full"
+                                                        onFocus={(e) => (e.target.type = "time")}
+                                                        onBlur={(e) => (e.target.type = "text")}
+                                                    />
                                                 </FormControl>
                                             </FormItem>
                                         )}
@@ -215,12 +209,12 @@ export default function BookService() {
                                         control={form.control}
                                         name="birthplace"
                                         render={({ field }) => (
-                                            <FormItem>
+                                            <FormItem className="w-full">
                                                 <FormLabel className="font-medium">
                                                     Birth Place<span className="text-red-500">*</span>
                                                 </FormLabel>
                                                 <FormControl>
-                                                    <Input placeholder="Enter" {...field} className="rounded-md" />
+                                                    <Input placeholder="Enter" {...field} className="rounded-md w-full" />
                                                 </FormControl>
                                             </FormItem>
                                         )}
@@ -231,13 +225,13 @@ export default function BookService() {
                                         control={form.control}
                                         name="purpose"
                                         render={({ field }) => (
-                                            <FormItem>
+                                            <FormItem className="w-full">
                                                 <FormLabel className="font-medium">
                                                     Select<span className="text-red-500">*</span>
                                                 </FormLabel>
                                                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                                                     <FormControl>
-                                                        <SelectTrigger className="rounded-md">
+                                                        <SelectTrigger className="rounded-md w-full">
                                                             <SelectValue placeholder="Purpose" />
                                                         </SelectTrigger>
                                                     </FormControl>
@@ -253,12 +247,12 @@ export default function BookService() {
                                     />
                                 </div>
 
-                                {/* Message */}
+                                {/* Message - Full Width */}
                                 <FormField
                                     control={form.control}
                                     name="message"
                                     render={({ field }) => (
-                                        <FormItem>
+                                        <FormItem className="w-full">
                                             <FormLabel className="font-medium">
                                                 Your Message<span className="text-red-500">*</span>
                                             </FormLabel>
@@ -267,7 +261,7 @@ export default function BookService() {
                                                     placeholder="Enter Your Message"
                                                     rows={5}
                                                     {...field}
-                                                    className="rounded-md resize-none"
+                                                    className="rounded-md resize-none w-full"
                                                 />
                                             </FormControl>
                                         </FormItem>
@@ -322,6 +316,5 @@ export default function BookService() {
                 </div>
             </div>
         </div>
-
     )
 }
