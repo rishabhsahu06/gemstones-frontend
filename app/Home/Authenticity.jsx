@@ -77,10 +77,10 @@ function Authenticity() {
                 </div>
             </div>
 
-            {/* Bottom Section */}
+            {/* Bottom Section - Mobile: Stack vertically, Desktop: Row */}
             <div className="flex flex-col lg:flex-row gap-6">
-                {/* Left Card */}
-                <div className="w-full lg:w-1/3 bg-[#3D2A26] text-white rounded-2xl p-6 flex flex-col items-center order-1 lg:order-1">
+                {/* Left Card - First on mobile and desktop */}
+                <div className="w-full lg:w-1/3 bg-[#3D2A26] text-white rounded-2xl p-6 flex flex-col items-center order-1">
                     <h2 className="text-xl md:text-2xl font-bold text-center mb-4">
                         Book Your Gemstone & Consultation
                     </h2>
@@ -93,8 +93,8 @@ function Authenticity() {
                     </Button>
                 </div>
 
-                {/* Middle Image */}
-                <div className="w-full lg:w-1/3 flex items-center justify-center order-2 lg:order-2">
+                {/* Middle Image - Second on mobile, middle on desktop */}
+                <div className="w-full lg:w-1/3 flex items-center justify-center order-2">
                     <div className="relative w-full h-[200px] md:h-[300px]">
                         <Image
                             src="/right-ring.png"
@@ -105,8 +105,8 @@ function Authenticity() {
                     </div>
                 </div>
 
-                {/* Right Card */}
-                <div className="w-full lg:w-1/3 bg-[#A88B7D] text-white rounded-2xl p-6 flex flex-col items-center order-3 lg:order-3">
+                {/* Right Card - Third on mobile and desktop */}
+                <div className="w-full lg:w-1/3 bg-[#A88B7D] text-white rounded-2xl p-6 flex flex-col items-center order-3">
                     <h2 className="text-xl md:text-2xl font-bold text-center mb-4">
                         Secure Your Astrological Gem – 100% Natural & Verified
                     </h2>

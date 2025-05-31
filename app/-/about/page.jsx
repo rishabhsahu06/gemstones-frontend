@@ -1,6 +1,8 @@
 import Image from "next/image";
 import { Users, Shield, Zap } from "lucide-react";
 import FAQ from "@/app/Home/faq";
+import BookCall from "../book-call/page";
+import BookService from "@/app/Home/book-service";
 
 export default function About() {
   return (
@@ -103,6 +105,8 @@ export default function About() {
       {/* Faq Section */}
 
       <FAQ />
+      {/* call booking */}
+      <BookService />
     </div>
   );
 }
