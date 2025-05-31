@@ -18,20 +18,9 @@ export default function CategoryCard({ product, slug }) {
     return null
   }
 
-  const AddToCart = (productId) => {
-    const token = getAuthToken()
 
-    if (!token) {
-      // Open auth modal if no token
-      setIsAuthModalOpen(true)
-    } else {
-      // Add to cart logic
-      console.log("Adding product to cart:", productId)
-      alert(`Product ${product.title} added to cart!`)
-    }
-  }
 
-  const handleBuyNow = () => {
+  const handleAddToCart = () => {
     const token = getAuthToken()
 
     if (!token) {
@@ -62,7 +51,7 @@ export default function CategoryCard({ product, slug }) {
           <p className="text-lg font-bold text-gray-900 mb-4">{product.price}</p>
           <div className="flex space-x-2">
             <Button
-              onClick={() => AddToCart(product.id)}
+              onClick={() => handleAddToCart(product.id)}
               variant="outline"
               type="button"
               size="sm"
@@ -70,9 +59,9 @@ export default function CategoryCard({ product, slug }) {
             >
               ADD CART
             </Button>
-            <Button onClick={handleBuyNow} size="sm" className="flex-1 bg-amber-700 hover:bg-amber-800">
+            {/* <Button size="sm" className="flex-1 bg-amber-700 hover:bg-amber-800">
               BUY NOW
-            </Button>
+            </Button> */}
           </div>
         </div>
       </div>
