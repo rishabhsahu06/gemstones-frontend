@@ -2,7 +2,9 @@ import { Geist, Geist_Mono, Brygada_1918 } from 'next/font/google';
 import "./globals.css";
 import Header from "./layout/header/Header";
 import Footer from "./layout/footer/Footer";
-
+import { AuthProvider } from './provider';
+import { ToastContainer } from "react-toastify"
+import "react-toastify/dist/ReactToastify.css"
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -31,9 +33,22 @@ export default function RootLayout({ children }) {
         className={`${geistSans.variable} ${geistMono.variable} ${brygada1918.variable} antialiased`}
       >
         <Header />
+        <AuthProvider>
+        <ToastContainer
+          position="top-right"
+          autoClose={5000}
+          hideProgressBar={false}
+          closeOnClick
+          pauseOnHover
+          draggable
+          pauseOnFocusLoss
+          theme="light"
+          newestOnTop={false}
+        />
         {children}
-        <Footer />
-      </body>
-    </html>
-  );
+      </AuthProvider>
+      <Footer />
+    </body>
+  </html>
+);
 }

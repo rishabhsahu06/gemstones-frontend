@@ -1,14 +1,15 @@
 "use client"
-
+import { signIn, getSession } from "next-auth/react"
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { X, ArrowLeft } from "lucide-react"
+import { ArrowLeft } from "lucide-react"
 import { countryCodes } from "@/app/constant/constant"
 import api from "@/lib/axios"
+import { toast } from "react-toastify"
 
 export default function AuthModal({ isOpen, onClose }) {
   const [step, setStep] = useState("phone") // "phone" or "otp"
@@ -21,14 +22,19 @@ export default function AuthModal({ isOpen, onClose }) {
   const [isLoading, setIsLoading] = useState(false)
   const [fullphone, setFullphone] = useState("")
   const [tempUserId, setTempUserId] = useState(null)
+  const [error, setError] = useState("")
 
   const handlePhoneSubmit = async () => {
+    setError("")
+
     // Validate inputs for registration
     if (mode === "register" && (!name.trim() || !validateEmail(email))) {
-      alert(name.trim() ? "Please enter a valid email address" : "Please enter your full name")
+      setError(name.trim() ? "Please enter a valid email address" : "Please enter your full name")
       return
     }
-const endPoint = mode === "signin" ? "/auth/login-otp" : "/auth/send-otp"
+
+    const endPoint = mode === "signin" ? "/auth/login-otp" : "/auth/send-otp"
+
     if (phone.trim()) {
       setIsLoading(true)
       try {
@@ -39,25 +45,28 @@ const endPoint = mode === "signin" ? "/auth/login-otp" : "/auth/send-otp"
 
         // API call to send OTP
         const response = await api.post(endPoint, {
-
           phone: formattedPhone,
-          // type: mode, // 'signin' or 'register'
-          ...(mode === "register" && { name, email }), // Include name and email only for registration
+          ...(mode === "register" && { name, email }),
         })
 
+        console.log("OTP Response:", response.data)
+
         if (response.data.success || response.status === 200) {
-          // Store tempUserId from response - note the nested data structure
-          if (response.data.data?.tempUserId) {
-            setTempUserId(response.data.data.tempUserId)
-            console.log("Temp User ID stored:", response.data.data.tempUserId)
+          // Store tempUserId from response - handle both possible structures
+          const tempUserIdFromResponse = response.data.data?.tempUserId || response.data.tempUserId
+          if (tempUserIdFromResponse) {
+            setTempUserId(tempUserIdFromResponse)
+            console.log("Temp User ID stored:", tempUserIdFromResponse)
           }
           setStep("otp")
         } else {
-          alert(response.data?.message || response.message  || "Failed to send OTP. Please try again.")
+          setError(response.data?.message || "Failed to send OTP. Please try again.")
         }
       } catch (error) {
         console.error(`Error sending OTP:`, error)
-        alert(error.response?.data?.message|| response.data?.message || response.message  ||"Failed to send OTP. Please try again.")
+        const errorMessage = error.response?.data?.message || "Failed to send OTP. Please try again."
+        setError(errorMessage)
+        toast.error(errorMessage)
       } finally {
         setIsLoading(false)
       }
@@ -68,55 +77,54 @@ const endPoint = mode === "signin" ? "/auth/login-otp" : "/auth/send-otp"
     const otpValue = otp.join("")
     if (otpValue.length === 6) {
       setIsLoading(true)
+      setError("")
+
       try {
-        const apiEndpoint = mode === "signin" ? "/auth/verify-login-otp" : "/auth/verify-otp"
+        console.log("Attempting sign in with:", { tempUserId, otp: otpValue })
 
-        // Prepare request body based on mode
-        const requestBodyForRegistration = {
-          phone: fullphone,
+        const result = await signIn("credentials", {
+          redirect: false,
           otp: otpValue,
           tempUserId: tempUserId,
-          password:"Password@123", // Default password for testing, should be handled securely in production
-        }
-     const   requestBodyForSignin = {
-         
-          otp: otpValue,
-          tempUserId: tempUserId,
-       
-        }
+        })
 
-      //  Add name and email for registration
-        if (mode === "register") {
-          requestBodyForRegistration.name = name
-          requestBodyForRegistration.email = email
-        }
+        console.log("SignIn result:", result)
 
-        const response = await api.post(apiEndpoint, mode === "signin" ? requestBodyForSignin : requestBodyForRegistration)
+        if (result?.ok && !result?.error) {
+          // Get the session to verify it was created
+          const session = await getSession()
+          console.log("Session after sign in:", session)
 
-        if (response.data.success || response.status === 200) {
-          const data = response.data.data || response.data
-          console.log(`${mode} successful:`, data)
-
-          // Handle successful authentication
-          if (mode === "signin") {
-            // Store auth token, redirect, etc.
-            localStorage.setItem("authToken", data.token)
-            alert("Login successful!")
+          if (session) {
+            console.log("Authentication successful!")
+            toast.success("Login successful! Welcome back.")
+            resetModal()
+            onClose()
           } else {
-            // Handle successful registration
-            localStorage.setItem("authToken", data.token)
-            alert("Registration successful!")
+            const errorMessage = "Session creation failed. Please try again."
+            setError(errorMessage)
+            toast.error(errorMessage)
+          }
+        } else {
+          console.log("Sign in failed:", result?.error)
+
+          // Handle specific error types
+          let errorMessage = "Authentication failed. Please try again."
+
+          if (result?.error === "CredentialsSignin") {
+            errorMessage = "Invalid OTP or verification failed. Please check your code and try again."
+          } else if (result?.error === "Configuration") {
+            errorMessage = "Authentication service error. Please contact support."
           }
 
-          // Reset and close modal
-          resetModal()
-          onClose()
-        } else {
-          alert(response.data?.message || "Invalid OTP. Please try again.")
+          setError(errorMessage)
+          toast.error(errorMessage)
         }
       } catch (error) {
-        console.error(`Error verifying OTP:`, error)
-        alert("Failed to verify OTP. Please try again.")
+        console.error("Sign-in error:", error)
+        const errorMessage = "Network error. Please check your connection and try again."
+        setError(errorMessage)
+        toast.error(errorMessage)
       } finally {
         setIsLoading(false)
       }
@@ -179,6 +187,7 @@ const endPoint = mode === "signin" ? "/auth/login-otp" : "/auth/send-otp"
     setEmail("")
     setOtp(["", "", "", "", "", ""])
     setStep("phone")
+    setError("")
   }
 
   const resetModal = () => {
@@ -189,44 +198,51 @@ const endPoint = mode === "signin" ? "/auth/login-otp" : "/auth/send-otp"
     setOtp(["", "", "", "", "", ""])
     setFullphone("")
     setTempUserId(null)
+    setError("")
   }
 
   const goBackToPhone = () => {
     setStep("phone")
     setOtp(["", "", "", "", "", ""])
+    setError("")
   }
 
   const resendOtp = async () => {
     setIsLoading(true)
+    setError("")
+
     try {
       const requestBody = {
         phone: fullphone,
-        // type: mode,
         tempUserId: tempUserId,
       }
 
-      // Include name and email for registration resend
-      // if (mode === "register") {
-      //   requestBody.name = name
-      //   requestBody.email = email
-      // }
+      console.log("Resending OTP with:", requestBody)
 
-      const response = await api.post("auth/resend-otp", requestBody)
+      const response = await api.post("/auth/resend-otp", requestBody)
+
+      console.log("Resend OTP Response:", response.data)
 
       if (response.data.success || response.status === 200) {
-        // Update tempUserId from resend response - note the nested data structure
-        if (response.data?.tempUserId) {
-          setTempUserId(response.data.tempUserId)
-          console.log("New Temp User ID stored after resend:", response.data.tempUserId)
+        // Handle both possible response structures
+        const newTempUserId = response.data.data?.tempUserId || response.data.tempUserId
+        if (newTempUserId) {
+          setTempUserId(newTempUserId)
+          console.log("New Temp User ID stored after resend:", newTempUserId)
         }
-        alert("OTP resent successfully!")
+        setError("")
         setOtp(["", "", "", "", "", ""])
+        toast.success("OTP resent successfully!")
       } else {
-        alert("Failed to resend OTP. Please try again.")
+        const errorMessage = "Failed to resend OTP. Please try again."
+        setError(errorMessage)
+        toast.error(errorMessage)
       }
     } catch (error) {
       console.error("Error resending OTP:", error)
-      alert("Failed to resend OTP. Please try again.")
+      const errorMessage = error.response?.data?.message || "Failed to resend OTP. Please try again."
+      setError(errorMessage)
+      toast.error(errorMessage)
     } finally {
       setIsLoading(false)
     }
@@ -244,9 +260,7 @@ const endPoint = mode === "signin" ? "/auth/login-otp" : "/auth/send-otp"
             className="absolute -top-2 -right-2 h-6 w-6"
             onClick={onClose}
             disabled={isLoading}
-          >
-            {/* <X className="h-4 w-4" /> */}
-          </Button>
+          ></Button>
 
           {step === "otp" && (
             <Button
@@ -273,6 +287,10 @@ const endPoint = mode === "signin" ? "/auth/login-otp" : "/auth/send-otp"
         </DialogHeader>
 
         <div className="space-y-4 pt-4">
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md text-sm">{error}</div>
+          )}
+
           {step === "phone" ? (
             <>
               {/* Registration-only fields */}
@@ -309,7 +327,7 @@ const endPoint = mode === "signin" ? "/auth/login-otp" : "/auth/send-otp"
                 </>
               )}
 
-              {/* Phone number field (for both signin and register) */}
+              {/* Phone number field */}
               <div className="space-y-2">
                 <Label htmlFor="phone" className="text-sm font-medium">
                   Phone Number
@@ -357,9 +375,7 @@ const endPoint = mode === "signin" ? "/auth/login-otp" : "/auth/send-otp"
                 onClick={handlePhoneSubmit}
                 className="w-full bg-amber-700 hover:bg-amber-800 text-white font-medium py-2"
                 disabled={
-                  !phone.trim() ||
-                  isLoading ||
-                  (mode === "register" && (!name.trim() || !validateEmail(email)))
+                  !phone.trim() || isLoading || (mode === "register" && (!name.trim() || !validateEmail(email)))
                 }
               >
                 {isLoading ? "Sending..." : "Send OTP"}
@@ -374,7 +390,7 @@ const endPoint = mode === "signin" ? "/auth/login-otp" : "/auth/send-otp"
                     disabled={isLoading}
                   >
                     {mode === "signin" ? "Sign up" : "Sign in"}
-                  </button> 
+                  </button>
                 </p>
               </div>
             </>

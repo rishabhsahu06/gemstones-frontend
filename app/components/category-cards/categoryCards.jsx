@@ -5,25 +5,15 @@ import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import AuthModal from "../auth-model/authModel"
-import api from "@/lib/axios"
 
+import useAccessToken from "@/hooks/userSession"
 export default function CategoryCard({ product, slug }) {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
-// Simulate checking for authentication token
-  const getAuthToken = () => {
-    // Replace this with your actual token checking logic
-    if (typeof window !== "undefined") {
-      return localStorage.getItem("authToken") || null
-    }
-    return null
-  }
+   const { accessToken, user } = useAccessToken();
 
-
-
-  const handleAddToCart = () => {
-    const token = getAuthToken()
-
-    if (!token) {
+const handleAddToCart = () => {
+   if (!accessToken) {
+     
       setIsAuthModalOpen(true)
     } else {
       console.log("Proceeding to checkout for:", product.id)

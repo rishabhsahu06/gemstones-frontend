@@ -7,7 +7,7 @@ import { Menu, Search, User, X, ChevronDown, ShoppingCart } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { useRouter, usePathname } from "next/navigation"
-
+import { signOut } from "next-auth/react"
 function Header() {
     const [isMenuOpen, setIsMenuOpen] = useState(false)
     const [isServiceDropdownOpen, setIsServiceDropdownOpen] = useState(false)
@@ -29,6 +29,11 @@ function Header() {
         return pathname.startsWith(path)
     }
 
+    const handleLogout = () => {
+        signOut(
+            { callbackUrl: '/' } // Redirect to home after logout
+        )
+    }
     // Function to get link classes based on active state
     const getLinkClasses = (path, baseClasses = "transition-colors text-sm xl:text-base whitespace-nowrap") => {
         const isActive = isActivePath(path)
@@ -392,10 +397,10 @@ function Header() {
 
                     {/* Right Side Icons and Button */}
                     <div className="flex items-center space-x-2 sm:space-x-3 lg:space-x-4">
-                        <Link href="/account" className="hidden sm:block text-gray-700 hover:text-[#BA8E49] p-2 rounded-full hover:bg-gray-100 transition-colors">
+                        <div onClick={handleLogout} className="hidden sm:block text-gray-700 hover:text-[#BA8E49] p-2 rounded-full hover:bg-gray-100 transition-colors">
                             <User className="h-5 w-5 lg:h-6 lg:w-6" />
                             <span className="sr-only">Account</span>
-                        </Link>
+                        </div>
                         <Link href="/search" className="hidden sm:block text-gray-700 hover:text-[#BA8E49] p-2 rounded-full hover:bg-gray-100 transition-colors">
                             <Search className="h-5 w-5 lg:h-6 lg:w-6" />
                             <span className="sr-only">Search</span>
