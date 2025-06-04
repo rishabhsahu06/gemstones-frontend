@@ -26,7 +26,7 @@ function page() {
       <Blogs />
       <ReelsSection />
       <BookService />
-      {/* <Cart /> */}
+      <Cart />
 
 
     </div>
