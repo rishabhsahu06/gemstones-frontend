@@ -1,49 +1,54 @@
 "use client"
 
-import { useState } from "react"
+import { use, useEffect, useState } from "react"
 import { Check, ChevronRight, MessageCircle } from "lucide-react"
 import Image from "next/image"
 import FAQ from "@/app/Home/faq"
 import BookService from "@/app/Home/book-service"
+import { useParams } from "next/navigation"
+import api from "@/lib/axios"
 
-const GemstonePageViewPage = ({ productData }) => {
-  console.log("Product Data:", productData)
+const GemstonePageViewPage = () => {
   const [selectedImage, setSelectedImage] = useState(0)
   const [selectedCertification, setSelectedCertification] = useState("Free Lab Certificate")
   const [selectedEnergization, setSelectedEnergization] = useState("No Energization")
   const [selectedOption, setSelectedOption] = useState("Loose Gemstone")
+  const [productData, setProductData] = useState(null)
+  const searchParams = useParams()
+  const { slug, viewProduct } = searchParams
 
-  // Sample data structure based on your provided data
-  const data = productData || {
-    name: "Yellow Sapphire (Pukhraj)",
-    originalPrice: 8500,
-    discountedPrice: 8500,
-    origin: "Sri Lanka",
-    certification: "Free Lab Certificate",
-    poojaEnergization: "No Energization",
-    images: [
-      { url: "/ankles.png", alt: "Yellow Sapphire main view" },
-      { url: "/earring.png", alt: "Yellow Sapphire side view" },
-      { url: "/choker.png", alt: "Yellow Sapphire close view" },
-    ],
-    dimensions: { length: 11.8, width: 9.0, height: 4.1 },
-    weight: 0.84,
-    shape: "Oval",
-    treatment: "Unheated and Untreated (No Indications Observed)",
-    treatmentType: "Faceted",
-    composition: "Natural",
-    returnPolicy: "10 Day Money-back Returns Policy",
-    colour: "Yellow",
-    dimensionType: "Not Calibrated",
-    stock: 1,
-    sku: "GM91953",
+  const fetchProductData = async () => {
+    try {
+      const response = await api.get(`/products/${viewProduct}`)
+      const apiData = response.data
+      setProductData(apiData.data)
+    } catch (error) {
+      console.error("Error fetching product data:", error)
+    }
+  }
+
+  useEffect(() => {
+    fetchProductData();
+  }, [slug, viewProduct])
+
+  console.log("Product Data:", productData)
+
+  // Loading state
+  if (!productData) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-[#BA8E49]"></div>
+          <p className="mt-4 text-gray-600">Loading product...</p>
+        </div>
+      </div>
+    )
   }
 
   const breadcrumbs = [
     { name: "Home", href: "#" },
     { name: "Gemstones", href: "#" },
-    { name: "Yellow Sapphire", href: "#" },
-    { name: "Yellow Sapphire - 7.56 carats/G", href: "#", current: true },
+    { name: productData.name, href: "#" },
   ]
 
   return (
@@ -56,7 +61,6 @@ const GemstonePageViewPage = ({ productData }) => {
               <li key={index} className="flex items-center">
                 {index > 0 && <ChevronRight className="w-3 h-3 text-gray-400 mx-1" />}
                 <p
-             
                   className={` text-black text-[16px] font-bold hover:text-black`}
                 >
                   {item.name}
@@ -67,24 +71,24 @@ const GemstonePageViewPage = ({ productData }) => {
         </div>
       </nav>
 
-      <div className="max-w-7xl mx-auto px-4 py-6">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="max-w-7xl mx-auto px-4  py-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2  gap-8">
           {/* Image Section */}
-          <div className="space-y-4">
-            {/* Main Image */}
-            <div className="aspect-square bg-white rounded-lg border border-gray-200 p-8 flex items-center justify-center">
+          <div className="space-y-4 ">
+            {/* Main Image aspect-square */}
+            <div className="   bg-white   border-gray-200  flex items-center justify-center">
               <Image
-                src={data.images?.[selectedImage]?.url || "/placeholder.svg?height=400&width=400"}
-                alt={data.images?.[selectedImage]?.alt || "Product image"}
+                src={productData.images?.[selectedImage]?.url || "/placeholder.svg?height=400&width=400"}
+                alt={productData.images?.[selectedImage]?.alt || "Product image"}
                 width={400}
                 height={400}
-                className="w-full h-full object-contain"
+                className="w-full  h-full object-fill rounded-lg "
               />
             </div>
 
             {/* Thumbnail Images */}
             <div className="flex space-x-3">
-              {data.images?.map((image, index) => (
+              {productData.images?.map((image, index) => (
                 <button
                   key={index}
                   onClick={() => setSelectedImage(index)}
@@ -107,29 +111,34 @@ const GemstonePageViewPage = ({ productData }) => {
           {/* Product Info Section */}
           <div className="space-y-6">
             <div>
-              <h1 className="text-2xl  font-bold text-gray-900 mb-3">{data.name}</h1>
+              <h1 className="text-2xl  font-bold text-gray-900 mb-3">{productData.name}</h1>
               <div className="flex items-center space-x-4 mb-3">
-                <span className="text-2xl font-bold text-gray-900">Rs. {data.discountedPrice?.toLocaleString()}</span>
-                <span className="bg-red-100 text-red-600 px-2 py-1 rounded text-sm font-medium">Only 1 Left</span>
+                <span className="text-2xl font-bold text-gray-900">Rs. {productData.discountedPrice?.toLocaleString()}</span>
+                {productData.originalPrice > productData.discountedPrice && (
+                  <span className="text-lg text-gray-500 line-through">Rs. {productData.originalPrice?.toLocaleString()}</span>
+                )}
+                <span className="bg-red-100 text-red-600 px-2 py-1 rounded text-sm font-medium">
+                  Only {productData.stock} Left
+                </span>
               </div>
               <div className="flex items-center space-x-6 text-sm text-gray-600 mb-6">
                 <span>
-                  <strong className="">SKU:</strong> {data.sku}
+                  <strong className="">SKU:</strong> {productData._id?.slice(-8).toUpperCase()}
                 </span>
                 <span>
-                  <strong>Origin:</strong> {data.origin}
+                  <strong>Origin:</strong> {productData.origin}
                 </span>
               </div>
             </div>
 
             {/* Certification Dropdown */}
-             <div>
+            <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Certification <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
-                value={data.certification}
+                value={productData.certification}
                 readOnly
                 className="w-full p-3 border border-gray-300 rounded-md bg-[#F5F5F5] text-gray-900 cursor-not-allowed"
               />
@@ -142,7 +151,7 @@ const GemstonePageViewPage = ({ productData }) => {
               </label>
               <input
                 type="text"
-                value={data.poojaEnergization}
+                value={productData.poojaEnergization}
                 readOnly
                 className="w-full p-3 border border-gray-300 rounded-md bg-[#F5F5F5] text-gray-900 cursor-not-allowed"
               />
@@ -187,45 +196,28 @@ const GemstonePageViewPage = ({ productData }) => {
         {/* Product Details Section */}
         <div className="mt-12  rounded-lg ">
           <h2 className="text-xl font-bold text-gray-900 text-center mb-6 bg-[#BA8E4980] p-3 rounded">
-            Product Details: Yellow Sapphire - 7.56 carats
+            Product Details: {productData.name} - {productData.weightCarat} carats
           </h2>
 
           <div className="mb-8">
             <p className="text-gray-700 leading-relaxed">
-              Here is a brilliant Yellow Sapphire of 4.25 carats. (1.65 ratti) in a regal oval shape. The Sapphire
-              exhibits a captivating yellow colour with a higher clarity grade and excellent lustre, bringing a aura.
-              The incredible gemstone's expert mixed cut gives it a charming shine.
+              {productData.description}
             </p>
           </div>
 
           {/* Benefits Icons */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8 w-[70%]">
-            <div className="flex items-center space-x-3">
-              <div className="w-6 h-6 rounded-full bg- border border-[#BA8E49] flex items-center justify-center flex-shrink-0">
-                <Check className="w-4 h-4 text-[#BA8E49]" />
-              </div>
-              <span className="text-gray-700 font-semibold">Financial Growth</span>
+          {productData.features && productData.features.length > 0 && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8 w-[70%]">
+              {productData.features.map((feature, index) => (
+                <div key={index} className="flex items-center space-x-3">
+                  <div className="w-6 h-6 rounded-full bg- border border-[#BA8E49] flex items-center justify-center flex-shrink-0">
+                    <Check className="w-4 h-4 text-[#BA8E49]" />
+                  </div>
+                  <span className="text-gray-700 font-semibold">{feature}</span>
+                </div>
+              ))}
             </div>
-            <div className="flex items-center space-x-3">
-              <div className="w-6 h-6 rounded-full bg- border border-[#BA8E49] flex items-center justify-center flex-shrink-0">
-                <Check className="w-4 h-4 text-[#BA8E49]" />
-              </div>
-              <span className="text-gray-700 font-semibold">Promotes Good Health</span>
-            </div>
-            <div className="flex items-center space-x-3">
-              <div className="w-6 h-6 rounded-full bg- border border-[#BA8E49] flex items-center justify-center flex-shrink-0">
-                <Check className="w-4 h-4 text-[#BA8E49]" />
-              </div>
-              <span className="text-gray-700 font-semibold">Reduces Stress</span>
-            </div>
-            <div className="flex items-center space-x-3">
-              <div className="w-6 h-6 rounded-full bg- border border-[#BA8E49] flex items-center justify-center flex-shrink-0">
-                <Check className="w-4 h-4 text-[#BA8E49]" />
-              </div>
-              <span className="text-gray-700 font-semibold">Enhances Memory</span>
-            </div>
-         
-          </div>
+          )}
 
           {/* Specifications Table */}
           <div className="bg-white rounded-lg border border-gray-300 overflow-hidden">
@@ -234,24 +226,24 @@ const GemstonePageViewPage = ({ productData }) => {
                 <tr className="border-b border-gray-200">
                   <td className="px-4 py-3 font-medium text-gray-700 ">Gemstone</td>
                   <td className="px-2 py-3 text-center">:</td>
-                  <td className="px-4 py-3 text-gray-900">Yellow Sapphire</td>
+                  <td className="px-4 py-3 text-gray-900">{productData.name}</td>
                   <td className="px-4 py-3 font-medium text-gray-700 ">Treatment</td>
                   <td className="px-2 py-3 text-center">:</td>
-                  <td className="px-4 py-3 text-gray-900">Unheated and Untreated (No Indications Observed)</td>
-                  <td className="px-4 py-3 font-medium text-gray-700 ">Treatment</td>
+                  <td className="px-4 py-3 text-gray-900">{productData.treatment}</td>
+                  <td className="px-4 py-3 font-medium text-gray-700 ">Treatment Type</td>
                   <td className="px-2 py-3 text-center">:</td>
-                  <td className="px-4 py-3 text-gray-900">Faceted</td>
+                  <td className="px-4 py-3 text-gray-900">{productData.treatmentType}</td>
                 </tr>
                 <tr className="border-b border-gray-200 bg-[#F5F5F5]">
                   <td className="px-4 py-3 font-medium text-gray-700">Certification</td>
                   <td className="px-2 py-3 text-center">:</td>
-                  <td className="px-4 py-3 text-gray-900">Free Lab Certificate</td>
+                  <td className="px-4 py-3 text-gray-900">{productData.certification}</td>
                   <td className="px-4 py-3 font-medium text-gray-700">Shape</td>
                   <td className="px-2 py-3 text-center">:</td>
-                  <td className="px-4 py-3 text-gray-900">Oval</td>
+                  <td className="px-4 py-3 text-gray-900">{productData.shape}</td>
                   <td className="px-4 py-3 font-medium text-gray-700">Composition</td>
                   <td className="px-2 py-3 text-center">:</td>
-                  <td className="px-4 py-3 text-gray-900">Natural</td>
+                  <td className="px-4 py-3 text-gray-900">{productData.composition}</td>
                 </tr>
                 <tr className="border-b border-gray-200 ">
                   <td className="px-4 py-3 font-medium text-gray-700">Return Policy</td>
@@ -261,37 +253,41 @@ const GemstonePageViewPage = ({ productData }) => {
                   </td>
                   <td className="px-4 py-3 font-medium text-gray-700">Weight (carat)</td>
                   <td className="px-2 py-3 text-center">:</td>
-                  <td className="px-4 py-3 text-gray-900">0.84</td>
+                  <td className="px-4 py-3 text-gray-900">{productData.weightCarat}</td>
                   <td className="px-4 py-3 font-medium text-gray-700">Colour</td>
                   <td className="px-2 py-3 text-center">:</td>
-                  <td className="px-4 py-3 text-gray-900">Yellow</td>
+                  <td className="px-4 py-3 text-gray-900">{productData.colour}</td>
                 </tr>
                 <tr className="border-b border-gray-200 bg-[#F5F5F5]">
                   <td className="px-4 py-3 font-medium text-gray-700">Exact Dimensions</td>
                   <td className="px-2 py-3 text-center">:</td>
-                  <td className="px-4 py-3 text-gray-900">11.8x9.0x4.1 mm</td>
+                  <td className="px-4 py-3 text-gray-900">
+                    {productData.dimensions.length}x{productData.dimensions.width}x{productData.dimensions.height} mm
+                  </td>
                   <td className="px-4 py-3 font-medium text-gray-700">Origin</td>
                   <td className="px-2 py-3 text-center">:</td>
-                  <td className="px-4 py-3 text-gray-900">Sri Lanka (Ceylon)</td>
+                  <td className="px-4 py-3 text-gray-900">{productData.origin}</td>
                   <td className="px-4 py-3 font-medium text-gray-700">Specific Gravity</td>
                   <td className="px-2 py-3 text-center">:</td>
-                  <td className="px-4 py-3 text-gray-900">4</td>
+                  <td className="px-4 py-3 text-gray-900">{productData.specificGravity}</td>
                 </tr>
                 <tr className="border-b border-gray-200 ">
                   <td className="px-4 py-3 font-medium text-gray-700">Refractive Index</td>
                   <td className="px-2 py-3 text-center">:</td>
-                  <td className="px-4 py-3 text-gray-900">1.760 - 1.770</td>
+                  <td className="px-4 py-3 text-gray-900">
+                    {productData.refractiveIndex.min} - {productData.refractiveIndex.max}
+                  </td>
                   <td className="px-4 py-3 font-medium text-gray-700">Dimension Type</td>
                   <td className="px-2 py-3 text-center">:</td>
-                  <td className="px-4 py-3 text-gray-900">Not Calibrated</td>
+                  <td className="px-4 py-3 text-gray-900">{productData.dimensionType}</td>
                   <td className="px-4 py-3 font-medium text-gray-700">Weight (ratti)</td>
                   <td className="px-2 py-3 text-center">:</td>
-                  <td className="px-4 py-3 text-gray-900">4.60</td>
+                  <td className="px-4 py-3 text-gray-900">{productData.weightRatti}</td>
                 </tr>
                 <tr>
                   <td className="px-4 py-3 font-medium text-gray-700 bg-[#F5F5F5]">Weight (grams)</td>
                   <td className="px-2 py-3 text-center">:</td>
-                  <td className="px-4 py-3 text-gray-900">0.84</td>
+                  <td className="px-4 py-3 text-gray-900">{productData.weight}</td>
                   <td className="px-4 py-3"></td>
                   <td className="px-2 py-3"></td>
                   <td className="px-4 py-3"></td>
