@@ -56,6 +56,7 @@ const GemstonePageViewPage = () => {
        const response = await post("/cart", cartData, options)
  
        toast.success("Product added to cart successfully!")
+
  
      } catch (err) {
        console.error("❌ Error Details:", {

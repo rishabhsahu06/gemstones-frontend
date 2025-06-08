@@ -2,13 +2,14 @@
 import { useEffect, useState, useCallback, useRef, useMemo } from "react"
 import { Filter, Search, ChevronRight, Loader2 } from "lucide-react"
 import { debounce } from "lodash"
-
+import { useRouter } from "next/navigation"
 import useAccessToken from "@/hooks/userSession"
 import { toast } from "react-toastify"
 import ProductSkeleton from "@/app/components/skeleton/productSkeleton"
 import ProductCard from "./productCard"
 import { useApi } from "@/hooks/useApi"
 import Link from "next/link"
+import AuthModal from "@/app/components/auth-model/authModel"
 
 function Products() {
   const [products, setProducts] = useState([])
@@ -24,10 +25,10 @@ function Products() {
   const [isAddingToCart, setIsAddingToCart] = useState(null)
   const [isLoadingMore, setIsLoadingMore] = useState(false)
   const [isInitialLoading, setIsInitialLoading] = useState(true)
-
+ const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
   const { get, post, loading, error } = useApi()
   const { accessToken } = useAccessToken()
-
+  const router = useRouter()
   // Intersection Observer ref
   const loadMoreRef = useRef(null)
   const observerRef = useRef(null)
@@ -196,39 +197,63 @@ function Products() {
     [fetchProducts],
   )
 
+    const handleAddCarWithToken = async (id) => {
+     try {
+      const cartData = {
+        productId: id,
+        quantity: 1,
+      }
+      const options = {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+      }
+
+      // Using your useApi hook's post method
+      const response = await post("/cart", cartData, options)
+if(response?.success) {
+  toast.success("Product added to cart successfully!")
+ 
+}
+    
+
+    } catch (err) {
+      console.error("❌ Error Details:", {
+        message: err.message,
+        status: err.response?.status,
+        statusText: err.response?.statusText,
+        data: err.response?.data,
+      })
+      
+      // Handle different error scenarios
+      if (err.response?.status === 401) {
+        toast.error("Please log in to add items to your cart.")
+        setIsAuthModalOpen(true)
+      } else if (err.response?.status === 400) {
+        toast.error(err.response.data?.message || "Invalid request. Please check the product details.")
+      } else if (err.response?.status === 404) {
+        toast.error("Product not found or cart endpoint unavailable.")
+      } else if (err.response?.status === 500) {
+        toast.error("Server error. Please try again later.")
+      } else {
+        // The error from useApi hook will be in the error state
+        toast.error(error || "Failed to add product to cart. Please try again.")
+      }
+    }
+  }
   // Add to cart function
   const handleAddToCart = async (product) => {
+   console.log("🛒 Add to cart clicked for product:", product._id)
+
     if (!accessToken) {
-      toast.error("Please login to add items to cart")
-      return
-    }
-
-    setIsAddingToCart(product._id)
-
-    try {
-      const result = await post(
-        "/cart/add",
-        {
-          productId: product._id,
-          quantity: 1,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        },
-      )
-
-      if (result?.success) {
-        toast.success(`${product.name} added to cart!`)
-      } else {
-        toast.error("Failed to add item to cart. Please try again.")
-      }
-    } catch (err) {
-      console.error("Add to cart failed:", err)
-      toast.error("Failed to add item to cart. Please try again.")
-    } finally {
-      setIsAddingToCart(null)
+      console.log("🔒 No access token, opening auth modal")
+      setIsAuthModalOpen(true)
+    } else {
+      console.log("🔑 Access token found, proceeding with cart addition")
+      handleAddCarWithToken(product._id)
+      // Uncomment below to try alternative method if the above doesn't work
+      // handleAddCarWithTokenAlternative(id)
     }
   }
 
@@ -458,6 +483,8 @@ function Products() {
           </div>
         )}
       </div>
+            <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
+      
     </div>
   )
 }
