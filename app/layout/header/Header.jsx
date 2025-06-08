@@ -411,7 +411,7 @@ function Header() {
                                     >
                                         Book Call
                                     </Link>
-                                </div>
+                                </div>  
                             </div>
                         </div>
 
@@ -431,7 +431,7 @@ function Header() {
                             <span className="sr-only">Search</span>
                         </Link>
 
-                        <Link href="/cart" className="hidden sm:block text-gray-700 hover:text-[#BA8E49] p-2 rounded-full hover:bg-gray-100 transition-colors">
+                        <Link href="/-/cart" className="hidden sm:block text-gray-700 hover:text-[#BA8E49] p-2 rounded-full hover:bg-gray-100 transition-colors">
                             <ShoppingCart className="h-5 w-5 lg:h-6 lg:w-6" />
                             <span className="sr-only">Cart</span>
                         </Link>

@@ -12,7 +12,7 @@ import AstrologyPopup from './components/popup'
 import JwelleryBanner from './Home/jwellery-banner'
 import Hero from './Home/Hero'
 import Blogs from './Home/blog'
-import Cart from './components/cart'
+
 
 function page() {
   return (
@@ -26,7 +26,7 @@ function page() {
       <Blogs />
       <ReelsSection />
       <BookService />
-      <Cart />
+    
 
 
     </div>

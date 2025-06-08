@@ -7,14 +7,22 @@ import FAQ from "@/app/Home/faq"
 import BookService from "@/app/Home/book-service"
 import { useParams } from "next/navigation"
 import api from "@/lib/axios"
+import useAccessToken from "@/hooks/userSession"
+import { useApi } from "@/hooks/useApi"
+import AuthModal from "@/app/components/auth-model/authModel"
+import { toast } from "react-toastify"
 
 const GemstonePageViewPage = () => {
+    const searchParams = useParams()
+     const { accessToken, user } = useAccessToken();
+     const { post, loading, error } = useApi()
   const [selectedImage, setSelectedImage] = useState(0)
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
   const [selectedCertification, setSelectedCertification] = useState("Free Lab Certificate")
   const [selectedEnergization, setSelectedEnergization] = useState("No Energization")
   const [selectedOption, setSelectedOption] = useState("Loose Gemstone")
   const [productData, setProductData] = useState(null)
-  const searchParams = useParams()
+
   const { slug, viewProduct } = searchParams
 
   const fetchProductData = async () => {
@@ -31,7 +39,65 @@ const GemstonePageViewPage = () => {
     fetchProductData();
   }, [slug, viewProduct])
 
-  console.log("Product Data:", productData)
+  const handleAddCarWithToken = async (id) => {
+      try {
+       const cartData = {
+         productId: id,
+         quantity: 1,
+       }
+       const options = {
+         headers: {
+           Authorization: `Bearer ${accessToken}`,
+           'Content-Type': 'application/json',
+         },
+       }
+ 
+       // Using your useApi hook's post method
+       const response = await post("/cart", cartData, options)
+ 
+       toast.success("Product added to cart successfully!")
+ 
+     } catch (err) {
+       console.error("❌ Error Details:", {
+         message: err.message || err.data.message,
+         status: err.response?.status,
+         statusText: err.response?.statusText,
+         data: err.response?.data,
+       })
+       
+       // Handle different error scenarios
+       if (err.response?.status === 401) {
+         toast.error("Please log in to add items to your cart.")
+         setIsAuthModalOpen(true)
+       } else if (err.response?.status === 400) {
+         toast.error(err.response.data?.message || "Invalid request. Please check the product details.")
+       } else if (err.response?.status === 404) {
+         toast.error("Product not found or cart endpoint unavailable.")
+       } else if (err.response?.status === 500) {
+         toast.error("Server error. Please try again later.")
+       } else {
+         // The error from useApi hook will be in the error state
+         toast.error(error || "Failed to add product to cart. Please try again.")
+       }
+     }
+   }
+ 
+   // Alternative version with different endpoints to try
+ 
+ 
+   const handleAddToCart = (id) => {
+     console.log("🛒 Add to cart clicked for product:", id)
+     
+     if (!accessToken) {
+       console.log("🔒 No access token, opening auth modal")
+       setIsAuthModalOpen(true)
+     } else {
+       console.log("🔑 Access token found, proceeding with cart addition")
+       handleAddCarWithToken(id)
+       // Uncomment below to try alternative method if the above doesn't work
+       // handleAddCarWithTokenAlternative(id)
+     }
+   }
 
   // Loading state
   if (!productData) {
@@ -187,9 +253,9 @@ const GemstonePageViewPage = () => {
             </div>
 
             {/* Add to Cart Button */}
-            <button className="w-full bg-[#BA8E49] text-white py-2 px-6 rounded-md font-bold text-lg hover:bg-[#BA8E49] cursor-pointer transition-colors">
+            <button  onClick={() => handleAddToCart(productData._id)} className="w-full bg-[#BA8E49] text-white py-2 px-6 rounded-md font-bold text-lg hover:bg-[#BA8E49] cursor-pointer transition-colors">
               ADD CART
-            </button>
+            </button> 
           </div>
         </div>
 
@@ -308,6 +374,8 @@ const GemstonePageViewPage = () => {
 
       <FAQ />  
       <BookService />
+            <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
+      
     </div>
   )
 }

@@ -24,7 +24,7 @@ export default function GemstoneLoading() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[1, 2, 3, 4].map((i) => (
               <div key={i} className="flex items-center gap-2">
-                <div className="w-6 h-6 bg-yellow-200 rounded-full animate-pulse"></div>
+                <div className="w-6 h-6  rounded-full animate-pulse"></div>
                 <div className="h-4 bg-gray-200 rounded animate-pulse flex-1"></div>
               </div>
             ))}
@@ -43,10 +43,10 @@ export default function GemstoneLoading() {
           {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
             <div key={i} className="bg-white border rounded-lg overflow-hidden shadow-sm">
               {/* Gemstone Image Skeleton */}
-              <div className="relative bg-gradient-to-br from-yellow-100 to-yellow-200 h-48 animate-pulse">
+              <div className="relative bg-gradient-to-br from-gray-100 to-gray-100 h-48 animate-pulse">
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer"></div>
                 <div className="flex items-center justify-center h-full">
-                  <div className="w-20 h-12 bg-yellow-300/50 rounded-full animate-pulse"></div>
+                  <div className="w-20 h-12 bg-gray-300/50 rounded-full animate-pulse"></div>
                 </div>
               </div>
 
@@ -59,7 +59,7 @@ export default function GemstoneLoading() {
                 {/* Buttons Skeleton */}
                 <div className="flex gap-2">
                   <div className="h-8 bg-gray-200 rounded animate-pulse flex-1"></div>
-                  <div className="h-8 bg-yellow-200 rounded animate-pulse flex-1"></div>
+                  <div className="h-8  rounded animate-pulse flex-1"></div>
                 </div>
               </div>
             </div>
@@ -70,7 +70,7 @@ export default function GemstoneLoading() {
         <div className="flex items-center justify-center mt-12">
           <div className="flex items-center gap-3">
             <div className="relative">
-              <div className="w-8 h-8 border-4 border-yellow-200 border-t-yellow-500 rounded-full animate-spin"></div>
+              <div className="w-8 h-8 border-4 border-yellow-100 border-t-yellow-500 rounded-full animate-spin"></div>
               <div className="absolute inset-0 w-8 h-8 border-4 border-transparent border-r-yellow-300 rounded-full animate-spin animation-delay-150"></div>
             </div>
             <div className="text-lg font-medium text-gray-700">Discovering precious gemstones...</div>
