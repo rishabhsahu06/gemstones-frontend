@@ -1,5 +1,5 @@
 
-import Cart from '@/app/components/cartCompo'
+import Cart from '@/app/components/cartDetails/cartCompo'
 import React from 'react'
 
 function CartPage() {
