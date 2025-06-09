@@ -28,7 +28,7 @@ function UnableToLoadCart() {
               We encountered an error while trying to load your cart. Please try again.
             </p>
             <button
-              onClick={fetchProductData}
+              // onClick={fetchProductData}
               className="px-6 py-3 bg-[#BA8E49] text-white rounded-lg font-medium hover:bg-[#A67B3E] transition-colors"
             >
               Retry
