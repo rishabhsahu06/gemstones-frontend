@@ -1,8 +1,10 @@
-
+"use client";
 import Cart from '@/app/components/cartDetails/cartCompo'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 
 function CartPage() {
+
+  
   return (
     <div>
         <Cart />

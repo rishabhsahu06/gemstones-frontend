@@ -186,7 +186,7 @@ export default function OrderDetailsPage() {
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Order Not Found</h2>
           <p className="text-gray-600 mb-6">{error || "The order you're looking for doesn't exist."}</p>
           <Link
-            href="/orders"
+            href="/-/orders"
             className="inline-flex items-center px-4 py-2 bg-[#BA8E49] text-white rounded-lg hover:bg-[#A67B3E] transition-colors mr-4"
           >
             View All Orders
@@ -245,7 +245,7 @@ export default function OrderDetailsPage() {
                   <span className="ml-2 capitalize">{order.status}</span>
                 </div>
                 
-                {canCancelOrder(order.status) && (
+                {/* {canCancelOrder(order.status) && (
                   <button
                     onClick={handleCancelOrder}
                     disabled={cancelling}
@@ -258,7 +258,7 @@ export default function OrderDetailsPage() {
                     )}
                     {cancelling ? 'Cancelling...' : 'Cancel Order'}
                   </button>
-                )}
+                )} */}
               </div>
             </div>
 
@@ -518,7 +518,7 @@ export default function OrderDetailsPage() {
                 </button>
                 
                 <Link
-                  href="/orders"
+                  href="/-/user"
                   className="w-full flex items-center justify-center px-4 py-2 border border-[#BA8E49] text-[#BA8E49] rounded-lg hover:bg-[#BA8E49] hover:text-white transition-colors"
                 >
                   View All Orders

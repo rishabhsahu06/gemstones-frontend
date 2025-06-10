@@ -1,6 +1,6 @@
 "use client"
 import { useEffect, useState } from "react"
-import { Plus, Minus, ChevronRight, Trash2, Loader2 } from "lucide-react"
+import { Plus, Minus, ChevronRight, Trash2, Loader2 } from 'lucide-react'
 import { useApi } from "@/hooks/useApi"
 import useAccessToken from "@/hooks/userSession"
 import Image from "next/image"
@@ -11,12 +11,13 @@ import CartLoadingSkeleton from "../skeleton/cartSkeleton"
 import UnableToLoadCart from "./unableToLoadCart"
 import CartIsEmpty from "./cartIsEmpty"
 import OrderSummary from "./orderSummary"
+import AuthModal from "../auth-model/authModel"
 
 function Cart() {
   const [userCart, setUserCartDetails] = useState(null)
   const [isUpdating, setIsUpdating] = useState(null)
   const [isCheckingOut, setIsCheckingOut] = useState(false)
-
+    const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
   const { get, post, put, delete: del, loading, error } = useApi()
   const { accessToken } = useAccessToken()
 
@@ -169,9 +170,25 @@ function Cart() {
     if (accessToken) {
       fetchProductData()
     }
+    else  {
+      setIsAuthModalOpen(true)
+    }
   }, [accessToken, get])
 
   console.log(userCart, "userCart")
+
+  // Show auth modal when no access token
+  if (!accessToken && isAuthModalOpen) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="text-center">
+          <h2 className="text-2xl font-semibold mb-4">Please Sign In</h2>
+          <p className="text-gray-600 mb-4">You need to be signed in to view your cart.</p>
+        </div>
+        <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
+      </div>
+    )
+  }
 
   // Empty cart state
   if (!loading && (!userCart || !userCart.items || userCart.items.length === 0)) {
@@ -312,6 +329,9 @@ function Cart() {
           <OrderSummary userCart={userCart} isCheckingOut={isCheckingOut} onCheckout={handleCheckout} />
         </div>
       </div>
+
+      {/* Auth Modal - positioned at root level for proper visibility */}
+      <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
     </div>
   )
 }
