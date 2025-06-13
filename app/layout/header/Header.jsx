@@ -397,13 +397,7 @@ function Header() {
                             )}>
                                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Service</h3>
                                 <div className="space-y-3">
-                                    <Link
-                                        href="/-/get-recommendation"
-                                        className="block text-gray-600 hover:text-[#BA8E49] transition-colors p-2 rounded hover:bg-gray-50"
-                                        onClick={closeAllDropdowns}
-                                    >
-                                        Get Recommendation Now
-                                    </Link>
+                                 
                                     <Link
                                         href="/-/book-call"
                                         className="block text-gray-600 hover:text-[#BA8E49] transition-colors p-2 rounded hover:bg-gray-50"
@@ -595,9 +589,7 @@ function Header() {
                                 isServiceDropdownOpen ? "max-h-32 opacity-100" : "max-h-0 opacity-0"
                             )}>
                                 <div className="pl-4 space-y-3 pt-2">
-                                    <Link href="/-/get-recommendation" className="block text-gray-600 hover:text-[#BA8E49] text-base transition-colors" onClick={toggleMenu}>
-                                        Get Recommendation Now
-                                    </Link>
+                                  
                                     <Link href="/-/book-call" className="block text-gray-600 hover:text-[#BA8E49] text-base transition-colors" onClick={toggleMenu}>
                                         Book Call
                                     </Link>

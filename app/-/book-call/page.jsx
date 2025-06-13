@@ -1,6 +1,7 @@
 import FAQ from '@/app/Home/faq'
 import { Button } from '@/components/ui/button'
 import Image from 'next/image'
+import Link from 'next/link'
 import React from 'react'
 
 function BookCall() {
@@ -31,13 +32,15 @@ function BookCall() {
                         Gain valuable insights into your life, career, relationships, and more through a personalized one-on-one session with a trusted astrologer. During this consultation, you'll receive guidance tailored specifically to your birth chart, helping you navigate important decisions and better understand your path. Simply choose your preferred date and time, and take the first step toward clarity and self-discovery.
                     </p>
 
-                    <div className='pt-4  flex justify-center md:justify-start'>``
+                    <div className='pt-4  flex justify-center md:justify-start'>
+                        <Link href="/-/book-call/book-form" className='w-full md:w-auto'>
                         <Button
-                            className='bg-primary  text-white font-semibold text-base py-3 px-8 md:py-6 md:px-12 rounded-lg  duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-transform'
+                            className='bg-primary cursor-pointer  text-white font-semibold text-base py-3 px-8 md:py-6 md:px-12 rounded-lg  duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-transform'
                             aria-label="Book consultation call"
                         >
                             BOOK CALL
                         </Button>
+                        </Link>
                     </div>
                 </div>
             </div>

@@ -7,11 +7,12 @@ import LuxuryGemstones from './Home/gemstone-luxury'
 import PurposefullGemstone from './Home/puprose-gemstone'
 
 import ReelsSection from './Home/reels-section'
-import BookService from './Home/book-service'
+
 import AstrologyPopup from './components/popup'
 import JwelleryBanner from './Home/jwellery-banner'
 import Hero from './Home/Hero'
 import Blogs from './Home/blog'
+import BookService from './Home/book-service'
 
 
 function page() {

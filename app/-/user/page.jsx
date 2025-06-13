@@ -520,7 +520,7 @@ const UserProfilePage = () => {
                       className="flex items-center space-x-2 text-golden hover:text-golden-dark transition-colors"
                     >
                       <Eye className="h-4 w-4" />
-                      <span>View Details</span>
+                      <span className='cursor-pointer'>View Details</span>
                     </button>
                   </div>
                 </div>

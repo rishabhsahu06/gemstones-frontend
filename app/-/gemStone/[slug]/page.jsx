@@ -1,10 +1,8 @@
 "use client"
-
 import { useState, useEffect, use } from "react"
 import Link from "next/link"
 import { ChevronRight, Check } from "lucide-react"
 import { Button } from "@/components/ui/button"
-
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import CategoryCard from "@/app/components/category-cards/categoryCards"
 import api from "@/lib/axios"
