@@ -421,10 +421,10 @@ function Header() {
                             <User className="h-5 w-5 lg:h-6 lg:w-6" />
                             <span className="sr-only">Account</span>
                         </Link>
-                        <Link href="/search" className="hidden sm:block text-gray-700 hover:text-[#BA8E49] p-2 rounded-full hover:bg-gray-100 transition-colors">
+                        {/* <Link href="/search" className="hidden sm:block text-gray-700 hover:text-[#BA8E49] p-2 rounded-full hover:bg-gray-100 transition-colors">
                             <Search className="h-5 w-5 lg:h-6 lg:w-6" />
                             <span className="sr-only">Search</span>
-                        </Link>
+                        </Link> */}
 
                         <Link href="/-/cart" className="hidden sm:block text-gray-700 hover:text-[#BA8E49] p-2 rounded-full hover:bg-gray-100 transition-colors">
                             <ShoppingCart className="h-5 w-5 lg:h-6 lg:w-6" />
@@ -607,10 +607,10 @@ function Header() {
                                 <User className="h-6 w-6" />
                                 <span className="sr-only">Account</span>
                             </Link>
-                            <Link href="/search" className="text-gray-700 hover:text-[#BA8E49] p-2 rounded-full hover:bg-gray-100 transition-colors" onClick={toggleMenu}>
+                            {/* <Link href="/search" className="text-gray-700 hover:text-[#BA8E49] p-2 rounded-full hover:bg-gray-100 transition-colors" onClick={toggleMenu}>
                                 <Search className="h-6 w-6" />
                                 <span className="sr-only">Search</span>
-                            </Link>
+                            </Link> */}
                             <Link href="/cart" className="text-gray-700 hover:text-[#BA8E49] p-2 rounded-full hover:bg-gray-100 transition-colors" onClick={toggleMenu}>
                                 <ShoppingCart className="h-6 w-6" />
                                 <span className="sr-only">Cart</span>

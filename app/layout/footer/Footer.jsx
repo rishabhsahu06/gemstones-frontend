@@ -26,13 +26,13 @@ function Footer() {
                             <Link href="/" className="text-gray-700 hover:text-gray-900">
                                 Home
                             </Link>
-                            <Link href="/gem-recommendation" className="text-gray-700 hover:text-gray-900">
+                            <Link href="/-/book-call/book-form" className="text-gray-700 hover:text-gray-900">
                                 Gem Recommendation
                             </Link>
-                            <Link href="/gemstones" className="text-gray-700 hover:text-gray-900">
+                            <Link href="/-/products" className="text-gray-700 hover:text-gray-900">
                                 Gemstones
                             </Link>
-                            <Link href="/jewellery" className="text-gray-700 hover:text-gray-900">
+                            <Link href="/-/gemstones-jewellery" className="text-gray-700 hover:text-gray-900">
                                 Gemstones Jewellery
                             </Link>
                         </nav>
@@ -42,15 +42,15 @@ function Footer() {
                     <div className="flex flex-col space-y-4">
                         <h3 className="font-bold text-lg">Information</h3>
                         <nav className="flex flex-col space-y-2">
-                            <Link href="/about" className="text-gray-700 hover:text-gray-900">
+                            <Link href="/-/about" className="text-gray-700 hover:text-gray-900">
                                 About
                             </Link>
-                            <Link href="/services" className="text-gray-700 hover:text-gray-900">
+                            <Link href="/-/book-call/book-form" className="text-gray-700 hover:text-gray-900">
                                 Services
                             </Link>
-                            <Link href="/blogs" className="text-gray-700 hover:text-gray-900">
+                            <div  className="text-gray-700 hover:text-gray-900">
                                 Blogs
-                            </Link>
+                            </div>
                         </nav>
                     </div>
 
@@ -62,12 +62,18 @@ function Footer() {
                                 Dummy@gmail.com
                             </Link>
                         </div>
-                        <div className="flex flex-col space-y-4">
-                            <h3 className="font-bold text-lg">Contact Us</h3>
-                            <Link href="https://wa.me/" className="text-gray-700 hover:text-gray-900">
-                                <WhatsApp className="w-5 h-5" />
-                            </Link>
-                        </div>
+                      <div className="flex flex-col space-y-4">
+      <h3 className="font-bold text-lg">Contact Us</h3>
+      <Link
+        href="https://wa.me/919876543210" // your number here without '+' or spaces
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-gray-700 hover:text-green-600 flex items-center gap-2"
+      >
+        <WhatsApp className="w-5 h-5" />
+        Message us on WhatsApp
+      </Link>
+    </div>
                     </div>
                 </div>
 

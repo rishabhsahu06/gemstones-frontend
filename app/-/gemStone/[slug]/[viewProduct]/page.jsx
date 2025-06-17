@@ -1,6 +1,6 @@
 "use client"
 
-import { use, useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import { Check, ChevronRight, MessageCircle } from "lucide-react"
 import Image from "next/image"
 import FAQ from "@/app/Home/faq"
@@ -13,9 +13,9 @@ import AuthModal from "@/app/components/auth-model/authModel"
 import { toast } from "react-toastify"
 
 const GemstonePageViewPage = () => {
-    const searchParams = useParams()
-     const { accessToken, user } = useAccessToken();
-     const { post, loading, error } = useApi()
+  const searchParams = useParams()
+  const { accessToken, user } = useAccessToken()
+  const { post, loading, error } = useApi()
   const [selectedImage, setSelectedImage] = useState(0)
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
   const [selectedCertification, setSelectedCertification] = useState("Free Lab Certificate")
@@ -36,69 +36,62 @@ const GemstonePageViewPage = () => {
   }
 
   useEffect(() => {
-    fetchProductData();
+    fetchProductData()
   }, [slug, viewProduct])
 
   const handleAddCarWithToken = async (id) => {
-      try {
-       const cartData = {
-         productId: id,
-         quantity: 1,
-       }
-       const options = {
-         headers: {
-           Authorization: `Bearer ${accessToken}`,
-           'Content-Type': 'application/json',
-         },
-       }
- 
-       // Using your useApi hook's post method
-       const response = await post("/cart", cartData, options)
- 
-       toast.success("Product added to cart successfully!")
+    try {
+      const cartData = {
+        productId: id,
+        quantity: 1,
+      }
+      const options = {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+      }
 
- 
-     } catch (err) {
-       console.error("❌ Error Details:", {
-         message: err.message || err.data.message,
-         status: err.response?.status,
-         statusText: err.response?.statusText,
-         data: err.response?.data,
-       })
-       
-       // Handle different error scenarios
-       if (err.response?.status === 401) {
-         toast.error("Please log in to add items to your cart.")
-         setIsAuthModalOpen(true)
-       } else if (err.response?.status === 400) {
-         toast.error(err.response.data?.message || "Invalid request. Please check the product details.")
-       } else if (err.response?.status === 404) {
-         toast.error("Product not found or cart endpoint unavailable.")
-       } else if (err.response?.status === 500) {
-         toast.error("Server error. Please try again later.")
-       } else {
-         // The error from useApi hook will be in the error state
-         toast.error(error || "Failed to add product to cart. Please try again.")
-       }
-     }
-   }
- 
-   // Alternative version with different endpoints to try
- 
- 
-   const handleAddToCart = (id) => {
-     console.log("🛒 Add to cart clicked for product:", id)
-     
-     if (!accessToken) {
-       console.log("🔒 No access token, opening auth modal")
-       setIsAuthModalOpen(true)
-     } else {
-       console.log("🔑 Access token found, proceeding with cart addition")
-       handleAddCarWithToken(id)
-       // Uncomment below to try alternative method if the above doesn't work
-       // handleAddCarWithTokenAlternative(id)
-     }
-   }
+      // Using your useApi hook's post method
+      const response = await post("/cart", cartData, options)
+
+      toast.success("Product added to cart successfully!")
+    } catch (err) {
+      console.error("❌ Error Details:", {
+        message: err.message || err.data?.message,
+        status: err.response?.status,
+        statusText: err.response?.statusText,
+        data: err.response?.data,
+      })
+
+      // Handle different error scenarios
+      if (err.response?.status === 401) {
+        toast.error("Please log in to add items to your cart.")
+        setIsAuthModalOpen(true)
+      } else if (err.response?.status === 400) {
+        toast.error(err.response.data?.message || "Invalid request. Please check the product details.")
+      } else if (err.response?.status === 404) {
+        toast.error("Product not found or cart endpoint unavailable.")
+      } else if (err.response?.status === 500) {
+        toast.error("Server error. Please try again later.")
+      } else {
+        // The error from useApi hook will be in the error state
+        toast.error(error || "Failed to add product to cart. Please try again.")
+      }
+    }
+  }
+
+  const handleAddToCart = (id) => {
+    console.log("🛒 Add to cart clicked for product:", id)
+
+    if (!accessToken) {
+      console.log("🔒 No access token, opening auth modal")
+      setIsAuthModalOpen(true)
+    } else {
+      console.log("🔑 Access token found, proceeding with cart addition")
+      handleAddCarWithToken(id)
+    }
+  }
 
   // Loading state
   if (!productData) {
@@ -112,11 +105,49 @@ const GemstonePageViewPage = () => {
     )
   }
 
+  // Safe data access with fallbacks
+  const safeProductData = {
+    name: productData?.name || "Gemstone",
+    images: productData?.images || [],
+    discountedPrice: productData?.discountedPrice || 0,
+    originalPrice: productData?.originalPrice || 0,
+    stock: productData?.stock || 0,
+    _id: productData?._id || "",
+    origin: productData?.origin || "Unknown",
+    certification: productData?.certification || "Not Certified",
+    poojaEnergization: productData?.poojaEnergization || "No Energization",
+    description: productData?.description || "No description available",
+    features: productData?.features || [],
+    treatment: productData?.treatment || "Unknown",
+    treatmentType: productData?.treatmentType || "Unknown",
+    shape: productData?.shape || "Unknown",
+    composition: productData?.composition || "Unknown",
+    weightCarat: productData?.weightCarat || 0,
+    colour: productData?.colour || "Unknown",
+    dimensions: {
+      length: productData?.dimensions?.length || 0,
+      width: productData?.dimensions?.width || 0,
+      height: productData?.dimensions?.height || 0,
+    },
+    specificGravity: productData?.specificGravity || "Unknown",
+    refractiveIndex: {
+      min: productData?.refractiveIndex?.min || 0,
+      max: productData?.refractiveIndex?.max || 0,
+    },
+    dimensionType: productData?.dimensionType || "Unknown",
+    weightRatti: productData?.weightRatti || 0,
+    weight: productData?.weight || 0,
+  }
+
   const breadcrumbs = [
     { name: "Home", href: "#" },
     { name: "Gemstones", href: "#" },
-    { name: productData.name, href: "#" },
+    { name: safeProductData.name, href: "#" },
   ]
+
+  // Safe image handling
+  const currentImage = safeProductData.images[selectedImage] || null
+  const hasImages = safeProductData.images.length > 0
 
   return (
     <div className="min-h-screen bg-white">
@@ -127,11 +158,7 @@ const GemstonePageViewPage = () => {
             {breadcrumbs.map((item, index) => (
               <li key={index} className="flex items-center">
                 {index > 0 && <ChevronRight className="w-3 h-3 text-gray-400 mx-1" />}
-                <p
-                  className={` text-black text-[16px] font-bold hover:text-black`}
-                >
-                  {item.name}
-                </p>
+                <p className={` text-black text-[16px] font-bold hover:text-black`}>{item.name}</p>
               </li>
             ))}
           </ol>
@@ -142,58 +169,70 @@ const GemstonePageViewPage = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2  gap-8">
           {/* Image Section */}
           <div className="space-y-4 ">
-            {/* Main Image aspect-square */}
-            <div className="   bg-white   border-gray-200  flex items-center justify-center">
+            {/* Main Image */}
+            <div className="bg-white border-gray-200 flex items-center justify-center">
               <Image
-                src={productData.images?.[selectedImage]?.url || "/placeholder.svg?height=400&width=400"}
-                alt={productData.images?.[selectedImage]?.alt || "Product image"}
+                src={currentImage?.url || "/placeholder.svg?height=400&width=400&query=gemstone"}
+                alt={currentImage?.alt || `${safeProductData.name} image`}
                 width={400}
                 height={400}
-                className="w-full  h-full object-fill rounded-lg "
+                className="w-full h-full object-fill rounded-lg"
               />
             </div>
 
             {/* Thumbnail Images */}
-            <div className="flex space-x-3">
-              {productData.images?.map((image, index) => (
-                <button
-                  key={index}
-                  onClick={() => setSelectedImage(index)}
-                  className={`w-20 h-20 border-2 rounded-lg overflow-hidden p-2 ${
-                    selectedImage === index ? "border-orange-400" : "border-gray-200"
-                  }`}
-                >
-                  <Image
-                    src={image.url || "/placeholder.svg?height=80&width=80"}
-                    alt={image.alt}
-                    width={80}
-                    height={80}
-                    className="w-full h-full object-contain"
-                  />
-                </button>
-              ))}
-            </div>
+            {hasImages && (
+              <div className="flex space-x-3">
+                {safeProductData.images.map((image, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setSelectedImage(index)}
+                    className={`w-20 h-20 border-2 rounded-lg overflow-hidden p-2 ${
+                      selectedImage === index ? "border-orange-400" : "border-gray-200"
+                    }`}
+                  >
+                    <Image
+                      src={image?.url || "/placeholder.svg?height=80&width=80&query=gemstone-thumbnail"}
+                      alt={image?.alt || `${safeProductData.name} thumbnail ${index + 1}`}
+                      width={80}
+                      height={80}
+                      className="w-full h-full object-contain"
+                    />
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Product Info Section */}
           <div className="space-y-6">
             <div>
-              <h1 className="text-2xl  font-bold text-gray-900 mb-3">{productData.name}</h1>
+              <h1 className="text-2xl font-bold text-gray-900 mb-3">{safeProductData.name}</h1>
               <div className="flex items-center space-x-4 mb-3">
-                <span className="text-2xl font-bold text-gray-900">Rs. {productData.discountedPrice?.toLocaleString()}</span>
-                {productData.originalPrice > productData.discountedPrice && (
-                  <span className="text-lg text-gray-500 line-through">Rs. {productData.originalPrice?.toLocaleString()}</span>
-                )}
-                <span className="bg-red-100 text-red-600 px-2 py-1 rounded text-sm font-medium">
-                  Only {productData.stock} Left
+                <span className="text-2xl font-bold text-gray-900">
+                  Rs.{" "}
+                  {safeProductData.discountedPrice > 0
+                    ? safeProductData.discountedPrice.toLocaleString()
+                    : "Price not available"}
                 </span>
+                {safeProductData.originalPrice > safeProductData.discountedPrice &&
+                  safeProductData.originalPrice > 0 && (
+                    <span className="text-lg text-gray-500 line-through">
+                      Rs. {safeProductData.originalPrice.toLocaleString()}
+                    </span>
+                  )}
+                {safeProductData.stock > 0 && (
+                  <span className="bg-red-100 text-red-600 px-2 py-1 rounded text-sm font-medium">
+                    Only {safeProductData.stock} Left
+                  </span>
+                )}
               </div>
               <div className="flex items-center space-x-6 text-sm text-gray-600 mb-6">
                 <span>
-                  <strong className="">SKU:</strong> {productData._id?.slice(-8).toUpperCase()}
+                  <strong>SKU:</strong> {safeProductData._id ? safeProductData._id.slice(-8).toUpperCase() : "N/A"}
                 </span>
                 <span>
-                  <strong>Origin:</strong> {productData.origin}
+                  <strong>Origin:</strong> {safeProductData.origin}
                 </span>
               </div>
             </div>
@@ -205,7 +244,7 @@ const GemstonePageViewPage = () => {
               </label>
               <input
                 type="text"
-                value={productData.certification}
+                value={safeProductData.certification}
                 readOnly
                 className="w-full p-3 border border-gray-300 rounded-md bg-[#F5F5F5] text-gray-900 cursor-not-allowed"
               />
@@ -218,7 +257,7 @@ const GemstonePageViewPage = () => {
               </label>
               <input
                 type="text"
-                value={productData.poojaEnergization}
+                value={safeProductData.poojaEnergization}
                 readOnly
                 className="w-full p-3 border border-gray-300 rounded-md bg-[#F5F5F5] text-gray-900 cursor-not-allowed"
               />
@@ -226,7 +265,7 @@ const GemstonePageViewPage = () => {
 
             {/* Selection Options */}
             <div>
-              <label className="block  text-sm font-medium text-gray-700 mb-3">
+              <label className="block text-sm font-medium text-gray-700 mb-3">
                 Select For Ring / Pendant / Bracelet <span className="text-red-500">*</span>
               </label>
               <div className="grid grid-cols-4 gap-3">
@@ -254,28 +293,31 @@ const GemstonePageViewPage = () => {
             </div>
 
             {/* Add to Cart Button */}
-            <button  onClick={() => handleAddToCart(productData._id)} className="w-full bg-[#BA8E49] text-white py-2 px-6 rounded-md font-bold text-lg hover:bg-[#BA8E49] cursor-pointer transition-colors">
+            <button
+              onClick={() => handleAddToCart(safeProductData._id)}
+              disabled={!safeProductData._id}
+              className="w-full bg-[#BA8E49] text-white py-2 px-6 rounded-md font-bold text-lg hover:bg-[#BA8E49] disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+            >
               ADD CART
-            </button> 
+            </button>
           </div>
         </div>
 
         {/* Product Details Section */}
-        <div className="mt-12  rounded-lg ">
+        <div className="mt-12 rounded-lg">
           <h2 className="text-xl font-bold text-gray-900 text-center mb-6 bg-[#BA8E4980] p-3 rounded">
-            Product Details: {productData.name} - {productData.weightCarat} carats
+            Product Details: {safeProductData.name} -{" "}
+            {safeProductData.weightCarat > 0 ? `${safeProductData.weightCarat} carats` : "Weight not specified"}
           </h2>
 
           <div className="mb-8">
-            <p className="text-gray-700 leading-relaxed">
-              {productData.description}
-            </p>
+            <p className="text-gray-700 leading-relaxed">{safeProductData.description}</p>
           </div>
 
           {/* Benefits Icons */}
-          {productData.features && productData.features.length > 0 && (
+          {safeProductData.features.length > 0 && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8 w-[70%]">
-              {productData.features.map((feature, index) => (
+              {safeProductData.features.map((feature, index) => (
                 <div key={index} className="flex items-center space-x-3">
                   <div className="w-6 h-6 rounded-full bg- border border-[#BA8E49] flex items-center justify-center flex-shrink-0">
                     <Check className="w-4 h-4 text-[#BA8E49]" />
@@ -291,70 +333,84 @@ const GemstonePageViewPage = () => {
             <table className="w-full">
               <tbody>
                 <tr className="border-b border-gray-200">
-                  <td className="px-4 py-3 font-medium text-gray-700 ">Gemstone</td>
+                  <td className="px-4 py-3 font-medium text-gray-700">Gemstone</td>
                   <td className="px-2 py-3 text-center">:</td>
-                  <td className="px-4 py-3 text-gray-900">{productData.name}</td>
-                  <td className="px-4 py-3 font-medium text-gray-700 ">Treatment</td>
+                  <td className="px-4 py-3 text-gray-900">{safeProductData.name}</td>
+                  <td className="px-4 py-3 font-medium text-gray-700">Treatment</td>
                   <td className="px-2 py-3 text-center">:</td>
-                  <td className="px-4 py-3 text-gray-900">{productData.treatment}</td>
-                  <td className="px-4 py-3 font-medium text-gray-700 ">Treatment Type</td>
+                  <td className="px-4 py-3 text-gray-900">{safeProductData.treatment}</td>
+                  <td className="px-4 py-3 font-medium text-gray-700">Treatment Type</td>
                   <td className="px-2 py-3 text-center">:</td>
-                  <td className="px-4 py-3 text-gray-900">{productData.treatmentType}</td>
+                  <td className="px-4 py-3 text-gray-900">{safeProductData.treatmentType}</td>
                 </tr>
                 <tr className="border-b border-gray-200 bg-[#F5F5F5]">
                   <td className="px-4 py-3 font-medium text-gray-700">Certification</td>
                   <td className="px-2 py-3 text-center">:</td>
-                  <td className="px-4 py-3 text-gray-900">{productData.certification}</td>
+                  <td className="px-4 py-3 text-gray-900">{safeProductData.certification}</td>
                   <td className="px-4 py-3 font-medium text-gray-700">Shape</td>
                   <td className="px-2 py-3 text-center">:</td>
-                  <td className="px-4 py-3 text-gray-900">{productData.shape}</td>
+                  <td className="px-4 py-3 text-gray-900">{safeProductData.shape}</td>
                   <td className="px-4 py-3 font-medium text-gray-700">Composition</td>
                   <td className="px-2 py-3 text-center">:</td>
-                  <td className="px-4 py-3 text-gray-900">{productData.composition}</td>
+                  <td className="px-4 py-3 text-gray-900">{safeProductData.composition}</td>
                 </tr>
-                <tr className="border-b border-gray-200 ">
+                <tr className="border-b border-gray-200">
                   <td className="px-4 py-3 font-medium text-gray-700">Return Policy</td>
                   <td className="px-2 py-3 text-center">:</td>
                   <td className="px-4 py-3 text-gray-900">
-                    <span className="text-black">10 Day Money-Back <span className="text-[#BA8E49]">return policy</span></span>
+                    <span className="text-black">
+                      10 Day Money-Back <span className="text-[#BA8E49]">return policy</span>
+                    </span>
                   </td>
                   <td className="px-4 py-3 font-medium text-gray-700">Weight (carat)</td>
                   <td className="px-2 py-3 text-center">:</td>
-                  <td className="px-4 py-3 text-gray-900">{productData.weightCarat}</td>
+                  <td className="px-4 py-3 text-gray-900">
+                    {safeProductData.weightCarat > 0 ? safeProductData.weightCarat : "Not specified"}
+                  </td>
                   <td className="px-4 py-3 font-medium text-gray-700">Colour</td>
                   <td className="px-2 py-3 text-center">:</td>
-                  <td className="px-4 py-3 text-gray-900">{productData.colour}</td>
+                  <td className="px-4 py-3 text-gray-900">{safeProductData.colour}</td>
                 </tr>
                 <tr className="border-b border-gray-200 bg-[#F5F5F5]">
                   <td className="px-4 py-3 font-medium text-gray-700">Exact Dimensions</td>
                   <td className="px-2 py-3 text-center">:</td>
                   <td className="px-4 py-3 text-gray-900">
-                    {productData.dimensions.length}x{productData.dimensions.width}x{productData.dimensions.height} mm
+                    {safeProductData.dimensions.length > 0 &&
+                    safeProductData.dimensions.width > 0 &&
+                    safeProductData.dimensions.height > 0
+                      ? `${safeProductData.dimensions.length}x${safeProductData.dimensions.width}x${safeProductData.dimensions.height} mm`
+                      : "Not specified"}
                   </td>
                   <td className="px-4 py-3 font-medium text-gray-700">Origin</td>
                   <td className="px-2 py-3 text-center">:</td>
-                  <td className="px-4 py-3 text-gray-900">{productData.origin}</td>
+                  <td className="px-4 py-3 text-gray-900">{safeProductData.origin}</td>
                   <td className="px-4 py-3 font-medium text-gray-700">Specific Gravity</td>
                   <td className="px-2 py-3 text-center">:</td>
-                  <td className="px-4 py-3 text-gray-900">{productData.specificGravity}</td>
+                  <td className="px-4 py-3 text-gray-900">{safeProductData.specificGravity}</td>
                 </tr>
-                <tr className="border-b border-gray-200 ">
+                <tr className="border-b border-gray-200">
                   <td className="px-4 py-3 font-medium text-gray-700">Refractive Index</td>
                   <td className="px-2 py-3 text-center">:</td>
                   <td className="px-4 py-3 text-gray-900">
-                    {productData.refractiveIndex.min} - {productData.refractiveIndex.max}
+                    {safeProductData.refractiveIndex.min > 0 && safeProductData.refractiveIndex.max > 0
+                      ? `${safeProductData.refractiveIndex.min} - ${safeProductData.refractiveIndex.max}`
+                      : "Not specified"}
                   </td>
                   <td className="px-4 py-3 font-medium text-gray-700">Dimension Type</td>
                   <td className="px-2 py-3 text-center">:</td>
-                  <td className="px-4 py-3 text-gray-900">{productData.dimensionType}</td>
+                  <td className="px-4 py-3 text-gray-900">{safeProductData.dimensionType}</td>
                   <td className="px-4 py-3 font-medium text-gray-700">Weight (ratti)</td>
                   <td className="px-2 py-3 text-center">:</td>
-                  <td className="px-4 py-3 text-gray-900">{productData.weightRatti}</td>
+                  <td className="px-4 py-3 text-gray-900">
+                    {safeProductData.weightRatti > 0 ? safeProductData.weightRatti : "Not specified"}
+                  </td>
                 </tr>
                 <tr>
                   <td className="px-4 py-3 font-medium text-gray-700 bg-[#F5F5F5]">Weight (grams)</td>
                   <td className="px-2 py-3 text-center">:</td>
-                  <td className="px-4 py-3 text-gray-900">{productData.weight}</td>
+                  <td className="px-4 py-3 text-gray-900">
+                    {safeProductData.weight > 0 ? safeProductData.weight : "Not specified"}
+                  </td>
                   <td className="px-4 py-3"></td>
                   <td className="px-2 py-3"></td>
                   <td className="px-4 py-3"></td>
@@ -373,10 +429,9 @@ const GemstonePageViewPage = () => {
         <MessageCircle className="w-6 h-6" />
       </button>
 
-      <FAQ />  
+      <FAQ />
       <BookService />
-            <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
-      
+      <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
     </div>
   )
 }
