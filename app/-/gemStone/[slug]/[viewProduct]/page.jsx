@@ -137,6 +137,7 @@ const GemstonePageViewPage = () => {
     dimensionType: productData?.dimensionType || "Unknown",
     weightRatti: productData?.weightRatti || 0,
     weight: productData?.weight || 0,
+    isActive: productData?.isAvailable || false,
   }
 
   const breadcrumbs = [
@@ -294,13 +295,15 @@ const GemstonePageViewPage = () => {
 
             {/* Add to Cart Button */}
             <button
-              onClick={() => handleAddToCart(safeProductData._id)}
-              disabled={!safeProductData._id}
+              onClick={safeProductData.stock > 0 ? () => handleAddToCart(safeProductData._id) : null}
+              disabled={!safeProductData._id || !safeProductData.isActive || safeProductData.stock === 0}
               className="w-full bg-[#BA8E49] text-white py-2 px-6 rounded-md font-bold text-lg hover:bg-[#BA8E49] disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
             >
-              ADD CART
+              {safeProductData.stock > 0   ? "ADD TO CART" : "OUT OF STOCK"}
+        
             </button>
           </div>
+          
         </div>
 
         {/* Product Details Section */}
