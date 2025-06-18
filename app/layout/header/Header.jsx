@@ -79,7 +79,8 @@ function Header() {
                             id: item.id,
                             name: item.displayName,
                             slug: item.name,
-                            image: `/gemstones/${item.name.toLowerCase().replace(/\s+/g, '-')}.png` // Fallback image path
+                            image: `/gemstones/${item.name.toLowerCase().replace(/\s+/g, '-')}.png`, // Fallback image path
+                            image2: item.primaryCategoryImage
                         }))
                     }
                 ]
@@ -319,6 +320,7 @@ function Header() {
                                     <div className="p-5">
                                         {gemstoneCategories.map((category, categoryIndex) => (
                                             <div key={categoryIndex} className="space-y-4">
+                                               
                                                 <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">
                                                     {category.title}
                                                 </h3>
@@ -333,7 +335,7 @@ function Header() {
                                                           
                                                             <div className="w-6 h-6 rounded-full overflow-hidden flex-shrink-0 bg-gray-200">
                                                                 <Image
-                                                                    src={gemstone.image}
+                                                                    src={ gemstone.image2 || gemstone.image}
                                                                     alt={gemstone.name}
                                                                     width={24}
                                                                     height={24}
