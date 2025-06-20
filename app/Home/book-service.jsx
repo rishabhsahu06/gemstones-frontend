@@ -371,7 +371,7 @@ const { post } = useApi()
                                     />
                                 </div>
 
-                                {/* Message - Full Width */}
+                                {/* Message - Full Width - FIXED */}
                                 <FormField
                                     control={form.control}
                                     name="message"
@@ -385,8 +385,19 @@ const { post } = useApi()
                                                     placeholder="Tell us about your specific needs, concerns, or questions..."
                                                     rows={5}
                                                     {...field}
-                                                    className="rounded-md resize-none"
+                                                    className="rounded-md resize-none w-full min-h-[120px] whitespace-pre-wrap"
                                                     disabled={isSubmitting}
+                                                    style={{
+                                                        whiteSpace: 'pre-wrap',
+                                                        wordWrap: 'break-word',
+                                                        overflowWrap: 'break-word'
+                                                    }}
+                                                    onKeyDown={(e) => {
+                                                        // Ensure spaces are allowed
+                                                        if (e.key === ' ') {
+                                                            e.stopPropagation();
+                                                        }
+                                                    }}
                                                 />
                                             </FormControl>
                                             <FormMessage />
