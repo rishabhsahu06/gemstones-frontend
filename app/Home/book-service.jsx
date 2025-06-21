@@ -377,7 +377,7 @@ export default function BookService() {
                                     />
                                 </div>
 
-                                {/* Message - Full Width */}
+                                {/* Message - Full Width - FIXED */}
                                 <FormField
                                     control={form.control}
                                     name="message"
@@ -391,8 +391,19 @@ export default function BookService() {
                                                     placeholder="Enter Your Message"
                                                     rows={4}
                                                     {...field}
-                                                    className="rounded-md resize-none border-gray-300 focus:border-amber-500 focus:ring-amber-500"
+                                                    className="rounded-md resize-none w-full min-h-[120px] whitespace-pre-wrap"
                                                     disabled={isSubmitting}
+                                                    style={{
+                                                        whiteSpace: 'pre-wrap',
+                                                        wordWrap: 'break-word',
+                                                        overflowWrap: 'break-word'
+                                                    }}
+                                                    onKeyDown={(e) => {
+                                                        // Ensure spaces are allowed
+                                                        if (e.key === ' ') {
+                                                            e.stopPropagation();
+                                                        }
+                                                    }}
                                                 />
                                             </FormControl>
                                             <FormMessage />
