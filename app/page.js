@@ -6,13 +6,13 @@ import PerfectSTones from './Home/perfect-stone'
 import LuxuryGemstones from './Home/gemstone-luxury'
 import PurposefullGemstone from './Home/puprose-gemstone'
 
-import ReelsSection from './Home/reels-section'
 
 import AstrologyPopup from './components/popup'
 import JwelleryBanner from './Home/jwellery-banner'
 import Hero from './Home/Hero'
 import Blogs from './Home/blog'
 import BookService from './Home/book-service'
+import ReelsSection from './Home/reels-section'
 
 
 function page() {
@@ -27,7 +27,7 @@ function page() {
       <Blogs />
       <ReelsSection />
       <BookService />
-    
+
 
 
     </div>

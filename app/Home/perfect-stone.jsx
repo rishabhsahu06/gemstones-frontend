@@ -85,7 +85,7 @@ function StoneCard({ stone, index }) {
             {isLoading ? (
                 <div className="h-6 md:h-8 bg-gray-300 rounded w-24 md:w-32 animate-pulse"></div>
             ) : (
-                <h3 className="text-[18px] md:text-[24px] font-semibold text-center transition-opacity duration-300">
+                <h3 className="text-[18px] md:text-[22px] font-semibold text-center transition-opacity duration-300">
                     {stone.name}
                 </h3>
             )}
@@ -131,15 +131,15 @@ function PerfectStones() {
             <div className="flex justify-center mt-8">
 
 
- <Link href="/-/products">
-                <Button
+                <Link href="/-/products">
+                    <Button
 
-                    className="bg-[#BA8E49] cursor-pointer hover:bg-[#A67A3F] px-8 py-8 md:px-16 md:py-8 text-xl transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
-                >
-                
-                    View All Stones
-                </Button>
-                 </Link>
+                        className="bg-[#BA8E49] cursor-pointer hover:bg-[#A67A3F] px-8 py-8 md:px-16 md:py-8 text-xl transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
+                    >
+
+                        View All Stones
+                    </Button>
+                </Link>
 
             </div>
 

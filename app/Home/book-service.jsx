@@ -28,16 +28,13 @@ import {
 } from "@/components/ui/form"
 import { useApi } from "@/hooks/useApi"
 
-// Utility function for API calls (import from your API utils)
-
-
 // Enhanced Zod validation schema
 const formSchema = z.object({
     name: z.string()
         .min(2, { message: "Name must be at least 2 characters" })
         .max(50, { message: "Name must be less than 50 characters" }),
-    gender: z.enum(["male", "female", "other"], { 
-        required_error: "Please select a gender" 
+    gender: z.enum(["male", "female", "other"], {
+        required_error: "Please select a gender"
     }),
     email: z.string()
         .email({ message: "Please enter a valid email address" })
@@ -82,7 +79,7 @@ const PURPOSE_OPTIONS = [
 
 export default function BookService() {
     const [isSubmitting, setIsSubmitting] = useState(false)
-const { post } = useApi()
+    const { post } = useApi()
     const form = useForm({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -129,7 +126,7 @@ const { post } = useApi()
             }
         } catch (error) {
             console.error("Booking submission failed:", error)
-            toast.error( error?.response?.data?.message || error?.message||"Something went wrong. Please try again later.")
+            toast.error(error?.response?.data?.message || error?.message || "Something went wrong. Please try again later.")
         } finally {
             setIsSubmitting(false)
         }
@@ -142,48 +139,49 @@ const { post } = useApi()
 
     return (
         <div className="container mx-auto">
-            <div className="flex flex-col border  lg:flex-row min-h-screen mt-12">
+            <div className="flex flex-col border lg:flex-row min-h-screen mt-12">
                 {/* Image Side */}
-                <div className="w-full lg:w-1/2 relative ">
-                    <Image 
-                        src="/stones.png" 
-                        alt="Colorful gemstones collection" 
-                        fill 
-                        className="object-cover" 
-                        priority 
+                <div className="w-full lg:w-1/2 relative">
+                    <Image
+                        src="/stones.png"
+                        alt="Colorful gemstones collection"
+                        fill
+                        className="object-cover"
+                        priority
                     />
                 </div>
 
                 {/* Form Side */}
-                <div className="w-full lg:w-1/2 p-8 md:p-10 overflow-y-auto">
+                <div className="w-full lg:w-1/2 p-4 sm:p-6 md:p-8 lg:p-10 overflow-y-auto bg-white">
                     <div className="max-w-2xl mx-auto">
-                        <header className="text-center mb-8">
-                            <h1 className="text-2xl md:text-3xl font-bold mb-2 mt-4">
+                        <header className="text-center mb-6 lg:mb-8">
+                            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mb-2 mt-2 lg:mt-4 text-gray-900">
                                 Gem Recommendation Service | Online Astrology & Stone Picker
                             </h1>
-                            <p className="text-base md:text-lg font-helvetica text-gray-600 mb-10">
-                                Find your ideal gemstone using your birth details and zodiac sign. Get personalized, 
+                            <p className="text-sm sm:text-base md:text-lg font-helvetica text-gray-600 mb-6 lg:mb-10 px-2">
+                                Find your ideal gemstone using your birth details and zodiac sign. Get personalized,
                                 astrology-based stone recommendations to boost luck, success, and balance.
                             </p>
                         </header>
 
                         <Form {...form}>
-                            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 lg:space-y-6">
+                                {/* Mobile: Single column, Desktop: Two columns */}
+                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
                                     {/* Name */}
                                     <FormField
                                         control={form.control}
                                         name="name"
                                         render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel className="font-semibold text-sm">
+                                            <FormItem className="lg:col-span-1">
+                                                <FormLabel className="font-medium text-sm text-gray-700">
                                                     Name<span className="text-red-500 ml-1">*</span>
                                                 </FormLabel>
                                                 <FormControl>
-                                                    <Input 
-                                                        placeholder="Enter your full name" 
-                                                        {...field} 
-                                                        className="rounded-md" 
+                                                    <Input
+                                                        placeholder="Enter Your Name"
+                                                        {...field}
+                                                        className="h-11 lg:h-12 rounded-md border-gray-300 focus:border-amber-500 focus:ring-amber-500"
                                                         disabled={isSubmitting}
                                                     />
                                                 </FormControl>
@@ -197,19 +195,18 @@ const { post } = useApi()
                                         control={form.control}
                                         name="gender"
                                         render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel className="font-medium">
-                                                    Gender<span className="text-red-500 ml-1">*</span>
+                                            <FormItem className="lg:col-span-1">
+                                                <FormLabel className="font-medium text-sm text-gray-700">
+                                                    Select<span className="text-red-500 ml-1">*</span>
                                                 </FormLabel>
-                                                <Select 
-                                                    onValueChange={field.onChange} 
+                                                <Select
+                                                    onValueChange={field.onChange}
                                                     defaultValue={field.value}
                                                     disabled={isSubmitting}
-                                                    className=""
                                                 >
                                                     <FormControl>
-                                                        <SelectTrigger className="rounded-md  w-full">
-                                                            <SelectValue placeholder="Select gender" />
+                                                        <SelectTrigger className="h-11 lg:h-12 rounded-md border-gray-300 focus:border-amber-500 focus:ring-amber-500">
+                                                            <SelectValue placeholder="Gender" />
                                                         </SelectTrigger>
                                                     </FormControl>
                                                     <SelectContent>
@@ -224,22 +221,25 @@ const { post } = useApi()
                                             </FormItem>
                                         )}
                                     />
+                                </div>
 
+                                {/* Second Row */}
+                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
                                     {/* Email */}
                                     <FormField
                                         control={form.control}
                                         name="email"
                                         render={({ field }) => (
                                             <FormItem>
-                                                <FormLabel className="font-medium">
+                                                <FormLabel className="font-medium text-sm text-gray-700">
                                                     Email<span className="text-red-500 ml-1">*</span>
                                                 </FormLabel>
                                                 <FormControl>
-                                                    <Input 
-                                                        type="email" 
-                                                        placeholder="Enter your email address" 
-                                                        {...field} 
-                                                        className="rounded-md"
+                                                    <Input
+                                                        type="email"
+                                                        placeholder="Enter Your Email"
+                                                        {...field}
+                                                        className="h-11 lg:h-12 rounded-md border-gray-300 focus:border-amber-500 focus:ring-amber-500"
                                                         disabled={isSubmitting}
                                                     />
                                                 </FormControl>
@@ -254,15 +254,15 @@ const { post } = useApi()
                                         name="phone"
                                         render={({ field }) => (
                                             <FormItem>
-                                                <FormLabel className="font-medium">
+                                                <FormLabel className="font-medium text-sm text-gray-700">
                                                     Phone Number<span className="text-red-500 ml-1">*</span>
                                                 </FormLabel>
                                                 <FormControl>
-                                                    <Input 
-                                                        type="tel" 
-                                                        placeholder="Enter phone number (e.g., +919876543210)" 
-                                                        {...field} 
-                                                        className="rounded-md"
+                                                    <Input
+                                                        type="tel"
+                                                        placeholder="Enter Phone Number"
+                                                        {...field}
+                                                        className="h-11 lg:h-12 rounded-md border-gray-300 focus:border-amber-500 focus:ring-amber-500"
                                                         disabled={isSubmitting}
                                                     />
                                                 </FormControl>
@@ -270,21 +270,24 @@ const { post } = useApi()
                                             </FormItem>
                                         )}
                                     />
+                                </div>
 
+                                {/* Third Row */}
+                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
                                     {/* Date of Birth */}
                                     <FormField
                                         control={form.control}
                                         name="dob"
                                         render={({ field }) => (
                                             <FormItem>
-                                                <FormLabel className="font-medium">
-                                                    Date of Birth<span className="text-red-500 ml-1">*</span>
+                                                <FormLabel className="font-medium text-sm text-gray-700">
+                                                    Date Of Birth<span className="text-red-500 ml-1">*</span>
                                                 </FormLabel>
                                                 <FormControl>
                                                     <Input
                                                         type="date"
                                                         {...field}
-                                                        className="rounded-md"
+                                                        className="h-11 lg:h-12 rounded-md border-gray-300 focus:border-amber-500 focus:ring-amber-500"
                                                         disabled={isSubmitting}
                                                         max={new Date().toISOString().split('T')[0]} // Prevent future dates
                                                     />
@@ -300,14 +303,14 @@ const { post } = useApi()
                                         name="time"
                                         render={({ field }) => (
                                             <FormItem>
-                                                <FormLabel className="font-medium">
-                                                    Time of Birth<span className="text-red-500 ml-1">*</span>
+                                                <FormLabel className="font-medium text-sm text-gray-700">
+                                                    Date Of Time<span className="text-red-500 ml-1">*</span>
                                                 </FormLabel>
                                                 <FormControl>
                                                     <Input
                                                         type="time"
                                                         {...field}
-                                                        className="rounded-md"
+                                                        className="h-11 lg:h-12 rounded-md border-gray-300 focus:border-amber-500 focus:ring-amber-500"
                                                         disabled={isSubmitting}
                                                     />
                                                 </FormControl>
@@ -315,21 +318,24 @@ const { post } = useApi()
                                             </FormItem>
                                         )}
                                     />
+                                </div>
 
+                                {/* Fourth Row */}
+                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
                                     {/* Birth Place */}
                                     <FormField
                                         control={form.control}
                                         name="birthplace"
                                         render={({ field }) => (
                                             <FormItem>
-                                                <FormLabel className="font-medium">
+                                                <FormLabel className="font-medium text-sm text-gray-700">
                                                     Birth Place<span className="text-red-500 ml-1">*</span>
                                                 </FormLabel>
                                                 <FormControl>
-                                                    <Input 
-                                                        placeholder="Enter your birth place (city, state)" 
-                                                        {...field} 
-                                                        className="rounded-md"
+                                                    <Input
+                                                        placeholder="Enter"
+                                                        {...field}
+                                                        className="h-11 lg:h-12 rounded-md border-gray-300 focus:border-amber-500 focus:ring-amber-500"
                                                         disabled={isSubmitting}
                                                     />
                                                 </FormControl>
@@ -344,17 +350,17 @@ const { post } = useApi()
                                         name="purpose"
                                         render={({ field }) => (
                                             <FormItem>
-                                                <FormLabel className="font-medium">
-                                                    Purpose<span className="text-red-500 ml-1">*</span>
+                                                <FormLabel className="font-medium text-sm text-gray-700">
+                                                    Select<span className="text-red-500 ml-1">*</span>
                                                 </FormLabel>
-                                                <Select 
-                                                    onValueChange={field.onChange} 
+                                                <Select
+                                                    onValueChange={field.onChange}
                                                     defaultValue={field.value}
                                                     disabled={isSubmitting}
                                                 >
                                                     <FormControl>
-                                                        <SelectTrigger className="rounded-md">
-                                                            <SelectValue placeholder="Select purpose" />
+                                                        <SelectTrigger className="h-11 lg:h-12 rounded-md border-gray-300 focus:border-amber-500 focus:ring-amber-500">
+                                                            <SelectValue placeholder="Purpose" />
                                                         </SelectTrigger>
                                                     </FormControl>
                                                     <SelectContent>
@@ -377,15 +383,15 @@ const { post } = useApi()
                                     name="message"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel className="font-medium">
+                                            <FormLabel className="font-medium text-sm text-gray-700">
                                                 Your Message<span className="text-red-500 ml-1">*</span>
                                             </FormLabel>
                                             <FormControl>
                                                 <Textarea
-                                                    placeholder="Tell us about your specific needs, concerns, or questions..."
-                                                    rows={5}
+                                                    placeholder="Enter Your Message"
+                                                    rows={4}
                                                     {...field}
-                                                    className="rounded-md resize-none"
+                                                    className="rounded-md resize-none border-gray-300 focus:border-amber-500 focus:ring-amber-500"
                                                     disabled={isSubmitting}
                                                 />
                                             </FormControl>
@@ -399,39 +405,40 @@ const { post } = useApi()
                                     control={form.control}
                                     name="terms"
                                     render={({ field }) => (
-                                        <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                                        <FormItem className="flex flex-row items-center space-x-3 space-y-0 pt-4 pb-2">
                                             <FormControl>
-                                                <Checkbox 
-                                                    checked={field.value} 
+                                                <Checkbox
+                                                    checked={field.value}
                                                     onCheckedChange={field.onChange}
                                                     disabled={isSubmitting}
+                                                    className="w-5 h-5 rounded border-2 border-gray-400 data-[state=checked]:bg-amber-600 data-[state=checked]:border-amber-600"
                                                 />
                                             </FormControl>
-                                            <div className="space-y-1 leading-none">
-                                                <FormLabel className="text-sm text-gray-700 font-normal cursor-pointer">
+                                            <div className="flex-1">
+                                                <FormLabel className="text-sm font-medium text-gray-800 cursor-pointer leading-relaxed">
                                                     I have read and agree to the{" "}
-                                                    <Link href="/privacy-policy" className="font-medium text-black underline hover:text-amber-700">
+                                                    <Link href="/privacy-policy" className="font-bold text-gray-900 underline hover:text-amber-700 transition-colors">
                                                         Privacy Policy
                                                     </Link>{" "}
                                                     and{" "}
-                                                    <Link href="/terms-of-service" className="font-medium text-black underline hover:text-amber-700">
+                                                    <Link href="/terms-of-service" className="font-bold text-gray-900 underline hover:text-amber-700 transition-colors">
                                                         Terms of Service
                                                     </Link>
                                                     .
                                                 </FormLabel>
-                                                <FormMessage />
+                                                <FormMessage className="mt-2" />
                                             </div>
                                         </FormItem>
                                     )}
                                 />
 
                                 {/* Action Buttons */}
-                                <div className="flex flex-col sm:flex-row gap-4 justify-center sm:justify-end mt-8">
+                                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center sm:justify-end mt-6 lg:mt-8 pt-4">
                                     <Button
                                         type="button"
                                         variant="outline"
                                         onClick={handleCallUs}
-                                        className="border-amber-600 text-amber-700 hover:bg-amber-50 rounded-md px-8 py-6 font-medium transition-colors"
+                                        className="border-2 border-amber-600 text-amber-700 hover:bg-amber-50 rounded-md px-8 py-3 h-12 font-medium transition-colors order-2 sm:order-1"
                                         disabled={isSubmitting}
                                     >
                                         CALL US
@@ -439,7 +446,7 @@ const { post } = useApi()
                                     <Button
                                         type="submit"
                                         disabled={isSubmitting}
-                                        className="bg-amber-600 hover:bg-amber-700 text-white rounded-md px-8 py-6 font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                        className="bg-amber-600 hover:bg-amber-700 text-white rounded-md px-8 py-3 h-12 font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed order-1 sm:order-2"
                                     >
                                         {isSubmitting ? "SUBMITTING..." : "GET RECOMMENDATION NOW"}
                                     </Button>
