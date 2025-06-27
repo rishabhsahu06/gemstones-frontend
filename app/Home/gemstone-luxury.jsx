@@ -98,7 +98,7 @@ export default function LuxuryGemstones() {
     ];
 
     return (
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-4 mb-4">
             {/* Header Section */}
             <div className="text-center mb-10 mt-12">
                 <h1 className="text-2xl md:text-3xl font-bold text-center mb-2 mt-16">
