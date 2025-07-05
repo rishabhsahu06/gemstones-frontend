@@ -124,7 +124,7 @@ function Hero() {
                     </p>
 
                     <button className="bg-white text-gray-800 hover:bg-gray-100 hover:shadow-lg transition-all duration-300 px-8 py-3 rounded-full flex items-center gap-2 font-medium animate-fade-in-up animation-delay-400 hover:-translate-y-1">
-                        Contact Uss
+                        Contact Us
                         <ChevronDown className="h-5 w-5 transition-transform group-hover:translate-y-1" />
                     </button>
                 </div>
