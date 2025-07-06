@@ -137,10 +137,45 @@ export default function AuthModal({ isOpen, onClose }) {
 
   const handleGoogleSignIn = async () => {
     setIsLoading(true)
+    setError("")
+    
     try {
-      await signIn("google", { redirect: false })
+      const result = await signIn("google", { 
+        redirect: false,
+        callbackUrl: window.location.href // Use current page as callback
+      })
+
+      if (result?.ok && !result?.error) {
+        // Wait a moment for session to be created
+        await new Promise(resolve => setTimeout(resolve, 1000))
+        
+        const session = await getSession()
+        if (session) {
+          toast.success("Google sign-in successful! Welcome.")
+          resetModal()
+          onClose()
+        } else {
+          setError("Session creation failed after Google sign-in. Please try again.")
+        }
+      } else if (result?.error) {
+        console.error("Google sign-in error:", result.error)
+        
+        let errorMessage = "Google sign-in failed. Please try again."
+        
+        if (result.error === "OAuthSignin") {
+          errorMessage = "Google sign-in was cancelled or failed. Please try again."
+        } else if (result.error === "OAuthCallback") {
+          errorMessage = "Google authentication callback failed. Please check your configuration."
+        } else if (result.error === "AccessDenied") {
+          errorMessage = "Access denied. Please allow permissions and try again."
+        }
+        
+        setError(errorMessage)
+        toast.error(errorMessage)
+      }
     } catch (error) {
       console.error("Google sign-in error:", error)
+      setError("Google sign-in failed. Please try again.")
       toast.error("Google sign-in failed. Please try again.")
     } finally {
       setIsLoading(false)

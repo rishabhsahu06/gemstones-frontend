@@ -18,6 +18,7 @@ import ReelsSection from './Home/reels-section'
 function page() {
   return (
     <div>
+      
       <Hero />
       <Authenticity />
       <PerfectSTones />
