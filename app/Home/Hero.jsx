@@ -11,15 +11,15 @@ function Hero() {
 
     const images = [
         {
-            src: "/hero.png",
+            src: "/heroweb.webp",
             alt: "Astrology workspace with gemstones"
         },
         {
-            src: "/hero2.png",
+            src: "/hero2web.webp",
             alt: "Astrology workspace with gemstones"
         },
         {
-            src: "/hero3.png",
+            src: "/hero3web.webp",
             alt: "Astrology workspace with gemstones"
         }
     ];

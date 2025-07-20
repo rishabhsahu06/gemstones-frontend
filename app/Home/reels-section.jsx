@@ -310,7 +310,7 @@ function ReelsSection() {
                         }`}
                     loop
                     playsInline
-                    muted
+                    // muted
                     preload="auto"
                     crossOrigin="anonymous"
                     onClick={(e) => {

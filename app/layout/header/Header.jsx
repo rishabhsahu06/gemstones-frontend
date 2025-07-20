@@ -605,7 +605,7 @@ function Header() {
 
                         {/* Mobile Icons */}
                         <div className="flex items-center space-x-4 pt-4 border-t border-gray-200">
-                            <Link href="/account" className="text-gray-700 hover:text-[#BA8E49] p-2 rounded-full hover:bg-gray-100 transition-colors" onClick={toggleMenu}>
+                            <Link href="/-/user" className="text-gray-700 hover:text-[#BA8E49] p-2 rounded-full hover:bg-gray-100 transition-colors" onClick={toggleMenu}>
                                 <User className="h-6 w-6" />
                                 <span className="sr-only">Account</span>
                             </Link>
@@ -613,7 +613,7 @@ function Header() {
                                 <Search className="h-6 w-6" />
                                 <span className="sr-only">Search</span>
                             </Link> */}
-                            <Link href="/cart" className="text-gray-700 hover:text-[#BA8E49] p-2 rounded-full hover:bg-gray-100 transition-colors" onClick={toggleMenu}>
+                            <Link href="/-/cart" className="text-gray-700 hover:text-[#BA8E49] p-2 rounded-full hover:bg-gray-100 transition-colors" onClick={toggleMenu}>
                                 <ShoppingCart className="h-6 w-6" />
                                 <span className="sr-only">Cart</span>
                             </Link>
