@@ -8,12 +8,13 @@ import AuthModal from "../auth-model/authModel"
 import useAccessToken from "@/hooks/userSession"
 import { useApi } from "@/hooks/useApi" // Import your useApi hook
 import { toast } from "react-toastify"
+import { useRouter } from "next/navigation"
 
 export default function CategoryCard({ product, slug }) {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
   const { accessToken, user } = useAccessToken()
   const { post, loading, error } = useApi() // Use the useApi hook
-
+const Router = useRouter()
   const handleAddCarWithToken = async (id) => {
      try {
       const cartData = {
@@ -31,6 +32,7 @@ export default function CategoryCard({ product, slug }) {
       const response = await post("/cart", cartData, options)
 
       toast.success("Product added to cart successfully!")
+      Router.push("/-/cart") // Redirect to cart page after adding product
 
     } catch (err) {
       console.error("❌ Error Details:", {
@@ -61,7 +63,7 @@ export default function CategoryCard({ product, slug }) {
 
 
   const handleAddToCart = (id) => {
-    console.log("🛒 Add to cart clicked for product:", id)
+
     
     if (!accessToken) {
       console.log("🔒 No access token, opening auth modal")

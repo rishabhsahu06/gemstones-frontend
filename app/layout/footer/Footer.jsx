@@ -35,7 +35,7 @@ function Footer() {
                             <Link href="/-/gem-recommendation" className="text-sm sm:text-base text-gray-700 hover:text-gray-900 transition-colors duration-200">
                                 Gem Recommendation
                             </Link>
-                            <Link href="/-/gemstones" className="text-sm sm:text-base text-gray-700 hover:text-gray-900 transition-colors duration-200">
+                            <Link href="/-/products" className="text-sm sm:text-base text-gray-700 hover:text-gray-900 transition-colors duration-200">
                                 Gemstones
                             </Link>
                             <Link href="/-/gemstones-jewellery" className="text-sm sm:text-base text-gray-700 hover:text-gray-900 transition-colors duration-200">
@@ -51,12 +51,12 @@ function Footer() {
                             <Link href="/-/about" className="text-sm sm:text-base text-gray-700 hover:text-gray-900 transition-colors duration-200">
                                 About
                             </Link>
-                            <Link href="/-/services" className="text-sm sm:text-base text-gray-700 hover:text-gray-900 transition-colors duration-200">
+                            <Link href="/-/book-call" className="text-sm sm:text-base text-gray-700 hover:text-gray-900 transition-colors duration-200">
                                 Services
                             </Link>
-                            <Link href="/-/blogs" className="text-sm sm:text-base text-gray-700 hover:text-gray-900 transition-colors duration-200">
-                                Blogs
-                            </Link>
+                            {/* <Link href="/-/privacy-policy" className="text-sm sm:text-base text-gray-700 hover:text-gray-900 transition-colors duration-200">
+                                Privacy Policy
+                            </Link> */}
                         </nav>
                     </div>
 
@@ -118,13 +118,13 @@ function Footer() {
                     </p>
                     <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-6 text-center">
                         <Link
-                            href="/privacy-policy"
+                            href="/-/privacy-policy"
                             className="hover:text-gray-900 transition-colors duration-200 px-2 py-1 sm:px-0 sm:py-0"
                         >
                             Privacy Policy
                         </Link>
                         <Link
-                            href="/terms"
+                            href="/-/term-conditions"
                             className="hover:text-gray-900 transition-colors duration-200 px-2 py-1 sm:px-0 sm:py-0"
                         >
                             Terms and conditions

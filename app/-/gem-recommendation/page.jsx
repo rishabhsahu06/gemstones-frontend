@@ -1,11 +1,14 @@
-import React from 'react'
+import BookService from "@/app/Home/book-service";
+import PerfectStones from "@/app/Home/perfect-stone";
+import React from "react";
 
 function GemRecom() {
   return (
     <div>
-      hello recommendation
+      <BookService />
+      <PerfectStones />
     </div>
-  )
+  );
 }
 
-export default GemRecom
+export default GemRecom;

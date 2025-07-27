@@ -11,6 +11,7 @@ import { useApi } from "@/hooks/useApi"
 import Link from "next/link"
 import AuthModal from "@/app/components/auth-model/authModel"
 
+
 function Products() {
   const [products, setProducts] = useState([])
   const [searchTerm, setSearchTerm] = useState("")
@@ -271,6 +272,7 @@ function Products() {
       const response = await post("/cart", cartData, options)
       if(response?.success) {
         toast.success("Product added to cart successfully!")
+        router.push("/-/cart") 
       }
     } catch (err) {
       console.error("❌ Error Details:", {
