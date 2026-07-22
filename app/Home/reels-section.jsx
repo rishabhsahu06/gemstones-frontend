@@ -63,6 +63,26 @@ function ReelsSection() {
   // Refs
   const videoRefs = useRef({})
   const containerRef = useRef(null)
+  const sectionRef = useRef(null)
+  const [isInView, setIsInView] = useState(false)
+
+  useEffect(() => {
+    const node = sectionRef.current
+    if (!node) return
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsInView(true)
+          observer.disconnect()
+        }
+      },
+      { rootMargin: "200px" }
+    )
+
+    observer.observe(node)
+    return () => observer.disconnect()
+  }, [])
 
   // Track user interaction globally
   useEffect(() => {
@@ -194,10 +214,12 @@ function ReelsSection() {
     }
   }
 
-  // Fetch data on component mount and when accessToken changes
+  // Fetch data when section enters viewport
   useEffect(() => {
-    fetchVideoData()
-  }, [accessToken])
+    if (isInView) {
+      fetchVideoData()
+    }
+  }, [isInView, accessToken])
 
   // Mobile detection effect
   useEffect(() => {
@@ -545,7 +567,7 @@ function ReelsSection() {
           loop
           playsInline
           muted={!userHasInteracted} // Start unmuted if user has interacted
-          preload="auto"
+          preload={item.position === "center" ? "metadata" : "none"}
           crossOrigin="anonymous"
           onClick={(e) => {
             e.stopPropagation()
@@ -656,10 +678,15 @@ function ReelsSection() {
     )
   }
 
+  // Show placeholder until section is near viewport
+  if (!isInView) {
+    return <div ref={sectionRef} className="container mx-auto min-h-[400px]" aria-hidden="true" />
+  }
+
   // Show loading state only when initially loading
   if (isLoading && reelItems.length === 0) {
     return (
-      <div className="container mx-auto overflow-hidden">
+      <div className="container mx-auto overflow-hidden" ref={sectionRef}>
         <div className="text-center py-20">
           <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-amber-500 mb-4"></div>
           <h3 className="text-xl font-semibold text-gray-700 mb-2">Loading Video Gallery</h3>
@@ -672,7 +699,7 @@ function ReelsSection() {
   // Show message if no content available
   if (!isLoading && reelItems.length === 0) {
     return (
-      <div className="container mx-auto overflow-hidden">
+      <div className="container mx-auto overflow-hidden" ref={sectionRef}>
         <div className="text-center py-20">
           <div className="text-6xl mb-4">🎥</div>
           <h3 className="text-xl font-semibold text-gray-700 mb-2">No Videos Available</h3>
@@ -689,7 +716,7 @@ function ReelsSection() {
   }
 
   return (
-    <div className="container mx-auto overflow-hidden" ref={containerRef}>
+    <div className="container mx-auto overflow-hidden" ref={sectionRef}>
       {/* Header Section */}
       <div className="text-center mb-8 md:mb-10 mt-12">
         <h2 className="text-2xl md:text-3xl font-bold text-center mb-2 mt-16 transform transition-all duration-300 hover:scale-105">
@@ -732,7 +759,7 @@ function ReelsSection() {
       </div>
 
       {/* Carousel Section */}
-      <div className="relative max-w-6xl mx-auto">
+      <div className="relative max-w-6xl mx-auto" ref={containerRef}>
         {/* Navigation Buttons */}
         <button
           onClick={() => navigateToSlide("prev")}

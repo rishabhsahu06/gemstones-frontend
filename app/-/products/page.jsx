@@ -1,7 +1,7 @@
 "use client"
 import { useEffect, useState, useCallback, useRef, useMemo } from "react"
 import { Filter, Search, ChevronRight, Loader2, AlertCircle, RefreshCw } from "lucide-react"
-import { debounce } from "lodash"
+import { debounce } from "@/lib/utils"
 import { useRouter } from "next/navigation"
 import useAccessToken from "@/hooks/userSession"
 import { toast } from "react-toastify"

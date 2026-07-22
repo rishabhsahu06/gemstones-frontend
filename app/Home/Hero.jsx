@@ -7,7 +7,7 @@ import { useState, useEffect } from 'react';
 function Hero() {
     const [currentImage, setCurrentImage] = useState(0);
     const [isLoading, setIsLoading] = useState(true);
-    const [loadedImages, setLoadedImages] = useState(new Set());
+    const [loadedImages, setLoadedImages] = useState(new Set([0]));
 
     const images = [
         {
@@ -24,20 +24,15 @@ function Hero() {
         }
     ];
 
-    // Handle image load
     const handleImageLoad = (index) => {
-        setLoadedImages(prev => {
-            const newSet = new Set(prev);
-            newSet.add(index);
-
-            // If all images are loaded, hide skeleton
-            if (newSet.size === images.length) {
-                setIsLoading(false);
-            }
-
-            return newSet;
-        });
+        setLoadedImages((prev) => new Set(prev).add(index));
+        if (index === 0) {
+            setIsLoading(false);
+        }
     };
+
+    const shouldRenderImage = (index) =>
+        index === 0 || index === currentImage || loadedImages.has(index);
 
     // Auto-rotate images every 3 seconds (only when not loading)
     useEffect(() => {
@@ -89,22 +84,25 @@ function Hero() {
 
                 {/* Background Images with Animation */}
                 <div className={`absolute inset-0 transition-opacity duration-500 ${isLoading ? 'opacity-0' : 'opacity-100'}`}>
-                    {images.map((image, index) => (
-                        <div
-                            key={index}
-                            className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${index === currentImage ? 'opacity-100' : 'opacity-0'
-                                }`}
-                        >
-                            <Image
-                                src={image.src}
-                                alt={image.alt}
-                                fill
-                                priority={index === 0}
-                                className="object-cover transform transition-transform duration-[7000ms] ease-out hover:scale-105"
-                                onLoad={() => handleImageLoad(index)}
-                            />
-                        </div>
-                    ))}
+                    {images.map((image, index) =>
+                        shouldRenderImage(index) ? (
+                            <div
+                                key={index}
+                                className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${index === currentImage ? 'opacity-100' : 'opacity-0'
+                                    }`}
+                            >
+                                <Image
+                                    src={image.src}
+                                    alt={image.alt}
+                                    fill
+                                    priority={index === 0}
+                                    loading={index === 0 ? undefined : 'lazy'}
+                                    className="object-cover transform transition-transform duration-[7000ms] ease-out hover:scale-105"
+                                    onLoad={() => handleImageLoad(index)}
+                                />
+                            </div>
+                        ) : null
+                    )}
                 </div>
 
                 {/* Enhanced Overlay for better text readability */}

@@ -1,49 +1,43 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
-
-import Authenticity from './Home/Authenticity'
-import PerfectSTones from './Home/perfect-stone'
-import LuxuryGemstones from './Home/gemstone-luxury'
-import PurposefullGemstone from './Home/puprose-gemstone'
-import AstrologyPopup from './components/popup'
-import JwelleryBanner from './Home/jwellery-banner'
+import { useState, useEffect } from 'react'
+import dynamic from 'next/dynamic'
 import Hero from './Home/Hero'
-import Blogs from './Home/blog'
-import BookService from './Home/book-service'
-import ReelsSection from './Home/reels-section'
-import WelcomePopup from './components/welcomeModal/welcome'
 
-// Import the separate WelcomePopup component
+const Authenticity = dynamic(() => import('./Home/Authenticity'))
+const PerfectSTones = dynamic(() => import('./Home/perfect-stone'))
+const LuxuryGemstones = dynamic(() => import('./Home/gemstone-luxury'))
+const PurposefullGemstone = dynamic(() => import('./Home/puprose-gemstone'))
+const JwelleryBanner = dynamic(() => import('./Home/jwellery-banner'))
+const Blogs = dynamic(() => import('./Home/blog'))
+const ReelsSection = dynamic(() => import('./Home/reels-section'))
+const BookService = dynamic(() => import('./Home/book-service'))
+const WelcomePopup = dynamic(
+  () => import('./components/welcomeModal/welcome'),
+  { ssr: false }
+)
 
-
-function page() {
-  const [showPopup, setShowPopup] = useState(false);
+function HomePage() {
+  const [showPopup, setShowPopup] = useState(false)
 
   useEffect(() => {
-    // Check if user has visited before (using session storage)
-    const visited = sessionStorage.getItem('hasVisitedBefore');
-    
+    const visited = sessionStorage.getItem('hasVisitedBefore')
+
     if (!visited) {
-      // Show popup after a short delay for better UX
-      const timer = setTimeout(() => {
-        setShowPopup(true);
-      }, 1000);
-      
-      return () => clearTimeout(timer);
+      const timer = setTimeout(() => setShowPopup(true), 1000)
+      return () => clearTimeout(timer)
     }
-  }, []);
+  }, [])
 
   const handleClosePopup = () => {
-    setShowPopup(false);
-    // Mark as visited
-    sessionStorage.setItem('hasVisitedBefore', 'true');
-  };
+    setShowPopup(false)
+    sessionStorage.setItem('hasVisitedBefore', 'true')
+  }
 
   return (
     <div>
       <WelcomePopup isOpen={showPopup} onClose={handleClosePopup} />
-      
+
       <Hero />
       <Authenticity />
       <PerfectSTones />
@@ -57,4 +51,4 @@ function page() {
   )
 }
 
-export default page
+export default HomePage
