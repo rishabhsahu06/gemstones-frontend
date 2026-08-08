@@ -13,10 +13,10 @@ function Footer() {
                         <div className="flex items-center justify-center sm:justify-start">
                             <Image
                                 src="/logo.png"
-                                alt="Crystalved - Healing Crystals & Beads Jewellery"
-                                width={80}
+                                alt="Sunita Gems & Stones"
+                                width={77}
                                 height={80}
-                                className="w-20 h-20 sm:w-24 sm:h-24 object-contain"
+                                className="w-16 h-16 sm:w-[77px] sm:h-20"
                             />
                         </div>
                         <p className="text-xs sm:text-sm text-gray-700 max-w-xs mx-auto sm:mx-0 text-center sm:text-left leading-relaxed">
@@ -114,7 +114,7 @@ function Footer() {
                 {/* Copyright and Links */}
                 <div className="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0 text-xs sm:text-sm text-gray-700 pt-4 border-t border-gray-100">
                     <p className="text-center sm:text-left">
-                        © Crystalved. All rights reserved {new Date().getFullYear()}
+                        ©Sunita Gem All rights reserved {new Date().getFullYear()}
                     </p>
                     <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-6 text-center">
                         <Link

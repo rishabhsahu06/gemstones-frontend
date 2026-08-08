@@ -1,72 +1,71 @@
-<?xml version="1.0" encoding="UTF-8"?> 
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"> 
-<url>
-  <loc>http://sunitagemstones.com/</loc>
-  <priority>0.1</priority>
-  <changefreq>always</changefreq>
-</url>
-<url>
-  <loc>http://sunitagemstones.com/-/gem-recommendation</loc>
-  <priority>0.1</priority>
-  <changefreq>always</changefreq>
-</url>
-<url>
-  <loc>http://sunitagemstones.com/-/gemstones-jewellery</loc>
-  <priority>0.1</priority>
-  <changefreq>always</changefreq>
-</url>
-<url>
-  <loc>http://sunitagemstones.com/-/book-call</loc>
-  <priority>0.1</priority>
-  <changefreq>always</changefreq>
-</url>
-<url>
-  <loc>http://sunitagemstones.com/-/about</loc>
-  <priority>0.1</priority>
-  <changefreq>always</changefreq>
-</url>
-<url>
-  <loc>http://sunitagemstones.com/-/user</loc>
-  <priority>0.1</priority>
-  <changefreq>always</changefreq>
-</url>
-<url>
-  <loc>http://sunitagemstones.com/-/cart</loc>
-  <priority>0.1</priority>
-  <changefreq>always</changefreq>
-</url>
-<url>
-  <loc>http://sunitagemstones.com/account</loc>
-  <priority>0.1</priority>
-  <changefreq>always</changefreq>
-</url>
-<url>
-  <loc>http://sunitagemstones.com/cart</loc>
-  <priority>0.1</priority>
-  <changefreq>always</changefreq>
-</url>
-<url>
-  <loc>http://sunitagemstones.com/-/products</loc>
-  <priority>0.1</priority>
-  <changefreq>always</changefreq>
-</url>
-<url>
-  <loc>http://sunitagemstones.com/privacy-policy</loc>
-  <priority>0.1</priority>
-  <changefreq>always</changefreq>
-</url>
-<url>
-  <loc>http://sunitagemstones.com/terms-of-service</loc>
-  <priority>0.1</priority>
-  <changefreq>always</changefreq>
-</url>
-<url>
-  <loc>http://sunitagemstones.com/-/book-call/book-form</loc>
-  <priority>0.1</priority>
-  <changefreq>always</changefreq>
-</url>
-<url>
-  <loc>http://sunitagemstones.com/terms</loc>
-  <priority>0.1</priority>
-  <changefreq>always</changefreq>
-</url>
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/css" href="https://www.xml-sitemaps.com/css/sitemap.css"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+
+  <url>
+       <loc>https://sunitagemstones.com/</loc>
+       <lastmod>2026-07-22T16:42:38+00:00</lastmod>
+       <changefreq>daily</changefreq>
+       <priority>1.0000</priority>
+  </url>
+  <url>
+       <loc>https://sunitagemstones.com/-/gem-recommendation</loc>
+       <lastmod>2026-07-22T16:42:38+00:00</lastmod>
+       <changefreq>daily</changefreq>
+       <priority>0.8000</priority>
+  </url>
+  <url>
+       <loc>https://sunitagemstones.com/-/gemstones-jewellery</loc>
+       <lastmod>2026-07-22T16:42:38+00:00</lastmod>
+       <changefreq>daily</changefreq>
+       <priority>0.8000</priority>
+  </url>
+  <url>
+       <loc>https://sunitagemstones.com/-/book-call</loc>
+       <lastmod>2026-07-22T16:42:38+00:00</lastmod>
+       <changefreq>daily</changefreq>
+       <priority>0.8000</priority>
+  </url>
+  <url>
+       <loc>https://sunitagemstones.com/-/about</loc>
+       <lastmod>2026-07-22T16:42:38+00:00</lastmod>
+       <changefreq>daily</changefreq>
+       <priority>0.8000</priority>
+  </url>
+  <url>
+       <loc>https://sunitagemstones.com/-/user</loc>
+       <lastmod>2026-07-22T16:42:38+00:00</lastmod>
+       <changefreq>daily</changefreq>
+       <priority>0.8000</priority>
+  </url>
+  <url>
+       <loc>https://sunitagemstones.com/-/cart</loc>
+       <lastmod>2026-07-22T16:42:38+00:00</lastmod>
+       <changefreq>daily</changefreq>
+       <priority>0.8000</priority>
+  </url>
+  <url>
+       <loc>https://sunitagemstones.com/-/products</loc>
+       <lastmod>2026-07-22T16:42:38+00:00</lastmod>
+       <changefreq>daily</changefreq>
+       <priority>0.8000</priority>
+  </url>
+  <url>
+       <loc>https://sunitagemstones.com/-/privacy-policy</loc>
+       <lastmod>2026-07-22T16:42:38+00:00</lastmod>
+       <changefreq>daily</changefreq>
+       <priority>0.8000</priority>
+  </url>
+  <url>
+       <loc>https://sunitagemstones.com/-/term-conditions</loc>
+       <lastmod>2026-07-22T16:42:38+00:00</lastmod>
+       <changefreq>daily</changefreq>
+       <priority>0.8000</priority>
+  </url>
+  <url>
+       <loc>https://sunitagemstones.com/-/book-call/book-form</loc>
+       <lastmod>2026-07-22T16:42:38+00:00</lastmod>
+       <changefreq>daily</changefreq>
+       <priority>0.6400</priority>
+  </url>
+</urlset>

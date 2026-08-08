@@ -262,10 +262,10 @@ function Header() {
                     <Link href="/" className="flex items-center flex-shrink-0">
                         <Image
                             src="/logo.png"
-                            alt="Crystalved - Healing Crystals & Beads Jewellery"
-                            width={56}
-                            height={56}
-                            className="h-10 w-10 sm:h-12 sm:w-12 lg:h-14 lg:w-14 object-contain"
+                            alt="Sunita Gems & Jewels"
+                            width={40}
+                            height={40}
+                            className="h-8 w-8 sm:h-10 sm:w-10 lg:h-12 lg:w-12"
                         />
                     </Link>
 
@@ -478,10 +478,10 @@ function Header() {
                         <Link href="/" className="flex items-center" onClick={toggleMenu}>
                             <Image
                                 src="/logo.png"
-                                alt="Crystalved - Healing Crystals & Beads Jewellery"
-                                width={64}
-                                height={64}
-                                className="h-14 w-14 object-contain"
+                                alt="Sunita Gems & Jewels"
+                                width={60}
+                                height={60}
+                                className="h-12 w-12"
                             />
                         </Link>
                         <button
