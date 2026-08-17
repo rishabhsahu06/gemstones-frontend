@@ -60,7 +60,7 @@ export default function AuthErrorPageInner() {
     if (typeof window !== "undefined") {
       localStorage.removeItem("nextauth.message")
     }
-    router.push("/-/user")
+    router.push("/user")
   }
 
   const handleGoHome = () => router.push("/")

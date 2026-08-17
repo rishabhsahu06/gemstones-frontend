@@ -29,9 +29,10 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={brygada1918.className}>
+    <html lang="en" className={brygada1918.className} suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${brygada1918.variable} antialiased`}
+        suppressHydrationWarning
       >
         <Header />
         <AuthProvider>

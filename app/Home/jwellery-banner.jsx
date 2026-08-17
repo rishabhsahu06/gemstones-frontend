@@ -29,13 +29,13 @@ function JewelleryBanner() {
 
                 {/* CTA Button */}
 
-                <Link href="/-/gemstones-jewellery" className="inline-block">
-                    <Button className="mt-4 px-8 py-3 bg-[#BA8E49] text-white font-medium tracking-wider rounded-sm 
+                <Button asChild className="mt-4 px-8 py-3 bg-[#BA8E49] text-white font-medium tracking-wider rounded-sm 
         transition-all duration-300 shadow-lg 
         hover:shadow-xl transform hover:scale-105">
+                    <Link href="/gemstones-jewellery">
                         EXPLORE
-                    </Button>
-                </Link>
+                    </Link>
+                </Button>
 
             </div>
         </div>

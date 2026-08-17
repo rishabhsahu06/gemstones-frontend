@@ -251,7 +251,7 @@ function Header() {
         closeAllDropdowns()
 
         // Navigate to gemstone page using the slug from API
-        router.push(`/-/gemStone/${gemstone.slug}`)
+        router.push(`/gemStone/${gemstone.slug}`)
     }
 
     return (
@@ -274,7 +274,7 @@ function Header() {
                         <Link href="/" className={getLinkClasses('/')}>
                             Home
                         </Link>
-                        <Link href="/-/gem-recommendation" className={getLinkClasses('/-/gem-recommendation')}>
+                        <Link href="/gem-recommendation" className={getLinkClasses('/gem-recommendation')}>
                             Gem Recommendation
                         </Link>
 
@@ -289,7 +289,7 @@ function Header() {
                                 onClick={() => handleGemstonesInteraction('click')}
                                 className={cn(
                                     "flex items-center transition-colors text-sm xl:text-base focus:outline-none focus:ring-2 focus:ring-[#BA8E49] focus:ring-opacity-50 rounded px-2 py-1 whitespace-nowrap",
-                                    isActivePath('/-/gemStone') || isActivePath('/-/gemstones')
+                                    isActivePath('/gemStone') || isActivePath('/gemstones')
                                         ? "text-[#BA8E49] font-medium"
                                         : "text-gray-700 hover:text-[#BA8E49]"
                                 )}
@@ -335,7 +335,7 @@ function Header() {
                                                     {category.gemstones.map((gemstone, gemIndex) => (
                                                         <Link
                                                             key={gemstone.id}
-                                                            href={`/-/gemStone/${gemstone.slug}`}
+                                                            href={`/gemStone/${gemstone.slug}`}
                                                             className="flex items-center space-x-3 text-gray-600 hover:text-[#BA8E49] transition-colors group p-2 rounded hover:bg-gray-50"
                                                             onClick={() => setIsGemstonesDropdownOpen(false)}
                                                         >
@@ -370,7 +370,7 @@ function Header() {
                             </div>
                         </div>
 
-                        <Link href="/-/gemstones-jewellery" className={getLinkClasses('/-/gemstones-jewellery')}>
+                        <Link href="/gemstones-jewellery" className={getLinkClasses('/gemstones-jewellery')}>
                             Gemstones Jewellery
                         </Link>
 
@@ -385,7 +385,7 @@ function Header() {
                                 onClick={() => handleServiceInteraction('click')}
                                 className={cn(
                                     "flex items-center transition-colors text-sm xl:text-base focus:outline-none focus:ring-2 focus:ring-[#BA8E49] focus:ring-opacity-50 rounded px-2 py-1 whitespace-nowrap",
-                                    isActivePath('/-/get-recommendation') || isActivePath('/-/book-call')
+                                    isActivePath('/get-recommendation') || isActivePath('/book-call')
                                         ? "text-[#BA8E49] font-medium"
                                         : "text-gray-700 hover:text-[#BA8E49]"
                                 )}
@@ -408,7 +408,7 @@ function Header() {
                                 <div className="space-y-3">
                                  
                                     <Link
-                                        href="/-/book-call"
+                                        href="/book-call"
                                         className="block text-gray-600 hover:text-[#BA8E49] transition-colors p-2 rounded hover:bg-gray-50"
                                         onClick={closeAllDropdowns}
                                     >
@@ -418,7 +418,7 @@ function Header() {
                             </div>
                         </div>
 
-                        <Link href="/-/about" className={getLinkClasses('/-/about')}>
+                        <Link href="/about" className={getLinkClasses('/about')}>
                             About
                         </Link>
                     </nav>
@@ -426,7 +426,7 @@ function Header() {
                     {/* Right Side Icons and Button */}
                     <div className="flex items-center space-x-2 sm:space-x-3 lg:space-x-4">
                         {/* <Link onClick={handleLogout} className="hidden sm:block text-gray-700 hover:text-[#BA8E49] p-2 rounded-full hover:bg-gray-100 transition-colors cursor-pointer"> */}
-                        <Link href="/-/user" className="hidden sm:block text-gray-700 hover:text-[#BA8E49] p-2 rounded-full hover:bg-gray-100 transition-colors cursor-pointer">
+                        <Link href="/user" className="hidden sm:block text-gray-700 hover:text-[#BA8E49] p-2 rounded-full hover:bg-gray-100 transition-colors cursor-pointer">
                             <User className="h-5 w-5 lg:h-6 lg:w-6" />
                             <span className="sr-only">Account</span>
                         </Link>
@@ -435,7 +435,7 @@ function Header() {
                             <span className="sr-only">Search</span>
                         </Link> */}
 
-                        <Link href="/-/cart" className="hidden sm:block text-gray-700 hover:text-[#BA8E49] p-2 rounded-full hover:bg-gray-100 transition-colors">
+                        <Link href="/cart" className="hidden sm:block text-gray-700 hover:text-[#BA8E49] p-2 rounded-full hover:bg-gray-100 transition-colors">
                             <ShoppingCart className="h-5 w-5 lg:h-6 lg:w-6" />
                             <span className="sr-only">Cart</span>
                         </Link>
@@ -497,7 +497,7 @@ function Header() {
                         <Link href="/" className={getMobileLinkClasses('/')} onClick={toggleMenu}>
                             Home
                         </Link>
-                        <Link href="/-/gem-recommendation" className={getMobileLinkClasses('/-/gem-recommendation')} onClick={toggleMenu}>
+                        <Link href="/gem-recommendation" className={getMobileLinkClasses('/gem-recommendation')} onClick={toggleMenu}>
                             Gem Recommendation
                         </Link>
 
@@ -507,7 +507,7 @@ function Header() {
                                 onClick={toggleMobileGemstonesDropdown}
                                 className={cn(
                                     "flex items-center justify-between w-full text-lg font-medium transition-colors",
-                                    isActivePath('/-/gemStone') || isActivePath('/-/gemstones')
+                                    isActivePath('/gemStone') || isActivePath('/gemstones')
                                         ? "text-[#BA8E49]"
                                         : "text-gray-700 hover:text-[#BA8E49]"
                                 )}
@@ -572,7 +572,7 @@ function Header() {
                             </div>
                         </div>
 
-                        <Link href="/-/gemstones-jewellery" className={getMobileLinkClasses('/-/gemstones-jewellery')} onClick={toggleMenu}>
+                        <Link href="/gemstones-jewellery" className={getMobileLinkClasses('/gemstones-jewellery')} onClick={toggleMenu}>
                             Gemstones Jewellery
                         </Link>
 
@@ -582,7 +582,7 @@ function Header() {
                                 onClick={toggleMobileServiceDropdown}
                                 className={cn(
                                     "flex items-center justify-between w-full text-lg font-medium transition-colors",
-                                    isActivePath('/-/get-recommendation') || isActivePath('/-/book-call')
+                                    isActivePath('/get-recommendation') || isActivePath('/book-call')
                                         ? "text-[#BA8E49]"
                                         : "text-gray-700 hover:text-[#BA8E49]"
                                 )}
@@ -599,20 +599,20 @@ function Header() {
                             )}>
                                 <div className="pl-4 space-y-3 pt-2">
                                   
-                                    <Link href="/-/book-call" className="block text-gray-600 hover:text-[#BA8E49] text-base transition-colors" onClick={toggleMenu}>
+                                    <Link href="/book-call" className="block text-gray-600 hover:text-[#BA8E49] text-base transition-colors" onClick={toggleMenu}>
                                         Book Call
                                     </Link>
                                 </div>
                             </div>
                         </div>
 
-                        <Link href="/-/about" className={getMobileLinkClasses('/-/about')} onClick={toggleMenu}>
+                        <Link href="/about" className={getMobileLinkClasses('/about')} onClick={toggleMenu}>
                             About
                         </Link>
 
                         {/* Mobile Icons */}
                         <div className="flex items-center space-x-4 pt-4 border-t border-gray-200">
-                            <Link href="/-/user" className="text-gray-700 hover:text-[#BA8E49] p-2 rounded-full hover:bg-gray-100 transition-colors" onClick={toggleMenu}>
+                            <Link href="/user" className="text-gray-700 hover:text-[#BA8E49] p-2 rounded-full hover:bg-gray-100 transition-colors" onClick={toggleMenu}>
                                 <User className="h-6 w-6" />
                                 <span className="sr-only">Account</span>
                             </Link>
@@ -620,7 +620,7 @@ function Header() {
                                 <Search className="h-6 w-6" />
                                 <span className="sr-only">Search</span>
                             </Link> */}
-                            <Link href="/-/cart" className="text-gray-700 hover:text-[#BA8E49] p-2 rounded-full hover:bg-gray-100 transition-colors" onClick={toggleMenu}>
+                            <Link href="/cart" className="text-gray-700 hover:text-[#BA8E49] p-2 rounded-full hover:bg-gray-100 transition-colors" onClick={toggleMenu}>
                                 <ShoppingCart className="h-6 w-6" />
                                 <span className="sr-only">Cart</span>
                             </Link>

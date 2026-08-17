@@ -131,15 +131,14 @@ function PerfectStones() {
             <div className="flex justify-center mt-8">
 
 
-                <Link href="/-/products">
-                    <Button
-
-                        className="bg-[#BA8E49] cursor-pointer hover:bg-[#A67A3F] px-8 py-8 md:px-16 md:py-8 text-xl transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
-                    >
-
+                <Button
+                    asChild
+                    className="bg-[#BA8E49] cursor-pointer hover:bg-[#A67A3F] px-8 py-8 md:px-16 md:py-8 text-xl transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
+                >
+                    <Link href="/products">
                         View All Stones
-                    </Button>
-                </Link>
+                    </Link>
+                </Button>
 
             </div>
 

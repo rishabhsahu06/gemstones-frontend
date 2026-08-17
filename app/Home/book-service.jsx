@@ -428,11 +428,11 @@ export default function BookService() {
                                             <div className="flex-1">
                                                 <FormLabel className="text-sm font-medium text-gray-800 cursor-pointer leading-relaxed">
                                                     I have read and agree to the{" "}
-                                                    <Link href="/-/privacy-policy" className="font-bold text-gray-900 underline hover:text-amber-700 transition-colors">
+                                                    <Link href="/privacy-policy" className="font-bold text-gray-900 underline hover:text-amber-700 transition-colors">
                                                         Privacy Policy
                                                     </Link>{" "}
                                                     and{" "}
-                                                    <Link href="/-/term-conditions" className="font-bold text-gray-900 underline hover:text-amber-700 transition-colors">
+                                                    <Link href="/term-conditions" className="font-bold text-gray-900 underline hover:text-amber-700 transition-colors">
                                                         Terms of Service
                                                     </Link>
                                                     .

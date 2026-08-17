@@ -272,7 +272,7 @@ function Products() {
       const response = await post("/cart", cartData, options)
       if(response?.success) {
         toast.success("Product added to cart successfully!")
-        router.push("/-/cart") 
+        router.push("/cart") 
       }
     } catch (err) {
       console.error("❌ Error Details:", {
@@ -312,7 +312,7 @@ function Products() {
 
   // Get unique categories from current products
   const categories = useMemo(() => {
-    return [...new Set(products.map((product) => product.primaryCategory))]
+    return [...new Set(products.map((product) => product.primaryCategory).filter(Boolean))]
   }, [products])
 
   // Fetch products when filters change
@@ -341,7 +341,7 @@ function Products() {
   // Memoized product cards for performance
   const productCards = useMemo(() => {
     return products.map((product) => (
-      <ProductCard key={product._id} product={product} onAddToCart={handleAddToCart} isAddingToCart={isAddingToCart} />
+      <ProductCard key={product._id || product.slug} product={product} onAddToCart={handleAddToCart} isAddingToCart={isAddingToCart} />
     ))
   }, [products, isAddingToCart, handleAddToCart])
 
@@ -394,7 +394,7 @@ function Products() {
                 <option value="all">All Categories</option>
                 {categories.map((category) => (
                   <option key={category} value={category}>
-                    {category.replace("-", " ").replace(/\b\w/g, (l) => l.toUpperCase())}
+                    {typeof category === "string" ? category.replace("-", " ").replace(/\b\w/g, (l) => l.toUpperCase()) : category}
                   </option>
                 ))}
               </select>

@@ -32,13 +32,13 @@ function Footer() {
                             <Link href="/" className="text-sm sm:text-base text-gray-700 hover:text-gray-900 transition-colors duration-200">
                                 Home
                             </Link>
-                            <Link href="/-/gem-recommendation" className="text-sm sm:text-base text-gray-700 hover:text-gray-900 transition-colors duration-200">
+                            <Link href="/gem-recommendation" className="text-sm sm:text-base text-gray-700 hover:text-gray-900 transition-colors duration-200">
                                 Gem Recommendation
                             </Link>
-                            <Link href="/-/products" className="text-sm sm:text-base text-gray-700 hover:text-gray-900 transition-colors duration-200">
+                            <Link href="/products" className="text-sm sm:text-base text-gray-700 hover:text-gray-900 transition-colors duration-200">
                                 Gemstones
                             </Link>
-                            <Link href="/-/gemstones-jewellery" className="text-sm sm:text-base text-gray-700 hover:text-gray-900 transition-colors duration-200">
+                            <Link href="/gemstones-jewellery" className="text-sm sm:text-base text-gray-700 hover:text-gray-900 transition-colors duration-200">
                                 Gemstones Jewellery
                             </Link>
                         </nav>
@@ -48,13 +48,13 @@ function Footer() {
                     <div className="flex flex-col space-y-3 sm:space-y-4">
                         <h3 className="font-bold text-base sm:text-lg text-center sm:text-left">Information</h3>
                         <nav className="flex flex-col space-y-2 items-center sm:items-start">
-                            <Link href="/-/about" className="text-sm sm:text-base text-gray-700 hover:text-gray-900 transition-colors duration-200">
+                            <Link href="/about" className="text-sm sm:text-base text-gray-700 hover:text-gray-900 transition-colors duration-200">
                                 About
                             </Link>
-                            <Link href="/-/book-call" className="text-sm sm:text-base text-gray-700 hover:text-gray-900 transition-colors duration-200">
+                            <Link href="/book-call" className="text-sm sm:text-base text-gray-700 hover:text-gray-900 transition-colors duration-200">
                                 Services
                             </Link>
-                            {/* <Link href="/-/privacy-policy" className="text-sm sm:text-base text-gray-700 hover:text-gray-900 transition-colors duration-200">
+                            {/* <Link href="/privacy-policy" className="text-sm sm:text-base text-gray-700 hover:text-gray-900 transition-colors duration-200">
                                 Privacy Policy
                             </Link> */}
                         </nav>
@@ -118,13 +118,13 @@ function Footer() {
                     </p>
                     <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-6 text-center">
                         <Link
-                            href="/-/privacy-policy"
+                            href="/privacy-policy"
                             className="hover:text-gray-900 transition-colors duration-200 px-2 py-1 sm:px-0 sm:py-0"
                         >
                             Privacy Policy
                         </Link>
                         <Link
-                            href="/-/term-conditions"
+                            href="/term-conditions"
                             className="hover:text-gray-900 transition-colors duration-200 px-2 py-1 sm:px-0 sm:py-0"
                         >
                             Terms and conditions

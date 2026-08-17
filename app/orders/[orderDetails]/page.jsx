@@ -186,13 +186,13 @@ export default function OrderDetailsPage() {
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Order Not Found</h2>
           <p className="text-gray-600 mb-6">{error || "The order you're looking for doesn't exist."}</p>
           <Link
-            href="/-/orders"
+            href="/orders"
             className="inline-flex items-center px-4 py-2 bg-[#BA8E49] text-white rounded-lg hover:bg-[#A67B3E] transition-colors mr-4"
           >
             View All Orders
           </Link>
           <Link
-            href="/-/products"
+            href="/products"
             className="inline-flex items-center px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
@@ -518,14 +518,14 @@ export default function OrderDetailsPage() {
                 </button>
                 
                 <Link
-                  href="/-/user"
+                  href="/user"
                   className="w-full flex items-center justify-center px-4 py-2 border border-[#BA8E49] text-[#BA8E49] rounded-lg hover:bg-[#BA8E49] hover:text-white transition-colors"
                 >
                   View All Orders
                 </Link>
                 
                 <Link
-                  href="/-/products"
+                  href="/products"
                   className="w-full flex items-center justify-center px-4 py-2 bg-[#BA8E49] text-white rounded-lg hover:bg-[#A67B3E] transition-colors"
                 >
                   Continue Shopping

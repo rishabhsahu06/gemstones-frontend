@@ -27,7 +27,7 @@ function CartIsEmpty() {
             <h1 className="text-2xl font-bold text-gray-900">Your cart is empty</h1>
             <p className="text-gray-600 max-w-md">Looks like you haven't added any items to your cart yet.</p>
             <Link
-              href="/-/products"
+              href="/products"
               className="px-6 py-3 bg-[#BA8E49] text-white rounded-lg font-medium hover:bg-[#A67B3E] transition-colors"
             >
               Continue Shopping

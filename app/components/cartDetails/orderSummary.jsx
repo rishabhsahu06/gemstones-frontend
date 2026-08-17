@@ -512,7 +512,7 @@ export default function OrderSummary({ userCart, isCheckingOut, onCheckout }) {
 
           {/* Continue Shopping */}
           <Link
-            href="/-/products"
+            href="/products"
             className="block w-full mt-3 py-2 text-center text-sm font-medium text-[#BA8E49] hover:underline"
           >
             Continue Shopping

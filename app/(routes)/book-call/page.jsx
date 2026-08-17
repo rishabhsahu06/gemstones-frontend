@@ -33,7 +33,7 @@ function BookCall() {
                     </p>
 
                     <div className='pt-4  flex justify-center md:justify-start'>
-                        <Link href="/-/book-call/book-form" className='w-full md:w-auto'>
+                        <Link href="/book-call/book-form" className='w-full md:w-auto'>
                         <Button
                             className='bg-primary cursor-pointer  text-white font-semibold text-base py-3 px-8 md:py-6 md:px-12 rounded-lg  duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-transform'
                             aria-label="Book consultation call"

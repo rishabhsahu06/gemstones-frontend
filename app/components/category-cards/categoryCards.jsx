@@ -32,7 +32,7 @@ const Router = useRouter()
       const response = await post("/cart", cartData, options)
 
       toast.success("Product added to cart successfully!")
-      Router.push("/-/cart") // Redirect to cart page after adding product
+      Router.push("/cart") // Redirect to cart page after adding product
 
     } catch (err) {
       console.error("❌ Error Details:", {
@@ -80,7 +80,7 @@ const Router = useRouter()
     <>
       <div className="bg-white rounded-lg overflow-hidden duration-300 transition-shadow">
         <div className="p-2 flex items-center justify-center">
-          <Link href={`/-/gemStone/${slug}/${product._id}`}>
+          <Link href={`/gemStone/${slug}/${product._id}`}>
             <Image
               src={product.images[0].url || "/placeholder.svg?height=200&width=200&query=gemstone"}
               alt={product.name}

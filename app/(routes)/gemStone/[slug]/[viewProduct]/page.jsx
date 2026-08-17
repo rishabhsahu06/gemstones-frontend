@@ -213,13 +213,13 @@ const GemstonePageViewPage = () => {
                 <span className="text-2xl font-bold text-gray-900">
                   Rs.{" "}
                   {safeProductData.discountedPrice > 0
-                    ? safeProductData.discountedPrice.toLocaleString()
+                    ? safeProductData.discountedPrice?.toLocaleString()
                     : "Price not available"}
                 </span>
                 {safeProductData.originalPrice > safeProductData.discountedPrice &&
                   safeProductData.originalPrice > 0 && (
                     <span className="text-lg text-gray-500 line-through">
-                      Rs. {safeProductData.originalPrice.toLocaleString()}
+                      Rs. {safeProductData.originalPrice?.toLocaleString()}
                     </span>
                   )}
                 {safeProductData.stock > 0 && (
