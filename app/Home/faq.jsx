@@ -1,132 +1,128 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { ChevronDown, ChevronUp } from "lucide-react"
-import { useEffect, useRef } from "react"
-// Removed TypeScript interface
-const faqData = [
-    {
-        id: 1,
-        question: "How do I know which gemstone is right for my zodiac sign?",
-        answer:
-            "Each zodiac sign is associated with specific gemstones that align with its ruling planet and characteristics. Consulting an astrologer can help you find the most suitable stone.",
-    },
-    {
-        id: 2,
-        question: "Can wearing the wrong gemstone cause negative effects?",
-        answer:
-            "While gemstones are generally safe to wear, some believe that wearing incompatible stones may not provide the desired benefits. It's recommended to consult with an expert before choosing.",
-    },
-    {
-        id: 3,
-        question: "What is a birthstone, and how is it different from a planetary gemstone?",
-        answer:
-            "Birthstones are associated with birth months, while planetary gemstones are linked to astrological planets and their influences. Planetary stones are chosen based on your birth chart analysis.",
-    },
-    {
-        id: 4,
-        question: "Do I need to energize or purify my gemstone before wearing it?",
-        answer:
-            "Many practitioners recommend cleansing and energizing gemstones before first use to remove any negative energies and enhance their natural properties.",
-    },
-    {
-        id: 5,
-        question: "On which finger should I wear my astrological gemstone ring?",
-        answer:
-            "The finger choice depends on the specific gemstone and its associated planet. Each finger is connected to different planetary energies in Vedic astrology.",
-    },
-    {
-        id: 6,
-        question: "How long does it take for a gemstone to show astrological effects?",
-        answer:
-            "The effects of gemstones can vary from person to person. Some may notice changes within a few weeks, while others might take several months to experience the full benefits.",
-    },
-]
+import { useState, useRef, useEffect } from "react";
+import { ChevronDown } from "lucide-react";
+import { faqs } from "@/lib/site-data";
+import { SectionHeading, Reveal } from "./Reveal";
 
-function FAQ() {
-    const [openItems, setOpenItems] = useState([1]) // First item open by default
+const EASE = [0.22, 1, 0.36, 1];
 
-    const toggleItem = (id) => {
-        setOpenItems((prev) =>
-            prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
-        )
+/** Each FAQ item is its own component — fixes the invalid hook-in-loop bug */
+function FAQItem({ item, isOpen, onToggle }) {
+  const contentRef = useRef(null);
+  const [height, setHeight] = useState("0px");
+
+  useEffect(() => {
+    if (isOpen && contentRef.current) {
+      setHeight(`${contentRef.current.scrollHeight}px`);
+    } else {
+      setHeight("0px");
     }
+  }, [isOpen]);
 
-    return (
-        <div className="container mx-auto ">
-            {/* Header Section */}
-            <div className="text-center mb-12 lg:mb-16 mt-12">
-                <h1 className="text-2xl md:text-4xl 2xl:text-5xl font-bold text-black mb-6">
-                    Frequently Asked Question
-                </h1>
-                <p className="text-[#4F4F4F] text-base md:text-lg  mx-auto leading-relaxed">
-                    Got questions? We’ve got answers. From gemstone authenticity and care tips to shipping details and customization options—find everything you need to know right here. Explore our most commonly asked questions to make your shopping experience smooth and informed.
-                </p>
-            </div>
+  return (
+    <div
+      className="overflow-hidden transition-colors duration-300"
+      style={{ borderBottom: "1px solid var(--border)" }}
+    >
+      <button
+        onClick={() => onToggle(item.id)}
+        className="w-full flex items-center justify-between gap-4 py-5 text-left transition-colors duration-300"
+        aria-expanded={isOpen}
+      >
+        <h3
+          className="text-base md:text-lg pr-4 transition-colors duration-300"
+          style={{
+            fontFamily: "var(--font-display)",
+            fontWeight: 300,
+            color: isOpen ? "var(--gold)" : "var(--ink)",
+          }}
+        >
+          {item.question}
+        </h3>
 
-            {/* Main Content */}
-            <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-start">
-                <div className="order-2 lg:order-1">
-                    <div className="relative rounded-2xl overflow-hidden shadow-lg">
-                        <img
-                            src="/faq-img.png"
-                            alt="Dr. Sunita Dubey - Gemstone Expert"
-                            className="w-full h-auto object-cover"
-                        />
-                    </div>
-                </div>
+        <ChevronDown
+          className="flex-shrink-0 w-5 h-5 transition-all duration-350"
+          style={{
+            transform: isOpen ? "rotate(180deg)" : "rotate(0deg)",
+            color: isOpen ? "var(--gold)" : "var(--muted-foreground)",
+            transitionTimingFunction: "cubic-bezier(0.22,1,0.36,1)",
+          }}
+        />
+      </button>
 
-                <div className="order-1 lg:order-2 space-y-4">
-                    {faqData.map((item) => {
-                        const isOpen = openItems.includes(item.id)
-                        const contentRef = useRef(null)
-                        const [height, setHeight] = useState("0px")
-
-                        useEffect(() => {
-                            if (isOpen && contentRef.current) {
-                                setHeight(`${contentRef.current.scrollHeight}px`)
-                            } else {
-                                setHeight("0px")
-                            }
-                        }, [isOpen])
-
-                        return (
-                            <div
-                                key={item.id}
-                                className="border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200"
-                            >
-                                <button
-                                    onClick={() => toggleItem(item.id)}
-                                    className="w-full px-6 py-4 text-left flex justify-between items-center hover:bg-gray-50 transition-colors duration-200"
-                                >
-                                    <h3 className="text-md md:text-lg font-semibold text-black pr-4">
-                                        {item.question}
-                                    </h3>
-                                    <div className="flex-shrink-0">
-                                        {isOpen ? (
-                                            <ChevronUp className="w-5 h-5 text-gray-600" />
-                                        ) : (
-                                            <ChevronDown className="w-5 h-5 text-gray-600" />
-                                        )}
-                                    </div>
-                                </button>
-
-                                <div
-                                    ref={contentRef}
-                                    className="px-6 transition-all duration-300 ease-in-out overflow-hidden "
-                                    style={{ maxHeight: height }}
-                                >
-                                    <div className="border-t  mb-2 border-gray-100 py-4">
-                                        <p className="text-[#4F4F4F] font-normal text-sm md:text-base leading-relaxed">{item.answer}</p>
-                                    </div>
-                                </div>
-                            </div>
-                        )
-                    })}
-                </div>
-            </div>
-        </div>
-    )
+      <div
+        ref={contentRef}
+        style={{
+          maxHeight: height,
+          overflow: "hidden",
+          transition: "max-height 0.4s cubic-bezier(0.22,1,0.36,1), opacity 0.3s",
+          opacity: isOpen ? 1 : 0,
+        }}
+      >
+        <p
+          className="pb-5 text-sm md:text-base leading-relaxed"
+          style={{ color: "var(--muted-foreground)" }}
+        >
+          {item.answer}
+        </p>
+      </div>
+    </div>
+  );
 }
 
-export default FAQ
+export default function FAQ() {
+  const [openItems, setOpenItems] = useState([1]);
+
+  const toggle = (id) => {
+    setOpenItems((prev) =>
+      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+    );
+  };
+
+  return (
+    <section id="faq" className="container mx-auto px-4 py-16 xl:py-24">
+      {/* Header */}
+      <div className="text-center mb-14">
+        <SectionHeading
+          eyebrow="Have Questions?"
+          title="Frequently Asked Questions"
+          copy="From certification to shipping — everything you need to know before you buy."
+          align="center"
+          delay={0}
+        />
+      </div>
+
+      {/* Two-column layout */}
+      <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-start">
+        {/* FAQ image */}
+        <Reveal className="order-2 lg:order-1">
+          <div className="relative rounded-sm overflow-hidden shadow-xl">
+            <img
+              src="/faq-img.png"
+              alt="Dr. Sunita Dubey — Gemstone Expert"
+              className="w-full h-auto object-cover"
+              loading="lazy"
+            />
+          </div>
+        </Reveal>
+
+        {/* Accordion */}
+        <div className="order-1 lg:order-2">
+          <Reveal delay={0.1}>
+            <div>
+              {faqs.map((item) => (
+                <FAQItem
+                  key={item.id}
+                  item={item}
+                  isOpen={openItems.includes(item.id)}
+                  onToggle={toggle}
+                />
+              ))}
+            </div>
+          </Reveal>
+        </div>
+      </div>
+    </section>
+  );
+}

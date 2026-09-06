@@ -1,179 +1,280 @@
 "use client";
-import { Button } from "@/components/ui/button";
+
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "motion/react";
+import { CheckCircle, ShoppingBag } from "lucide-react";
+import { stones, inr } from "@/lib/site-data";
+import { SectionHeading, Reveal } from "./Reveal";
 
-const stoneCategories = [
-    {
-        name: "Yellow Sapphire",
-        image: "/yellow-stone.png",
-    },
-    {
-        name: "Blue Sapphire",
-        image: "/blue-stone.png",
-    },
-    {
-        name: "Emerald",
-        image: "/green-stone.png",
-    },
-    {
-        name: "Ruby",
-        image: "/ruby-stone.png",
-    },
-    {
-        name: "Opal",
-        image: "/opal-stone.png",
-    },
-    {
-        name: "Red Coral",
-        image: "/red-stone.png",
-    },
-    {
-        name: "Pearl",
-        image: "/pearl-stone.png",
-    },
-    {
-        name: "Hessonite",
-        image: "/hesotine-stone.png",
-    },
+const EASE = [0.22, 1, 0.36, 1];
+
+const FILTERS = [
+  { id: "all", label: "All stones" },
+  { id: "bestseller", label: "Bestsellers" },
+  { id: "premium", label: "Premium navratna" },
+  { id: "under-15k", label: "Under ₹15,000" },
 ];
 
-// Individual Stone Card Component with loading state
-function StoneCard({ stone, index }) {
-    const [isLoading, setIsLoading] = useState(true);
-    const [hasError, setHasError] = useState(false);
+function StarRating({ rating }) {
+  return (
+    <span className="flex items-center gap-0.5">
+      {Array.from({ length: 5 }).map((_, i) => (
+        <span
+          key={i}
+          style={{
+            fontSize: "0.6rem",
+            color: i < Math.round(rating) ? "var(--gold)" : "var(--border)",
+          }}
+        >
+          ★
+        </span>
+      ))}
+    </span>
+  );
+}
 
-    const handleImageLoad = () => {
-        setIsLoading(false);
-    };
+function StoneCard({ stone }) {
+  const [added, setAdded] = useState(false);
+  const discount = Math.round(((stone.compare - stone.price) / stone.compare) * 100);
 
-    const handleImageError = () => {
-        setIsLoading(false);
-        setHasError(true);
-    };
+  const handleAdd = (e) => {
+    e.preventDefault();
+    setAdded(true);
+    setTimeout(() => setAdded(false), 2000);
+  };
 
-    return (
-        <div className="flex flex-col items-center">
-            <div className="relative w-full aspect-square mb-4">
-                {/* Skeleton */}
-                {isLoading && (
-                    <div className="absolute inset-0 bg-gradient-to-br from-gray-200 via-gray-100 to-gray-300 rounded-lg animate-pulse">
-                        <div className="absolute inset-0 flex items-center justify-center">
-                            <div className="w-24 h-24 bg-gray-300 rounded-full animate-pulse"></div>
-                        </div>
-                    </div>
-                )}
+  return (
+    <motion.div
+      layout
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.9 }}
+      transition={{ duration: 0.4, ease: EASE }}
+      className="group relative rounded-sm overflow-hidden cursor-pointer"
+      style={{
+        background: "var(--card)",
+        border: "1px solid var(--border)",
+        transition: "border-color 0.35s, box-shadow 0.35s, transform 0.35s",
+      }}
+      whileHover={{
+        y: -6,
+        boxShadow: "0 16px 48px oklch(0.19 0.045 265 / 0.18)",
+        borderColor: "var(--gold)",
+      }}
+    >
+      {/* Image area */}
+      <div className="relative aspect-square overflow-hidden bg-paper">
+        <Image
+          src={stone.image}
+          alt={stone.name}
+          fill
+          loading="lazy"
+          className="object-contain p-4 transition-transform duration-[900ms] group-hover:scale-[1.09]"
+          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+        />
 
-                {/* Actual Image */}
-                <div className={`relative w-full h-full flex items-center justify-center transition-opacity duration-300 ${isLoading ? 'opacity-0' : 'opacity-100'
-                    }`}>
-                    <Image
-                        src={hasError ? "/placeholder.svg" : stone.image}
-                        alt={stone.name}
-                        width={330}
-                        height={330}
-                        className="object-contain max-h-full hover:scale-105 transition-transform duration-300"
-                        onLoad={handleImageLoad}
-                        onError={handleImageError}
-                        priority={index < 4} // Prioritize first 4 images
-                    />
-                </div>
-            </div>
+        {/* Badge (top-left) */}
+        {stone.badge && (
+          <span
+            className="absolute top-2 left-2 eyebrow text-[0.55rem] px-2 py-1 rounded-sm"
+            style={{ background: "var(--ink)", color: "var(--gold)" }}
+          >
+            {stone.badge}
+          </span>
+        )}
 
-            {/* Title with skeleton */}
-            {isLoading ? (
-                <div className="h-6 md:h-8 bg-gray-300 rounded w-24 md:w-32 animate-pulse"></div>
+        {/* Discount chip (top-right) */}
+        {discount > 0 && (
+          <span
+            className="absolute top-2 right-2 text-[0.6rem] font-medium px-2 py-0.5 rounded-sm"
+            style={{ background: "var(--gold)", color: "var(--gold-foreground)" }}
+          >
+            -{discount}%
+          </span>
+        )}
+
+        {/* Quick-add bar (slides up on hover) */}
+        <div
+          className="absolute bottom-0 left-0 right-0 translate-y-full group-hover:translate-y-0 transition-transform duration-350"
+          style={{ background: added ? "var(--ink)" : "var(--gold)" }}
+        >
+          <button
+            onClick={handleAdd}
+            className="w-full flex items-center justify-center gap-2 py-3 eyebrow text-[0.6rem]"
+            style={{ color: added ? "var(--gold)" : "var(--gold-foreground)" }}
+            aria-label={added ? "Added to bag" : `Quick add ${stone.name}`}
+          >
+            {added ? (
+              <>
+                <CheckCircle className="w-3.5 h-3.5" />
+                Added to bag
+              </>
             ) : (
-                <h3 className="text-[18px] md:text-[22px] font-semibold text-center transition-opacity duration-300">
-                    {stone.name}
-                </h3>
+              <>
+                <ShoppingBag className="w-3.5 h-3.5" />
+                Quick add
+              </>
             )}
+          </button>
         </div>
-    );
+      </div>
+
+      {/* Card body */}
+      <div className="p-4">
+        {/* Planet eyebrow */}
+        <p
+          className="eyebrow text-[0.55rem] mb-1.5"
+          style={{ color: "var(--gold)" }}
+        >
+          {stone.planet} · {stone.planetGlyph}
+        </p>
+
+        {/* Stars + reviews */}
+        <div className="flex items-center gap-1.5 mb-2">
+          <StarRating rating={stone.rating} />
+          <span className="text-[0.65rem]" style={{ color: "var(--muted-foreground)" }}>
+            ({stone.reviews})
+          </span>
+        </div>
+
+        {/* Name */}
+        <h3
+          className="text-lg leading-snug mb-0.5"
+          style={{
+            fontFamily: "var(--font-display)",
+            fontWeight: 300,
+            color: "var(--ink)",
+          }}
+        >
+          {stone.name}
+        </h3>
+
+        {/* Sanskrit · Carat */}
+        <p
+          className="text-xs italic mb-2"
+          style={{ color: "var(--muted-foreground)" }}
+        >
+          {stone.sanskrit} · {stone.carat}
+        </p>
+
+        {/* Intent (hidden on small mobile) */}
+        <p
+          className="hidden sm:block text-xs leading-relaxed mb-3"
+          style={{ color: "var(--muted-foreground)" }}
+        >
+          {stone.intent}
+        </p>
+
+        {/* Price row */}
+        <div
+          className="pt-3 flex items-baseline gap-2"
+          style={{ borderTop: "1px solid var(--border)" }}
+        >
+          <span
+            className="text-lg font-medium"
+            style={{ fontFamily: "var(--font-sans)", color: "var(--ink)" }}
+          >
+            {inr(stone.price)}
+          </span>
+          <span
+            className="text-xs line-through"
+            style={{ color: "var(--muted-foreground)" }}
+          >
+            {inr(stone.compare)}
+          </span>
+        </div>
+      </div>
+    </motion.div>
+  );
 }
 
-function PerfectStones() {
-    const [allImagesLoaded, setAllImagesLoaded] = useState(false);
-    const [loadedCount, setLoadedCount] = useState(0);
+export default function PerfectStones() {
+  const [activeFilter, setActiveFilter] = useState("all");
 
-    // Check if all images are loaded
-    useEffect(() => {
-        if (loadedCount === stoneCategories.length) {
-            setAllImagesLoaded(true);
-        }
-    }, [loadedCount]);
+  const filtered =
+    activeFilter === "all"
+      ? stones
+      : stones.filter((s) => s.tags.includes(activeFilter));
 
-    return (
-        <div className="container mx-auto px-4 mt-12">
-            {/* Header with skeleton */}
-            <div className="text-center mb-10">
-                <h1 className="text-2xl md:text-3xl font-bold text-center mb-2 mt-16">
-                    Find your Perfect Stone
-                </h1>
-                <p className="text-[16px] md:text-[20px] font-helvatica text-center text-[#4F4F4F]">
-                    Shop by Categories
-                </p>
+  return (
+    <section id="stones" className="container mx-auto px-4 py-16 xl:py-24">
+      {/* Heading */}
+      <div className="text-center mb-12">
+        <SectionHeading
+          eyebrow="Vedic Navratna"
+          title="Find Your Perfect Stone"
+          copy="Each gemstone is recommended by planet, purpose, and your birth chart."
+          align="center"
+          delay={0}
+        />
+      </div>
+
+      {/* Filter pills */}
+      <Reveal delay={0.1}>
+        <div className="flex flex-wrap justify-center gap-2 mb-10" role="tablist">
+          {FILTERS.map((f) => (
+            <div key={f.id} className="relative">
+              {activeFilter === f.id && (
+                <motion.span
+                  layoutId="filter-pill"
+                  className="absolute inset-0 rounded-full"
+                  style={{ background: "var(--ink)" }}
+                  transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                />
+              )}
+              <button
+                role="tab"
+                aria-selected={activeFilter === f.id}
+                onClick={() => setActiveFilter(f.id)}
+                className="relative z-10 px-5 py-2 rounded-full eyebrow text-[0.6rem] transition-colors duration-300 border"
+                style={{
+                  color: activeFilter === f.id ? "var(--gold)" : "var(--ink)",
+                  borderColor: activeFilter === f.id ? "transparent" : "var(--border)",
+                }}
+              >
+                {f.label}
+              </button>
             </div>
-
-            {/* Grid with skeleton items */}
-            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                {stoneCategories.map((stone, index) => (
-                    <StoneCard
-                        key={index}
-                        stone={stone}
-                        index={index}
-                    />
-                ))}
-            </div>
-
-            {/* Button with skeleton */}
-            <div className="flex justify-center mt-8">
-
-
-                <Button
-                    asChild
-                    className="bg-[#BA8E49] cursor-pointer hover:bg-[#A67A3F] px-8 py-8 md:px-16 md:py-8 text-xl transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
-                >
-                    <Link href="/products">
-                        View All Stones
-                    </Link>
-                </Button>
-
-            </div>
-
-            {/* Custom CSS for animations */}
-            <style jsx>{`
-                @keyframes pulse {
-                    0%, 100% {
-                        opacity: 1;
-                    }
-                    50% {
-                        opacity: 0.5;
-                    }
-                }
-
-                .animate-pulse {
-                    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-                }
-
-                @keyframes shimmer {
-                    0% {
-                        background-position: -468px 0;
-                    }
-                    100% {
-                        background-position: 468px 0;
-                    }
-                }
-
-                .animate-shimmer {
-                    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-                    background-size: 400% 100%;
-                    animation: shimmer 1.5s infinite;
-                }
-            `}</style>
+          ))}
         </div>
-    );
-}
+      </Reveal>
 
-export default PerfectStones;
+      {/* Stone grid */}
+      <motion.div
+        layout
+        className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6"
+      >
+        <AnimatePresence mode="popLayout">
+          {filtered.map((stone) => (
+            <StoneCard key={stone.slug} stone={stone} />
+          ))}
+        </AnimatePresence>
+      </motion.div>
+
+      {/* Footer link */}
+      <Reveal delay={0.1}>
+        <div className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-6">
+          <Link
+            href="/products"
+            className="shimmer-btn inline-flex items-center gap-2 px-10 py-4 rounded-sm eyebrow text-[0.65rem] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg"
+            style={{
+              background: "var(--gold)",
+              color: "var(--gold-foreground)",
+            }}
+          >
+            View All Stones
+          </Link>
+          <Link
+            href="#consult"
+            className="text-sm link-underline"
+            style={{ color: "var(--muted-foreground)" }}
+          >
+            Not sure which one? Ask an astrologer
+          </Link>
+        </div>
+      </Reveal>
+    </section>
+  );
+}

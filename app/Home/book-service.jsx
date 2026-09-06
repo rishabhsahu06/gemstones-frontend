@@ -27,6 +27,8 @@ import {
     FormMessage,
 } from "@/components/ui/form"
 import { useApi } from "@/hooks/useApi"
+import { consultSteps } from "@/lib/site-data"
+import { SectionHeading, Reveal } from "./Reveal"
 
 // Enhanced Zod validation schema
 const formSchema = z.object({
@@ -138,29 +140,101 @@ export default function BookService() {
     }
 
     return (
-        <div className="container mx-auto">
-            <div className="flex flex-col border lg:flex-row min-h-screen mt-12">
-                {/* Image Side */}
-                <div className="w-full lg:w-1/2 relative">
-                    <Image
-                        src="/stones.png"
-                        alt="Colorful gemstones collection"
-                        fill
-                        className="object-cover"
-                        priority
-                    />
+        <section id="consult" className="py-16 xl:py-24" style={{ background: "var(--paper)" }}>
+            {/* Section heading */}
+            <div className="container mx-auto px-4 mb-14 text-center">
+                <SectionHeading
+                    eyebrow="Personalised Guidance"
+                    title="Free Astrologer Consultation"
+                    copy="Share your birth details and receive a personalised gemstone recommendation within 24 hours."
+                    align="center"
+                    delay={0}
+                />
+            </div>
+
+            <div className="container mx-auto px-4">
+            <div className="flex flex-col lg:flex-row gap-0 border rounded-sm overflow-hidden shadow-xl min-h-[600px]">
+
+                {/* ── Left: image + steps ──────────────────── */}
+                <div className="w-full lg:w-1/2 relative flex flex-col">
+                    {/* Background image */}
+                    <div className="relative flex-1" style={{ minHeight: "280px" }}>
+                        <Image
+                            src="/stones.png"
+                            alt="Colorful gemstones collection"
+                            fill
+                            className="object-cover"
+                            priority
+                        />
+                        <div
+                            className="absolute inset-0"
+                            style={{ background: "oklch(0.19 0.045 265 / 0.55)" }}
+                            aria-hidden="true"
+                        />
+                    </div>
+
+                    {/* Steps panel */}
+                    <div
+                        className="relative p-8 flex flex-col gap-0"
+                        style={{ background: "var(--ink)" }}
+                    >
+                        {consultSteps.map((step, idx) => (
+                            <div key={step.step} className="flex gap-5 relative">
+                                {/* Connector line */}
+                                {idx < consultSteps.length - 1 && (
+                                    <div
+                                        className="absolute left-[18px] top-10 bottom-0 w-px"
+                                        style={{ background: "var(--gold)", opacity: 0.4 }}
+                                        aria-hidden="true"
+                                    />
+                                )}
+                                {/* Step circle */}
+                                <div
+                                    className="flex-shrink-0 w-9 h-9 rounded-full flex items-center justify-center text-sm font-medium z-10"
+                                    style={{
+                                        background: "var(--gold)",
+                                        color: "var(--gold-foreground)",
+                                        fontFamily: "var(--font-sans)",
+                                    }}
+                                >
+                                    {step.step}
+                                </div>
+                                {/* Step text */}
+                                <div className="pb-8">
+                                    <h3
+                                        className="text-base mb-1"
+                                        style={{
+                                            fontFamily: "var(--font-display)",
+                                            fontWeight: 300,
+                                            color: "var(--ink-foreground)",
+                                        }}
+                                    >
+                                        {step.title}
+                                    </h3>
+                                    <p
+                                        className="text-sm leading-relaxed"
+                                        style={{ color: "oklch(0.65 0.02 265)" }}
+                                    >
+                                        {step.description}
+                                    </p>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
                 </div>
 
                 {/* Form Side */}
-                <div className="w-full lg:w-1/2 p-4 sm:p-6 md:p-8 lg:p-10 overflow-y-auto bg-white">
+                <div className="w-full lg:w-1/2 p-6 sm:p-8 md:p-10 overflow-y-auto" style={{ background: "white" }}>
                     <div className="max-w-2xl mx-auto">
-                        <header className="text-center mb-6 lg:mb-8">
-                            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mb-2 mt-2 lg:mt-4 text-gray-900">
-                                Gem Recommendation Service | Online Astrology & Stone Picker
-                            </h1>
-                            <p className="text-sm sm:text-base md:text-lg font-helvetica text-gray-600 mb-6 lg:mb-10 px-2">
-                                Find your ideal gemstone using your birth details and zodiac sign. Get personalized,
-                                astrology-based stone recommendations to boost luck, success, and balance.
+                        <header className="text-center mb-8">
+                            <h2
+                                className="text-2xl sm:text-3xl mb-2 mt-2"
+                                style={{ fontFamily: "var(--font-display)", fontWeight: 300, color: "var(--ink)" }}
+                            >
+                                Gem Recommendation Service
+                            </h2>
+                            <p className="text-sm leading-relaxed" style={{ color: "var(--muted-foreground)" }}>
+                                Find your ideal gemstone using your birth details and zodiac sign.
                             </p>
                         </header>
 
@@ -467,6 +541,7 @@ export default function BookService() {
                     </div>
                 </div>
             </div>
-        </div>
+            </div>
+        </section>
     )
 }

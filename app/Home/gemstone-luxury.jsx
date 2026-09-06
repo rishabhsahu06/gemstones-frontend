@@ -1,205 +1,142 @@
-"use client"
+"use client";
 
-import { useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
+import { motion } from "motion/react";
+import { jewellery } from "@/lib/site-data";
+import { SectionHeading, Reveal } from "./Reveal";
 
-// Individual Jewelry Item Component with loading state
-function JewelryItem({ item, className }) {
-    const [isLoading, setIsLoading] = useState(true);
-    const [hasError, setHasError] = useState(false);
+const EASE = [0.22, 1, 0.36, 1];
 
-    const handleImageLoad = () => {
-        setIsLoading(false);
-    };
+function JewelleryCard({ item, idx }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 32 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-60px" }}
+      transition={{ duration: 0.65, delay: idx * 0.1, ease: EASE }}
+      className="group relative overflow-hidden rounded-sm"
+      style={{ aspectRatio: "4/5" }}
+    >
+      <Link href={item.href} aria-label={item.title}>
+        {/* Image */}
+        <Image
+          src={item.image}
+          alt={item.title}
+          fill
+          loading="lazy"
+          className="object-cover transition-transform duration-[900ms] group-hover:scale-[1.06]"
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+        />
 
-    const handleImageError = () => {
-        setIsLoading(false);
-        setHasError(true);
-    };
+        {/* Gradient overlay */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background:
+              "linear-gradient(to top, oklch(0.19 0.045 265 / 0.85) 0%, transparent 55%)",
+          }}
+          aria-hidden="true"
+        />
 
-    return (
-        <div className={`rounded-2xl overflow-hidden shadow-2xl ${className}`}>
-            <div className="relative">
-                {/* Skeleton */}
-                {isLoading && (
-                    <div className={`bg-gradient-to-br from-gray-200 via-gray-100 to-gray-300 animate-pulse ${item.isLarge ? 'h-96' : 'h-44'
-                        }`}>
-                        <div className="absolute inset-0 flex items-center justify-center">
-                            <div className="w-16 h-16 bg-gray-300 rounded-full animate-pulse"></div>
-                        </div>
-                        {/* Shimmer effect */}
-                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer"></div>
-                    </div>
-                )}
-
-                {/* Actual Image */}
-                <div className={`relative transition-opacity duration-500 ${isLoading ? 'opacity-0 absolute inset-0' : 'opacity-100'
-                    } ${item.isLarge ? 'h-96' : 'h-44'}`}>
-                    <Image
-                        src={hasError ? "/placeholder.svg" : item.image}
-                        alt={item.title}
-                        fill
-                        className={`object-cover hover:scale-105 transition-transform duration-500 ${item.position === 'left' || item.position === 'right' ? 'rounded-xl' : ''
-                            }`}
-                        onLoad={handleImageLoad}
-                        onError={handleImageError}
-                        priority={item.isLarge} // Prioritize large images
-                    />
-                </div>
-            </div>
-
-            {/* Title with skeleton */}
-            <div className="p-4 text-center bg-white">
-                {isLoading ? (
-                    <div className="h-6 bg-gray-300 rounded w-3/4 mx-auto animate-pulse"></div>
-                ) : (
-                    <h2 className="text-xl font-medium transition-opacity duration-300">
-                        {item.title}
-                    </h2>
-                )}
-            </div>
+        {/* Caption block — slides up on hover, always visible on mobile */}
+        <div
+          className="absolute bottom-0 left-0 right-0 p-5 translate-y-3 group-hover:translate-y-0 transition-transform duration-500"
+          style={{ transitionTimingFunction: "cubic-bezier(0.22,1,0.36,1)" }}
+        >
+          <p className="eyebrow text-[0.55rem] mb-2" style={{ color: "var(--gold)" }}>
+            {item.count} pieces
+          </p>
+          <h3
+            className="text-xl leading-snug mb-1"
+            style={{
+              fontFamily: "var(--font-display)",
+              fontWeight: 300,
+              color: "var(--ink-foreground)",
+            }}
+          >
+            {item.title}
+          </h3>
+          <p
+            className="text-xs leading-relaxed opacity-0 group-hover:opacity-100 transition-opacity duration-400"
+            style={{ color: "oklch(0.78 0.012 85)" }}
+          >
+            {item.subtitle}
+          </p>
         </div>
-    );
+      </Link>
+    </motion.div>
+  );
 }
 
 export default function LuxuryGemstones() {
-    const [allImagesLoaded, setAllImagesLoaded] = useState(false);
+  return (
+    <section id="jewellery" className="py-16 xl:py-24">
+      {/* Header */}
+      <div className="container mx-auto px-4 mb-12 text-center">
+        <SectionHeading
+          eyebrow="Handcrafted Jewellery"
+          title="The Art of Gemstone Luxury"
+          copy="Elevate your style with the unmatched allure of fine gemstones set in 18k & 22k gold."
+          align="center"
+          delay={0}
+        />
+      </div>
 
-    // Images with their labels and paths
-    const jewelryItems = [
-        {
-            id: "pendants",
-            title: "Gemstone Pendants",
-            image: "/pendant.png",
-            isLarge: true,
-            position: "left"
-        },
-        {
-            id: "bracelet",
-            title: "Gemstone Bracelet",
-            image: "/bracelet.png",
-            isLarge: false,
-            position: "middle-top"
-        },
-        {
-            id: "earrings",
-            title: "Earrings",
-            image: "/earring.png",
-            isLarge: false,
-            position: "middle-bottom"
-        },
-        {
-            id: "rings",
-            title: "Emerald Rings",
-            image: "/ring.png",
-            isLarge: true,
-            position: "right"
-        }
-    ];
-
-    return (
-        <div className="container mx-auto px-4 mb-4">
-            {/* Header Section */}
-            <div className="text-center mb-10 mt-12">
-                <h1 className="text-2xl md:text-3xl font-bold text-center mb-2 mt-16">
-                    The Art of Gemstone Luxury
-                </h1>
-                <p className="text-[16px] md:text-[20px] font-helvatica text-center text-[#4F4F4F] mb-10">
-                    Elevate your style with the unmatched allure of fine gemstones.
-                </p>
-            </div>
-
-            {/* Jewelry Grid Layout */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {/* Left Column - Pendants */}
-                <JewelryItem
-                    item={jewelryItems[0]}
-                    className="p-2"
-                />
-
-                {/* Middle Column - Bracelet & Earrings */}
-                <div className="flex flex-col space-y-6">
-                    {/* Bracelet */}
-                    <JewelryItem
-                        item={jewelryItems[1]}
-                        className="shadow-sm"
-                    />
-
-                    {/* Earrings */}
-                    <JewelryItem
-                        item={jewelryItems[2]}
-                        className=""
-                    />
-                </div>
-
-                {/* Right Column - Rings */}
-                <JewelryItem
-                    item={jewelryItems[3]}
-                    className="p-2"
-                />
-            </div>
-
-            {/* Custom CSS for animations */}
-            <style jsx>{`
-                @keyframes pulse {
-                    0%, 100% {
-                        opacity: 1;
-                    }
-                    50% {
-                        opacity: 0.5;
-                    }
-                }
-
-                .animate-pulse {
-                    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-                }
-
-                @keyframes shimmer {
-                    0% {
-                        transform: translateX(-100%);
-                    }
-                    100% {
-                        transform: translateX(100%);
-                    }
-                }
-
-                .animate-shimmer {
-                    position: relative;
-                    overflow: hidden;
-                }
-
-                .animate-shimmer::before {
-                    content: '';
-                    position: absolute;
-                    top: 0;
-                    left: 0;
-                    width: 100%;
-                    height: 100%;
-                    background: linear-gradient(
-                        90deg,
-                        transparent,
-                        rgba(255, 255, 255, 0.4),
-                        transparent
-                    );
-                    transform: translateX(-100%);
-                    animation: shimmer 2s infinite;
-                }
-
-                @keyframes fadeIn {
-                    from {
-                        opacity: 0;
-                        transform: translateY(20px);
-                    }
-                    to {
-                        opacity: 1;
-                        transform: translateY(0);
-                    }
-                }
-
-                .animate-fade-in {
-                    animation: fadeIn 0.6s ease-out forwards;
-                }
-            `}</style>
+      {/* 4-card editorial grid */}
+      <div className="container mx-auto px-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {jewellery.map((item, idx) => (
+            <JewelleryCard key={item.id} item={item} idx={idx} />
+          ))}
         </div>
-    );
+      </div>
+
+      {/* Full-width bespoke banner */}
+      <Reveal delay={0.15}>
+        <div className="relative mt-12 mx-4 sm:mx-0 overflow-hidden" style={{ minHeight: "260px" }}>
+          <Image
+            src="/banner.png"
+            alt="Bespoke gemstone jewellery atelier banner"
+            fill
+            loading="lazy"
+            className="object-cover"
+          />
+          {/* Overlay */}
+          <div
+            className="absolute inset-0"
+            style={{ background: "oklch(0.19 0.045 265 / 0.55)" }}
+            aria-hidden="true"
+          />
+
+          {/* Centred copy */}
+          <div className="relative z-10 h-full flex flex-col items-center justify-center text-center px-6 py-16">
+            <p className="eyebrow text-[0.6rem] mb-4" style={{ color: "var(--gold)" }}>
+              Bespoke Atelier
+            </p>
+            <h2
+              className="text-3xl sm:text-4xl md:text-5xl mb-6 max-w-2xl leading-tight"
+              style={{
+                fontFamily: "var(--font-display)",
+                fontWeight: 300,
+                color: "var(--ink-foreground)",
+              }}
+            >
+              Have a stone? We'll set it in gold.
+            </h2>
+            <Link
+              href="/gemstones-jewellery"
+              className="inline-flex px-8 py-3.5 rounded-sm eyebrow text-[0.65rem] transition-all duration-300 hover:-translate-y-0.5"
+              style={{
+                border: "1px solid rgba(255,255,255,0.5)",
+                color: "var(--ink-foreground)",
+              }}
+            >
+              Explore Jewellery
+            </Link>
+          </div>
+        </div>
+      </Reveal>
+    </section>
+  );
 }
