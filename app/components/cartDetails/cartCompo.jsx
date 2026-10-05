@@ -185,7 +185,11 @@ function Cart() {
           <h2 className="text-2xl font-semibold mb-4">Please Sign In</h2>
           <p className="text-gray-600 mb-4">You need to be signed in to view your cart.</p>
         </div>
-        <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
+        <AuthModal
+          isOpen={isAuthModalOpen}
+          onClose={() => setIsAuthModalOpen(false)}
+          redirectTo="/cart"
+        />
       </div>
     )
   }
@@ -331,7 +335,11 @@ function Cart() {
       </div>
 
       {/* Auth Modal - positioned at root level for proper visibility */}
-      <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        redirectTo="/cart"
+      />
     </div>
   )
 }

@@ -57,7 +57,12 @@ function Header() {
     return pathname.startsWith(path)
   }
 
-  const handleLogout = () => signOut({ callbackUrl: "/" })
+  const handleLogout = () => {
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("token")
+    }
+    signOut({ callbackUrl: "/" })
+  }
 
   const getLinkClasses = (path) =>
     cn(

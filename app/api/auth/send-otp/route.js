@@ -1,82 +1,71 @@
 import { NextResponse } from "next/server"
-import api from "@/lib/axios"
+import {
+  cleanPhone,
+  toMsg91Mobile,
+  validateOtpPhone,
+  isDemoOtpAllowed,
+  DEMO_OTP,
+} from "@/lib/otp"
+import {
+  isMsg91WidgetServerConfigured,
+  widgetSendOtp,
+  widgetRetryOtp,
+} from "@/lib/msg91-server"
 
 export async function POST(request) {
   try {
-    const { phone } = await request.json()
-
-    if (!phone) {
-      return NextResponse.json(
-        { success: false, message: "Phone number is required" },
-        { status: 400 }
-      )
+    const { phone, reqId } = await request.json()
+    const phoneError = validateOtpPhone(phone)
+    if (phoneError) {
+      return NextResponse.json({ success: false, message: phoneError }, { status: 400 })
     }
 
-    // Clean phone number: keep numbers and plus sign
-    const cleanedPhone = phone.replace(/[^\d+]/g, "")
-    // Ensure standard format without '+' for MSG91 (e.g., 919876543210)
-    const msg91Mobile = cleanedPhone.replace(/^\+/, "")
+    const identifier = toMsg91Mobile(phone)
 
-    // 1. First, check if backend API has a send-otp endpoint
-    try {
-      const backendRes = await api.post("/auth/send-otp", { phone: cleanedPhone, mobile: msg91Mobile })
-      if (backendRes.data?.success) {
-        return NextResponse.json({ success: true, message: backendRes.data.message || "OTP sent successfully" })
-      }
-    } catch (backendErr) {
-      // Backend route might not exist or failed; proceed to direct MSG91 API call
-      console.log("Backend /auth/send-otp not reachable or not implemented, using MSG91 direct API:", backendErr.message)
-    }
+    // Production path: MSG91 Widget REST (no client captcha)
+    if (isMsg91WidgetServerConfigured()) {
+      try {
+        const result = reqId
+          ? await widgetRetryOtp(reqId)
+          : await widgetSendOtp(identifier)
 
-    // 2. Direct call to MSG91 Send OTP API v5
-    const authKey = process.env.MSG91_AUTH_KEY
-    const templateId = process.env.MSG91_TEMPLATE_ID
-
-    if (!authKey || !templateId) {
-      console.warn("MSG91_AUTH_KEY or MSG91_TEMPLATE_ID is missing in environment variables.")
-      // In development mode without keys, simulate OTP sending so development/testing works smoothly
-      if (process.env.NODE_ENV === "development") {
         return NextResponse.json({
           success: true,
-          message: "OTP sent successfully (Dev Mode Demo OTP: 1234)",
-          demo: true,
+          message: "OTP sent successfully to your phone",
+          reqId: result.reqId,
         })
+      } catch (err) {
+        console.error("MSG91 widget send/retry failed:", err?.message || err, err?.payload)
+        return NextResponse.json(
+          {
+            success: false,
+            message: err.message || "Failed to send OTP via MSG91",
+          },
+          { status: err.status || 400 }
+        )
       }
-      return NextResponse.json(
-        { success: false, message: "MSG91 configuration missing on server" },
-        { status: 500 }
-      )
     }
 
-    console.log("Calling MSG91 API with mobile:", msg91Mobile, "and templateId:", templateId)
-    const msg91Response = await fetch(
-      `https://control.msg91.com/api/v5/otp?template_id=${templateId}&mobile=${msg91Mobile}`,
-      {
-        method: "POST",
-        headers: {
-          authkey: authKey,
-          "Content-Type": "application/json",
-        },
-      }
-    )
-
-    const data = await msg91Response.json()
-    console.log("MSG91 API Raw Response:", data)
-
-    if (msg91Response.ok && (data.type === "success" || data.status === "success")) {
+    // Local demo when Authkey / Widget ID missing
+    if (isDemoOtpAllowed()) {
       return NextResponse.json({
         success: true,
-        message: data.message || "OTP sent successfully to your phone",
+        message: `OTP sent successfully (Dev Mode Demo OTP: ${DEMO_OTP})`,
+        reqId: `demo_${cleanPhone(phone)}`,
+        demo: true,
       })
-    } else {
-      console.error("MSG91 Error Response:", data)
-      return NextResponse.json(
-        { success: false, message: data.message || "Failed to send OTP via MSG91" },
-        { status: 400 }
-      )
     }
+
+    return NextResponse.json(
+      {
+        success: false,
+        message:
+          "MSG91 not configured. Set MSG91_AUTH_KEY and NEXT_PUBLIC_MSG91_WIDGET_ID in .env.local",
+      },
+      { status: 500 }
+    )
   } catch (error) {
-    console.error("Send OTP Error:", error)
+    console.error("Send OTP Error:", error?.message || error)
     return NextResponse.json(
       { success: false, message: error.message || "Failed to send OTP" },
       { status: 500 }

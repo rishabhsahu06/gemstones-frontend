@@ -266,7 +266,8 @@ const UserProfilePage = () => {
         </div>
         <AuthModal 
           isOpen={isAuthModalOpen} 
-          onClose={() => setIsAuthModalOpen(false)} 
+          onClose={() => setIsAuthModalOpen(false)}
+          redirectTo="/user"
         />
       </>
     );
@@ -532,7 +533,8 @@ const UserProfilePage = () => {
 
       <AuthModal 
         isOpen={isAuthModalOpen && !accessToken} 
-        onClose={() => setIsAuthModalOpen(false)} 
+        onClose={() => setIsAuthModalOpen(false)}
+        redirectTo="/user"
       />
 
       <style jsx>{`

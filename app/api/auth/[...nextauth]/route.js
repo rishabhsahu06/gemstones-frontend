@@ -11,46 +11,61 @@ const handler = NextAuth({
         password: { label: "Password", type: "password" },
         phone: { label: "Phone", type: "text" },
         otp: { label: "OTP", type: "text" },
+        reqId: { label: "MSG91 Request ID", type: "text" },
+        accessToken: { label: "MSG91 Access Token", type: "text" },
         isOtp: { label: "Is OTP Login", type: "text" },
       },
 
       async authorize(credentials) {
-        console.log("Credentials received:", credentials)
         try {
-          // Check if this is a Phone OTP login
-          if (credentials?.isOtp === "true" || (credentials?.phone && credentials?.otp)) {
-            // Import and call verifyOtpLogic directly
+          // Phone OTP login (Widget REST: phone + otp + reqId)
+          if (
+            credentials?.isOtp === "true" ||
+            credentials?.accessToken ||
+            (credentials?.phone && credentials?.otp)
+          ) {
             const { verifyOtpLogic } = await import("@/app/api/auth/verify-otp/route")
             const verifyData = await verifyOtpLogic({
               phone: credentials.phone,
               otp: credentials.otp,
+              reqId: credentials.reqId,
+              accessToken: credentials.accessToken,
             })
 
-            if (verifyData && verifyData.success && verifyData.user) {
+            if (verifyData?.success && verifyData.user && verifyData.token) {
+              const token = verifyData.token
+              const isDemoToken =
+                typeof token === "string" &&
+                (token.startsWith("demo_otp_") || token.startsWith("token_otp_"))
+
+              if (isDemoToken && process.env.NODE_ENV === "production") {
+                throw new Error(
+                  "OTP verified but no real account token was issued. Backend POST /auth/mobile-user is required for cart/account access."
+                )
+              }
+
               return {
                 id: verifyData.user.id || `phone_${credentials.phone}`,
                 name: verifyData.user.name || `User (${credentials.phone})`,
                 email: verifyData.user.email || null,
                 phone: verifyData.user.phone || credentials.phone,
                 role: verifyData.user.role || "user",
-                token: verifyData.token || `otp_token_${Date.now()}`,
+                token,
               }
             }
 
-            console.error("OTP verification failed:", verifyData?.message)
             throw new Error(verifyData?.message || "Invalid OTP verification")
           }
 
-          // Otherwise, handle standard Email + Password login
+          // Email + password login
           const res = await api.post("/auth/login", {
             email: credentials.email,
             password: credentials.password,
           })
 
-          console.log("API Response:", res.data)
           const responseData = res.data.data || res.data
 
-          if (responseData && responseData.user && responseData.token) {
+          if (responseData?.user && responseData?.token) {
             return {
               id: responseData.user.id,
               name: responseData.user.name,
@@ -61,10 +76,19 @@ const handler = NextAuth({
             }
           }
 
-          console.log("No user or token found in response")
           return null
         } catch (error) {
-          console.error("Authorization error:", error.response?.data || error.message)
+          const message =
+            error.response?.data?.message || error.message || "Authorization failed"
+          console.error("Authorization error:", message)
+          // Re-throw so NextAuth surfaces a useful error for OTP failures
+          if (
+            credentials?.isOtp === "true" ||
+            credentials?.accessToken ||
+            (credentials?.phone && credentials?.otp)
+          ) {
+            throw new Error(message)
+          }
           return null
         }
       },

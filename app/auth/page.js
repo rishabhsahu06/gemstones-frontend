@@ -15,7 +15,7 @@ export default function AuthPage() {
 
   return (
     <div className="min-h-screen bg-amber-50/30 flex items-center justify-center p-4">
-      <AuthModal isOpen={isOpen} onClose={handleClose} />
+      <AuthModal isOpen={isOpen} onClose={handleClose} redirectTo="/user" />
     </div>
   )
 }

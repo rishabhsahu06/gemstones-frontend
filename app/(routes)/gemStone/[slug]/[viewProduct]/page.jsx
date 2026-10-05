@@ -434,7 +434,11 @@ const GemstonePageViewPage = () => {
 
       <FAQ />
       <BookService />
-      <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        redirectTo="/cart"
+      />
     </div>
   )
 }
