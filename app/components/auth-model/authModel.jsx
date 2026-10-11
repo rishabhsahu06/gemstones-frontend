@@ -7,9 +7,8 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Eye, EyeOff, Smartphone, Mail, KeyRound } from "lucide-react"
+import { KeyRound, Smartphone, ShieldCheck } from "lucide-react"
 import { countryCodes } from "@/app/constant/constant"
-import api from "@/lib/axios"
 import { toast } from "react-toastify"
 import {
   isMsg91WidgetConfigured,
@@ -22,9 +21,9 @@ import {
 } from "@/lib/msg91-widget"
 
 const fieldClass =
-  "border-[var(--border)] bg-white focus-visible:ring-[var(--gold)] focus-visible:border-[var(--gold)]"
+  "h-12 border-[var(--border)] bg-white shadow-none focus-visible:ring-2 focus-visible:ring-[var(--gold)]/35 focus-visible:border-[var(--gold)]"
 const primaryBtnClass =
-  "w-full bg-[var(--ink)] hover:bg-[var(--ink-soft)] text-[var(--ink-foreground)] font-medium py-2.5 tracking-wide"
+  "w-full h-12 rounded-full bg-[var(--ink)] hover:bg-[var(--ink-soft)] text-[var(--ink-foreground)] font-medium tracking-[0.08em] uppercase text-sm shadow-sm"
 const linkClass = "text-[var(--gold)] hover:opacity-80 font-medium underline underline-offset-2"
 
 /**
@@ -37,8 +36,6 @@ const linkClass = "text-[var(--gold)] hover:opacity-80 font-medium underline und
 export default function AuthModal({ isOpen, onClose, redirectTo, onSuccess }) {
   const router = useRouter()
   const pathname = usePathname()
-  const [authMethod, setAuthMethod] = useState("otp")
-  const [mode, setMode] = useState("signin")
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -49,18 +46,17 @@ export default function AuthModal({ isOpen, onClose, redirectTo, onSuccess }) {
   const [countryCode, setCountryCode] = useState("+91")
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
-  const [showPassword, setShowPassword] = useState(false)
   const [otpSent, setOtpSent] = useState(false)
   const [resendTimer, setResendTimer] = useState(0)
   const [otpReqId, setOtpReqId] = useState(null)
   const useBrowserWidget = isMsg91WidgetConfigured()
 
   useEffect(() => {
-    if (!isOpen || !useBrowserWidget || mode !== "signin" || authMethod !== "otp") return
+    if (!isOpen || !useBrowserWidget) return
     initMsg91CustomWidget().catch((err) => {
       console.error("MSG91 init:", err)
     })
-  }, [isOpen, useBrowserWidget, mode, authMethod])
+  }, [isOpen, useBrowserWidget])
 
   useEffect(() => {
     if (resendTimer <= 0) return undefined
@@ -73,31 +69,52 @@ export default function AuthModal({ isOpen, onClose, redirectTo, onSuccess }) {
     setError("")
   }
 
-  const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
-
+  /** Phone state stores digits only — formatting is display-only */
   const getNationalDigits = () => {
-    let digits = formData.phone.replace(/\D/g, "")
-    // Strip trunk prefix 0 (common India entry mistake)
+    let digits = String(formData.phone || "").replace(/\D/g, "")
     if (countryCode === "+91" && digits.startsWith("0")) digits = digits.slice(1)
     return digits
   }
 
-  const formatPhone = (value) => {
-    let digits = value.replace(/\D/g, "")
-    if (countryCode === "+91" && digits.startsWith("0")) digits = digits.slice(1)
-    digits = digits.slice(0, countryCode === "+91" ? 10 : 15)
+  const formatPhoneDisplay = (digits) => {
+    const d = String(digits || "").replace(/\D/g, "")
+    if (!d) return ""
     if (countryCode === "+1") {
-      if (digits.length >= 6) return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6, 10)}`
-      if (digits.length >= 3) return `(${digits.slice(0, 3)}) ${digits.slice(3)}`
-    } else if (digits.length >= 6) {
-      return `${digits.slice(0, 3)} ${digits.slice(3, 6)} ${digits.slice(6)}`
-    } else if (digits.length >= 3) {
-      return `${digits.slice(0, 3)} ${digits.slice(3)}`
+      if (d.length >= 6) return `(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6, 10)}`
+      if (d.length >= 3) return `(${d.slice(0, 3)}) ${d.slice(3)}`
+      return d
     }
-    return digits
+    if (d.length > 6) return `${d.slice(0, 3)} ${d.slice(3, 6)} ${d.slice(6)}`
+    if (d.length > 3) return `${d.slice(0, 3)} ${d.slice(3)}`
+    return d
   }
 
-  const handlePhoneChange = (e) => handleInputChange("phone", formatPhone(e.target.value))
+  const handlePhoneChange = (e) => {
+    const inputValue = e.target.value
+    const prevDigits = getNationalDigits()
+    const prevDisplay = formatPhoneDisplay(prevDigits)
+    let nextDigits = inputValue.replace(/\D/g, "")
+
+    // Backspace landed on a formatting space/paren — digit count unchanged but display shorter
+    if (
+      inputValue.length < prevDisplay.length &&
+      nextDigits.length === prevDigits.length &&
+      prevDigits.length > 0
+    ) {
+      nextDigits = prevDigits.slice(0, -1)
+    }
+
+    if (countryCode === "+91" && nextDigits.startsWith("0")) {
+      nextDigits = nextDigits.slice(1)
+    }
+    nextDigits = nextDigits.slice(0, countryCode === "+91" ? 10 : 15)
+    handleInputChange("phone", nextDigits)
+  }
+
+  const handleOtpChange = (e) => {
+    const next = e.target.value.replace(/\D/g, "").slice(0, 6)
+    handleInputChange("otp", next)
+  }
 
   const getFullPhone = () => `${countryCode}${getNationalDigits()}`
   const getMsg91Identifier = () => `${countryCode.replace("+", "")}${getNationalDigits()}`
@@ -208,118 +225,9 @@ export default function AuthModal({ isOpen, onClose, redirectTo, onSuccess }) {
     }
   }
 
-  const handleSignIn = async () => {
-    if (!formData.email.trim() || !validateEmail(formData.email)) {
-      setError("Please enter a valid email address")
-      return
-    }
-    if (!formData.password.trim() || formData.password.length < 6) {
-      setError("Password must be at least 6 characters long")
-      return
-    }
-
-    setIsLoading(true)
-    setError("")
-    try {
-      const result = await signIn("credentials", {
-        redirect: false,
-        email: formData.email,
-        password: formData.password,
-      })
-      if (result?.ok && !result?.error) {
-        const session = await getSession()
-        if (session?.accessToken) {
-          await finishAuthenticatedSession(session, "Login successful! Welcome back.")
-        } else {
-          setError("Session creation failed. Please try again.")
-        }
-      } else {
-        const errorMessage =
-          result?.error === "CredentialsSignin"
-            ? "Invalid credentials. Please check your email and password."
-            : "Invalid email or password. Please try again."
-        setError(errorMessage)
-        toast.error(errorMessage)
-      }
-    } catch {
-      setError("Network error. Please check your connection and try again.")
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  const handleRegister = async () => {
-    if (!formData.name.trim()) {
-      setError("Please enter your full name")
-      return
-    }
-    if (!formData.email.trim() || !validateEmail(formData.email)) {
-      setError("Please enter a valid email address")
-      return
-    }
-    if (!getNationalDigits()) {
-      setError("Please enter your phone number")
-      return
-    }
-    if (!formData.password.trim() || formData.password.length < 6) {
-      setError("Password must be at least 6 characters long")
-      return
-    }
-
-    setIsLoading(true)
-    setError("")
-    try {
-      const response = await api.post("/auth/register", {
-        name: formData.name,
-        email: formData.email,
-        password: formData.password,
-        phone: getFullPhone(),
-        role: "user",
-      })
-      if (response.data.success || response.status === 200 || response.status === 201) {
-        toast.success("Registration successful! Logging you in...")
-        const signInResult = await signIn("credentials", {
-          redirect: false,
-          email: formData.email,
-          password: formData.password,
-        })
-        if (signInResult?.ok) {
-          const session = await getSession()
-          if (session?.accessToken) {
-            await finishAuthenticatedSession(session, "Account created. Welcome!")
-          } else {
-            resetModal()
-            onClose?.()
-            router.push("/user")
-          }
-        } else {
-          setMode("signin")
-          setAuthMethod("email")
-        }
-      } else {
-        setError(response.data?.message || "Registration failed. Please try again.")
-      }
-    } catch (error) {
-      const errorMessage = error.response?.data?.message || "Registration failed. Please try again."
-      setError(errorMessage)
-      toast.error(errorMessage)
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  const toggleMode = () => {
-    setMode(mode === "signin" ? "register" : "signin")
-    setOtpSent(false)
-    setOtpReqId(null)
-    setFormData({ name: "", email: "", password: "", phone: "", otp: "" })
-    setError("")
-  }
-
   const resetModal = () => {
     setFormData({ name: "", email: "", password: "", phone: "", otp: "" })
     setError("")
-    setShowPassword(false)
     setOtpSent(false)
     setResendTimer(0)
     setOtpReqId(null)
@@ -327,354 +235,203 @@ export default function AuthModal({ isOpen, onClose, redirectTo, onSuccess }) {
 
   const selectedCountry = countryCodes.find((c) => c.code === countryCode) || countryCodes[0]
 
+  const phoneDigits = getNationalDigits()
+  const phoneDisplay = formatPhoneDisplay(phoneDigits)
+  const phoneHint =
+    countryCode === "+91"
+      ? `${phoneDigits.length}/10 digits`
+      : `${phoneDigits.length} digits`
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md border-[var(--border)] bg-[var(--background)] p-0 overflow-hidden shadow-xl">
-        <div className="bg-[var(--ink)] px-6 py-5 text-center">
-          <p
-            className="text-[var(--gold)] text-xs tracking-[0.28em] uppercase mb-1"
-            style={{ fontFamily: "var(--font-display)" }}
-          >
-            Sunita Gemstones
-          </p>
-          <DialogHeader className="space-y-1">
-            <DialogTitle
-              className="text-center text-2xl font-normal text-[var(--ink-foreground)]"
+      <DialogContent className="sm:max-w-[420px] border-0 bg-[var(--background)] p-0 overflow-hidden shadow-2xl rounded-2xl gap-0">
+        <div className="relative bg-[var(--ink)] px-6 pt-7 pb-8 text-center overflow-hidden">
+          <div
+            className="pointer-events-none absolute inset-0 opacity-40"
+            style={{
+              backgroundImage:
+                "radial-gradient(circle at 20% 20%, rgba(196,163,90,0.35), transparent 45%), radial-gradient(circle at 80% 80%, rgba(224,201,138,0.2), transparent 40%)",
+            }}
+          />
+          <div className="relative">
+            <div className="mx-auto mb-3 flex h-11 w-11 items-center justify-center rounded-full border border-[var(--gold)]/40 bg-white/5 text-[var(--gold-soft)]">
+              <Smartphone className="h-5 w-5" />
+            </div>
+            <p
+              className="text-[var(--gold)] text-[10px] tracking-[0.3em] uppercase mb-1.5"
               style={{ fontFamily: "var(--font-display)" }}
             >
-              {mode === "signin" ? "Welcome back" : "Create account"}
-            </DialogTitle>
-            <DialogDescription className="text-center text-[var(--ink-foreground)]/70 text-sm">
-              {mode === "signin"
-                ? "Sign in with phone OTP or email"
-                : "Join for certified gemstones & jewellery"}
-            </DialogDescription>
-          </DialogHeader>
+              Sunita Gemstones
+            </p>
+            <DialogHeader className="space-y-1.5">
+              <DialogTitle
+                className="text-center text-[1.75rem] font-semibold text-[var(--ink-foreground)]"
+                style={{ fontFamily: "var(--font-display)" }}
+              >
+                Welcome back
+              </DialogTitle>
+              <DialogDescription className="text-center text-[var(--ink-foreground)]/70 text-sm">
+                Enter your mobile number to receive a one-time password
+              </DialogDescription>
+            </DialogHeader>
+          </div>
         </div>
 
-        <div className="space-y-4 px-6 py-5">
-          {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-[var(--radius)] text-sm">
-              {error}
-            </div>
-          )}
-
-          {mode === "signin" && (
-            <div className="flex border-b border-[var(--border)]">
-              <button
-                type="button"
-                onClick={() => {
-                  setAuthMethod("otp")
-                  setError("")
-                }}
-                className={`flex-1 pb-2.5 font-medium text-sm border-b-2 flex items-center justify-center gap-2 transition-colors ${
-                  authMethod === "otp"
-                    ? "border-[var(--gold)] text-[var(--ink)]"
-                    : "border-transparent text-[var(--muted-foreground)] hover:text-[var(--ink)]"
-                }`}
-              >
-                <Smartphone className="w-4 h-4" />
-                Phone OTP
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setAuthMethod("email")
-                  setError("")
-                }}
-                className={`flex-1 pb-2.5 font-medium text-sm border-b-2 flex items-center justify-center gap-2 transition-colors ${
-                  authMethod === "email"
-                    ? "border-[var(--gold)] text-[var(--ink)]"
-                    : "border-transparent text-[var(--muted-foreground)] hover:text-[var(--ink)]"
-                }`}
-              >
-                <Mail className="w-4 h-4" />
-                Email
-              </button>
-            </div>
-          )}
-
-          {/* Custom themed OTP flow (no MSG91 blue popup) */}
-          {mode === "signin" && authMethod === "otp" && (
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="otp-phone" className="text-sm font-medium text-[var(--ink)]">
-                  Mobile number
-                </Label>
-                <div className="flex gap-2">
-                  <Select value={countryCode} onValueChange={setCountryCode} disabled={otpSent || isLoading}>
-                    <SelectTrigger className={`w-[110px] ${fieldClass}`}>
-                      <SelectValue>
-                        <div className="flex items-center gap-2">
-                          <span className="text-lg">{selectedCountry?.flag}</span>
-                          <span className="font-medium">{countryCode}</span>
-                        </div>
-                      </SelectValue>
-                    </SelectTrigger>
-                    <SelectContent className="max-h-[280px]">
-                      {countryCodes.map((country, index) => (
-                        <SelectItem
-                          key={`${country.code}-${country.country}-${index}`}
-                          value={country.code}
-                          className="hover:bg-[var(--paper)] focus:bg-[var(--paper)] cursor-pointer"
-                        >
-                          <div className="flex items-center gap-3 py-1">
-                            <span className="text-lg">{country.flag}</span>
-                            <span className="font-medium">{country.country}</span>
-                            <span className="text-[var(--muted-foreground)] ml-auto">{country.code}</span>
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <Input
-                    id="otp-phone"
-                    type="tel"
-                    placeholder="10-digit mobile"
-                    value={formData.phone}
-                    onChange={handlePhoneChange}
-                    className={`flex-1 ${fieldClass}`}
-                    disabled={otpSent || isLoading}
-                  />
-                </div>
+        <div className="space-y-5 px-6 py-6 -mt-3 relative">
+          <div className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm space-y-5">
+            {error && (
+              <div className="bg-red-50 border border-red-200 text-red-700 px-3.5 py-2.5 rounded-xl text-sm">
+                {error}
               </div>
+            )}
 
-              {!otpSent ? (
-                <Button type="button" onClick={handleSendOtp} className={primaryBtnClass} disabled={isLoading}>
-                  <KeyRound className="w-4 h-4 mr-2" />
-                  {isLoading ? "Sending OTP..." : "Send OTP"}
-                </Button>
-              ) : (
-                <>
-                  <div className="rounded-[var(--radius)] bg-[var(--paper)] px-3 py-2 text-xs text-[var(--muted-foreground)] flex justify-between items-center">
-                    <span>
-                      Code sent to{" "}
-                      <span className="text-[var(--ink)] font-medium">
-                        {countryCode} {formData.phone}
-                      </span>
+            {!otpSent ? (
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between gap-2">
+                    <Label htmlFor="otp-phone" className="text-sm font-medium text-[var(--ink)]">
+                      Mobile number
+                    </Label>
+                    <span className="text-[11px] text-[var(--muted-foreground)] tabular-nums">
+                      {phoneHint}
                     </span>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setOtpSent(false)
-                        setOtpReqId(null)
-                        handleInputChange("otp", "")
-                      }}
-                      className={linkClass + " text-xs"}
+                  </div>
+                  <div className="flex gap-2">
+                    <Select
+                      value={countryCode}
+                      onValueChange={setCountryCode}
                       disabled={isLoading}
                     >
-                      Change
-                    </button>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="otp-input" className="text-sm font-medium text-[var(--ink)]">
-                      Enter OTP
-                    </Label>
+                      <SelectTrigger className={`w-[118px] rounded-xl ${fieldClass}`}>
+                        <SelectValue>
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-base leading-none">{selectedCountry?.flag}</span>
+                            <span className="font-medium text-sm">{countryCode}</span>
+                          </div>
+                        </SelectValue>
+                      </SelectTrigger>
+                      <SelectContent className="max-h-[280px]">
+                        {countryCodes.map((country, index) => (
+                          <SelectItem
+                            key={`${country.code}-${country.country}-${index}`}
+                            value={country.code}
+                            className="hover:bg-[var(--paper)] focus:bg-[var(--paper)] cursor-pointer"
+                          >
+                            <div className="flex items-center gap-3 py-1">
+                              <span className="text-lg">{country.flag}</span>
+                              <span className="font-medium">{country.country}</span>
+                              <span className="text-[var(--muted-foreground)] ml-auto">
+                                {country.code}
+                              </span>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                     <Input
-                      id="otp-input"
-                      type="text"
+                      id="otp-phone"
+                      type="tel"
                       inputMode="numeric"
-                      autoComplete="one-time-code"
-                      maxLength={6}
-                      placeholder="••••"
-                      value={formData.otp}
-                      onChange={(e) => handleInputChange("otp", e.target.value.replace(/\D/g, ""))}
-                      className={`${fieldClass} text-center tracking-[0.4em] text-lg font-medium`}
+                      autoComplete="tel-national"
+                      placeholder={countryCode === "+91" ? "98765 43210" : "Mobile number"}
+                      value={phoneDisplay}
+                      onChange={handlePhoneChange}
+                      className={`flex-1 rounded-xl text-base tracking-wide ${fieldClass}`}
                       disabled={isLoading}
                     />
                   </div>
+                </div>
 
-                  <Button type="button" onClick={handleVerifyOtp} className={primaryBtnClass} disabled={isLoading}>
-                    {isLoading ? "Verifying..." : "Verify & sign in"}
-                  </Button>
+                <Button
+                  type="button"
+                  onClick={handleSendOtp}
+                  className={primaryBtnClass}
+                  disabled={isLoading || (countryCode === "+91" && phoneDigits.length !== 10)}
+                >
+                  <KeyRound className="w-4 h-4 mr-2" />
+                  {isLoading ? "Sending OTP..." : "Send OTP"}
+                </Button>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div className="rounded-xl bg-[var(--paper)] px-3.5 py-3 text-xs text-[var(--muted-foreground)] flex justify-between items-center gap-3">
+                  <span>
+                    Code sent to{" "}
+                    <span className="text-[var(--ink)] font-semibold">
+                      {countryCode} {phoneDisplay}
+                    </span>
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setOtpSent(false)
+                      setOtpReqId(null)
+                      handleInputChange("otp", "")
+                    }}
+                    className={linkClass + " text-xs shrink-0"}
+                    disabled={isLoading}
+                  >
+                    Change
+                  </button>
+                </div>
 
-                  <div className="text-center">
-                    {resendTimer > 0 ? (
-                      <p className="text-xs text-[var(--muted-foreground)]">
-                        Resend in <span className="text-[var(--ink)] font-semibold">{resendTimer}s</span>
-                      </p>
-                    ) : (
-                      <button
-                        type="button"
-                        onClick={handleSendOtp}
-                        className={`${linkClass} text-xs`}
-                        disabled={isLoading}
-                      >
-                        Resend OTP
-                      </button>
-                    )}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="otp-input" className="text-sm font-medium text-[var(--ink)]">
+                      Enter OTP
+                    </Label>
+                    <span className="text-[11px] text-[var(--muted-foreground)] tabular-nums">
+                      {formData.otp.length}/6
+                    </span>
                   </div>
-                </>
-              )}
-            </div>
-          )}
-
-          {mode === "signin" && authMethod === "email" && (
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="email" className="text-sm font-medium text-[var(--ink)]">
-                  Email
-                </Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="you@example.com"
-                  value={formData.email}
-                  onChange={(e) => handleInputChange("email", e.target.value)}
-                  className={fieldClass}
-                  disabled={isLoading}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="password" className="text-sm font-medium text-[var(--ink)]">
-                  Password
-                </Label>
-                <div className="relative">
                   <Input
-                    id="password"
-                    type={showPassword ? "text" : "password"}
-                    placeholder="Enter password"
-                    value={formData.password}
-                    onChange={(e) => handleInputChange("password", e.target.value)}
-                    className={`${fieldClass} pr-10`}
-                    disabled={isLoading}
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
-                    onClick={() => setShowPassword(!showPassword)}
-                    disabled={isLoading}
-                  >
-                    {showPassword ? (
-                      <EyeOff className="h-4 w-4 text-[var(--muted-foreground)]" />
-                    ) : (
-                      <Eye className="h-4 w-4 text-[var(--muted-foreground)]" />
-                    )}
-                  </Button>
-                </div>
-              </div>
-              <Button onClick={handleSignIn} className={primaryBtnClass} disabled={isLoading}>
-                {isLoading ? "Signing in..." : "Sign in"}
-              </Button>
-            </div>
-          )}
-
-          {mode === "register" && (
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="reg-name" className="text-sm font-medium text-[var(--ink)]">
-                  Full name
-                </Label>
-                <Input
-                  id="reg-name"
-                  type="text"
-                  placeholder="Your name"
-                  value={formData.name}
-                  onChange={(e) => handleInputChange("name", e.target.value)}
-                  className={fieldClass}
-                  disabled={isLoading}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="reg-email" className="text-sm font-medium text-[var(--ink)]">
-                  Email
-                </Label>
-                <Input
-                  id="reg-email"
-                  type="email"
-                  placeholder="you@example.com"
-                  value={formData.email}
-                  onChange={(e) => handleInputChange("email", e.target.value)}
-                  className={fieldClass}
-                  disabled={isLoading}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="reg-phone" className="text-sm font-medium text-[var(--ink)]">
-                  Phone
-                </Label>
-                <div className="flex gap-2">
-                  <Select value={countryCode} onValueChange={setCountryCode}>
-                    <SelectTrigger className={`w-[110px] ${fieldClass}`}>
-                      <SelectValue>
-                        <div className="flex items-center gap-2">
-                          <span className="text-lg">{selectedCountry?.flag}</span>
-                          <span className="font-medium">{countryCode}</span>
-                        </div>
-                      </SelectValue>
-                    </SelectTrigger>
-                    <SelectContent className="max-h-[280px]">
-                      {countryCodes.map((country, index) => (
-                        <SelectItem
-                          key={`${country.code}-${country.country}-${index}`}
-                          value={country.code}
-                          className="hover:bg-[var(--paper)] focus:bg-[var(--paper)]"
-                        >
-                          <div className="flex items-center gap-3 py-1">
-                            <span className="text-lg">{country.flag}</span>
-                            <span className="font-medium">{country.country}</span>
-                            <span className="text-[var(--muted-foreground)] ml-auto">{country.code}</span>
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <Input
-                    id="reg-phone"
-                    type="tel"
-                    placeholder="10-digit mobile"
-                    value={formData.phone}
-                    onChange={handlePhoneChange}
-                    className={`flex-1 ${fieldClass}`}
+                    id="otp-input"
+                    type="text"
+                    inputMode="numeric"
+                    autoComplete="one-time-code"
+                    maxLength={6}
+                    placeholder="• • • • • •"
+                    value={formData.otp}
+                    onChange={handleOtpChange}
+                    className={`${fieldClass} rounded-xl text-center tracking-[0.55em] text-xl font-semibold`}
                     disabled={isLoading}
                   />
                 </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="reg-password" className="text-sm font-medium text-[var(--ink)]">
-                  Password
-                </Label>
-                <div className="relative">
-                  <Input
-                    id="reg-password"
-                    type={showPassword ? "text" : "password"}
-                    placeholder="Min 6 characters"
-                    value={formData.password}
-                    onChange={(e) => handleInputChange("password", e.target.value)}
-                    className={`${fieldClass} pr-10`}
-                    disabled={isLoading}
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
-                    onClick={() => setShowPassword(!showPassword)}
-                    disabled={isLoading}
-                  >
-                    {showPassword ? (
-                      <EyeOff className="h-4 w-4 text-[var(--muted-foreground)]" />
-                    ) : (
-                      <Eye className="h-4 w-4 text-[var(--muted-foreground)]" />
-                    )}
-                  </Button>
+
+                <Button
+                  type="button"
+                  onClick={handleVerifyOtp}
+                  className={primaryBtnClass}
+                  disabled={isLoading || formData.otp.length < 4}
+                >
+                  {isLoading ? "Verifying..." : "Verify & sign in"}
+                </Button>
+
+                <div className="text-center">
+                  {resendTimer > 0 ? (
+                    <p className="text-xs text-[var(--muted-foreground)]">
+                      Resend in{" "}
+                      <span className="text-[var(--ink)] font-semibold">{resendTimer}s</span>
+                    </p>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={handleSendOtp}
+                      className={`${linkClass} text-xs`}
+                      disabled={isLoading}
+                    >
+                      Resend OTP
+                    </button>
+                  )}
                 </div>
               </div>
-              <Button onClick={handleRegister} className={primaryBtnClass} disabled={isLoading}>
-                {isLoading ? "Creating account..." : "Create account"}
-              </Button>
-            </div>
-          )}
+            )}
+          </div>
 
-          <div className="text-center pt-2 border-t border-[var(--border)]">
-            <p className="text-sm text-[var(--muted-foreground)]">
-              {mode === "signin" ? "Don't have an account? " : "Already have an account? "}
-              <button type="button" onClick={toggleMode} className={linkClass} disabled={isLoading}>
-                {mode === "signin" ? "Sign up" : "Sign in"}
-              </button>
+          <div className="flex items-start gap-2 text-[11px] text-[var(--muted-foreground)] leading-relaxed px-1">
+            <ShieldCheck className="h-3.5 w-3.5 text-[var(--gold)] shrink-0 mt-0.5" />
+            <p>
+              Secure login via OTP. New numbers are registered automatically after verification.
             </p>
           </div>
         </div>
