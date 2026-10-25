@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { Check, ChevronRight, MessageCircle } from "lucide-react"
 import Image from "next/image"
 import FAQ from "@/app/Home/faq"
@@ -36,6 +36,7 @@ const GemstonePageViewPage = () => {
   const { post, loading, error } = useApi()
   const [selectedImage, setSelectedImage] = useState(0)
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
+  const pendingProductId = useRef(null)
   const [selectedCertification, setSelectedCertification] = useState("Free Lab Certificate")
   const [selectedEnergization, setSelectedEnergization] = useState("No Energization")
   const [selectedOption, setSelectedOption] = useState("Loose Gemstone")
@@ -57,7 +58,7 @@ const GemstonePageViewPage = () => {
     fetchProductData()
   }, [slug, viewProduct])
 
-  const handleAddCarWithToken = async (id) => {
+  const handleAddCarWithToken = async (id, token = accessToken) => {
     try {
       const cartData = {
         productId: id,
@@ -65,7 +66,7 @@ const GemstonePageViewPage = () => {
       }
       const options = {
         headers: {
-          Authorization: `Bearer ${accessToken}`,
+          Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
       }
@@ -104,6 +105,7 @@ const GemstonePageViewPage = () => {
 
     if (!accessToken) {
       console.log("🔒 No access token, opening auth modal")
+      pendingProductId.current = id
       setIsAuthModalOpen(true)
     } else {
       console.log("🔑 Access token found, proceeding with cart addition")
@@ -494,6 +496,12 @@ const GemstonePageViewPage = () => {
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}
         redirectTo="/cart"
+        onSuccess={async (session) => {
+          const id = pendingProductId.current
+          pendingProductId.current = null
+          if (!id || !session?.accessToken) return
+          await handleAddCarWithToken(id, session.accessToken)
+        }}
       />
     </div>
   )

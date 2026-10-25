@@ -126,7 +126,9 @@ export default function AuthModal({ isOpen, onClose, redirectTo, onSuccess }) {
     toast.success(successMessage)
     resetModal()
     onClose?.()
-    onSuccess?.(session)
+    if (onSuccess) {
+      await onSuccess(session)
+    }
 
     const target =
       redirectTo ||
