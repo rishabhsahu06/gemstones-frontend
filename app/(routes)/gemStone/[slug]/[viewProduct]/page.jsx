@@ -12,6 +12,24 @@ import { useApi } from "@/hooks/useApi"
 import AuthModal from "@/app/components/auth-model/authModel"
 import { toast } from "react-toastify"
 
+function SpecGrid({ rows }) {
+  return (
+    <dl className="grid grid-cols-1 sm:grid-cols-2">
+      {rows.map(([label, value], index) => (
+        <div
+          key={`${label}-${index}`}
+          className={`flex gap-3 px-4 py-3 border-b border-gray-200 ${
+            index % 2 === 1 ? "bg-[#F5F5F5] sm:bg-transparent" : ""
+          } ${Math.floor(index / 2) % 2 === 1 ? "sm:bg-[#F5F5F5]" : ""}`}
+        >
+          <dt className="w-28 sm:w-36 shrink-0 font-medium text-gray-700 text-sm">{label}</dt>
+          <dd className="text-gray-900 text-sm break-words min-w-0">{value}</dd>
+        </div>
+      ))}
+    </dl>
+  )
+}
+
 const GemstonePageViewPage = () => {
   const searchParams = useParams()
   const { accessToken, user } = useAccessToken()
@@ -106,8 +124,16 @@ const GemstonePageViewPage = () => {
   }
 
   // Safe data access with fallbacks
+  const isJewellery = productData?.productType === "jewellery"
+  const formatLabel = (value) =>
+    value
+      ? String(value)
+          .replace(/-/g, " ")
+          .replace(/\b\w/g, (letter) => letter.toUpperCase())
+      : "Not specified"
+
   const safeProductData = {
-    name: productData?.name || "Gemstone",
+    name: productData?.name || (isJewellery ? "Jewellery" : "Gemstone"),
     images: productData?.images || [],
     discountedPrice: productData?.discountedPrice || 0,
     originalPrice: productData?.originalPrice || 0,
@@ -138,11 +164,15 @@ const GemstonePageViewPage = () => {
     weightRatti: productData?.weightRatti || 0,
     weight: productData?.weight || 0,
     isActive: productData?.isAvailable || false,
+    metal: productData?.metal || "",
+    jewelleryType: productData?.jewelleryType || "",
+    goldPurity: productData?.goldPurity || "",
+    size: productData?.size || "",
   }
 
   const breadcrumbs = [
     { name: "Home", href: "#" },
-    { name: "Gemstones", href: "#" },
+    { name: isJewellery ? "Jewellery" : "Gemstones", href: "#" },
     { name: safeProductData.name, href: "#" },
   ]
 
@@ -153,42 +183,43 @@ const GemstonePageViewPage = () => {
   return (
     <div className="min-h-screen bg-white">
       {/* Breadcrumb */}
-      <nav className=" px-4 py-3  border-gray-200">
+      <nav className="px-4 py-3 border-gray-200">
         <div className="max-w-7xl mx-auto">
-          <ol className="flex items-center space-x-1 text-sm">
+          <ol className="flex flex-wrap items-center gap-1 text-sm">
             {breadcrumbs.map((item, index) => (
-              <li key={index} className="flex items-center">
-                {index > 0 && <ChevronRight className="w-3 h-3 text-gray-400 mx-1" />}
-                <p className={` text-black text-[16px] font-bold hover:text-black`}>{item.name}</p>
+              <li key={index} className="flex items-center min-w-0 max-w-full">
+                {index > 0 && <ChevronRight className="w-3 h-3 text-gray-400 mx-1 shrink-0" />}
+                <p className="text-black text-sm sm:text-base font-bold break-words">{item.name}</p>
               </li>
             ))}
           </ol>
         </div>
       </nav>
 
-      <div className="max-w-7xl mx-auto px-4  py-6">
-        <div className="grid grid-cols-1 lg:grid-cols-2  gap-8">
+      <div className="max-w-7xl mx-auto px-4 py-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-10">
           {/* Image Section */}
-          <div className="space-y-4 ">
+          <div className="space-y-4">
             {/* Main Image */}
-            <div className="bg-white border-gray-200 flex items-center justify-center">
+            <div className="bg-[#f7f5f0] rounded-lg overflow-hidden flex items-center justify-center">
               <Image
                 src={currentImage?.url || "/placeholder.svg?height=400&width=400&query=gemstone"}
                 alt={currentImage?.alt || `${safeProductData.name} image`}
-                width={400}
-                height={400}
-                className="w-full h-full object-fill rounded-lg"
+                width={800}
+                height={1000}
+                className="w-full h-auto max-h-[70vh] object-contain"
+                sizes="(max-width: 1024px) 100vw, 50vw"
               />
             </div>
 
             {/* Thumbnail Images */}
             {hasImages && (
-              <div className="flex space-x-3">
+              <div className="flex flex-wrap gap-3">
                 {safeProductData.images.map((image, index) => (
                   <button
                     key={index}
                     onClick={() => setSelectedImage(index)}
-                    className={`w-20 h-20 border-2 rounded-lg overflow-hidden p-2 ${
+                    className={`w-16 h-16 sm:w-20 sm:h-20 border-2 rounded-lg overflow-hidden p-1.5 shrink-0 ${
                       selectedImage === index ? "border-orange-400" : "border-gray-200"
                     }`}
                   >
@@ -206,101 +237,148 @@ const GemstonePageViewPage = () => {
           </div>
 
           {/* Product Info Section */}
-          <div className="space-y-6">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900 mb-3">{safeProductData.name}</h1>
-              <div className="flex items-center space-x-4 mb-3">
-                <span className="text-2xl font-bold text-gray-900">
-                  Rs.{" "}
+          <div className="space-y-5 lg:pt-2">
+            <div className="space-y-4">
+              <h1
+                className="text-[1.65rem] sm:text-3xl leading-tight text-[#0f2e28] break-words"
+                style={{ fontFamily: "var(--font-display)", fontWeight: 600 }}
+              >
+                {safeProductData.name}
+              </h1>
+
+              <div className="flex flex-wrap items-end gap-x-3 gap-y-2">
+                <span className="text-2xl sm:text-[1.7rem] font-semibold text-[#0f2e28] leading-none">
                   {safeProductData.discountedPrice > 0
-                    ? safeProductData.discountedPrice?.toLocaleString()
+                    ? `Rs. ${safeProductData.discountedPrice.toLocaleString("en-IN")}`
                     : "Price not available"}
                 </span>
                 {safeProductData.originalPrice > safeProductData.discountedPrice &&
                   safeProductData.originalPrice > 0 && (
-                    <span className="text-lg text-gray-500 line-through">
-                      Rs. {safeProductData.originalPrice?.toLocaleString()}
+                    <span className="text-sm text-gray-400 line-through pb-0.5">
+                      Rs. {safeProductData.originalPrice.toLocaleString("en-IN")}
                     </span>
                   )}
                 {safeProductData.stock > 0 && (
-                  <span className="bg-red-100 text-red-600 px-2 py-1 rounded text-sm font-medium">
-                    Only {safeProductData.stock} Left
+                  <span className="mb-0.5 rounded-full bg-red-50 text-red-600 px-2.5 py-0.5 text-xs font-medium">
+                    Only {safeProductData.stock} left
                   </span>
                 )}
               </div>
-              <div className="flex items-center space-x-6 text-sm text-gray-600 mb-6">
-                <span>
-                  <strong>SKU:</strong> {safeProductData._id ? safeProductData._id.slice(-8).toUpperCase() : "N/A"}
+
+              <div className="flex flex-wrap gap-2">
+                <span className="rounded-full bg-[#f7f5f0] px-3 py-1 text-xs text-gray-600">
+                  SKU {safeProductData._id ? safeProductData._id.slice(-8).toUpperCase() : "N/A"}
                 </span>
-                <span>
-                  <strong>Origin:</strong> {safeProductData.origin}
-                </span>
+                {isJewellery ? (
+                  <>
+                    <span className="rounded-full bg-[#f7f5f0] px-3 py-1 text-xs text-gray-600">
+                      {formatLabel(safeProductData.jewelleryType)}
+                    </span>
+                    <span className="rounded-full bg-[#f7f5f0] px-3 py-1 text-xs text-gray-600">
+                      {formatLabel(safeProductData.metal)}
+                    </span>
+                  </>
+                ) : (
+                  <span className="rounded-full bg-[#f7f5f0] px-3 py-1 text-xs text-gray-600">
+                    Origin: {safeProductData.origin}
+                  </span>
+                )}
               </div>
+
+              {safeProductData.description && (
+                <p className="text-sm sm:text-[15px] leading-relaxed text-gray-600 max-w-xl">
+                  {safeProductData.description}
+                </p>
+              )}
             </div>
 
-            {/* Certification Dropdown */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Certification <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                value={safeProductData.certification}
-                readOnly
-                className="w-full p-3 border border-gray-300 rounded-md bg-[#F5F5F5] text-gray-900 cursor-not-allowed"
-              />
-            </div>
+            {isJewellery ? (
+              <>
+                {safeProductData.goldPurity && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Gold Purity</label>
+                    <input
+                      type="text"
+                      value={safeProductData.goldPurity}
+                      readOnly
+                      className="w-full p-3 border border-gray-300 rounded-md bg-[#F5F5F5] text-gray-900 cursor-not-allowed"
+                    />
+                  </div>
+                )}
+                {safeProductData.size && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Size</label>
+                    <input
+                      type="text"
+                      value={safeProductData.size}
+                      readOnly
+                      className="w-full p-3 border border-gray-300 rounded-md bg-[#F5F5F5] text-gray-900 cursor-not-allowed"
+                    />
+                  </div>
+                )}
+              </>
+            ) : (
+              <>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Certification <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={safeProductData.certification}
+                    readOnly
+                    className="w-full p-3 border border-gray-300 rounded-md bg-[#F5F5F5] text-gray-900 cursor-not-allowed"
+                  />
+                </div>
 
-            {/* Pooja Energization Dropdown */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Pooja / Energization <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                value={safeProductData.poojaEnergization}
-                readOnly
-                className="w-full p-3 border border-gray-300 rounded-md bg-[#F5F5F5] text-gray-900 cursor-not-allowed"
-              />
-            </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Pooja / Energization <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={safeProductData.poojaEnergization}
+                    readOnly
+                    className="w-full p-3 border border-gray-300 rounded-md bg-[#F5F5F5] text-gray-900 cursor-not-allowed"
+                  />
+                </div>
 
-            {/* Selection Options */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-3">
-                Select For Ring / Pendant / Bracelet <span className="text-red-500">*</span>
-              </label>
-              <div className="grid grid-cols-4 gap-3">
-                {[
-                  { name: "Loose Gemstone", icon: "💎" },
-                  { name: "Ring", icon: "💍" },
-                  { name: "Pendant", icon: "📿" },
-                  { name: "Bracelet", icon: "🔗" },
-                ].map((option) => (
-                  <button
-                    key={option.name}
-                    onClick={() => setSelectedOption(option.name)}
-                    title="This option is not available for now"
-                    className={`p-4 cursor-not-allowed text-center border rounded-lg transition-colors flex flex-col items-center space-y-2 ${
-                      selectedOption === option.name
-                        ? "border-orange-400 bg-orange-50"
-                        : "border-gray-300 hover:border-gray-400"
-                    }`}
-                  >
-                    <div className="text-2xl">{option.icon}</div>
-                    <div className="text-xs font-medium text-gray-700">{option.name}</div>
-                  </button>
-                ))}
-              </div>
-            </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-3">
+                    Select For Ring / Pendant / Bracelet <span className="text-red-500">*</span>
+                  </label>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    {[
+                      { name: "Loose Gemstone", icon: "💎" },
+                      { name: "Ring", icon: "💍" },
+                      { name: "Pendant", icon: "📿" },
+                      { name: "Bracelet", icon: "🔗" },
+                    ].map((option) => (
+                      <button
+                        key={option.name}
+                        onClick={() => setSelectedOption(option.name)}
+                        title="This option is not available for now"
+                        className={`p-4 cursor-not-allowed text-center border rounded-lg transition-colors flex flex-col items-center space-y-2 ${
+                          selectedOption === option.name
+                            ? "border-orange-400 bg-orange-50"
+                            : "border-gray-300 hover:border-gray-400"
+                        }`}
+                      >
+                        <div className="text-2xl">{option.icon}</div>
+                        <div className="text-xs font-medium text-gray-700">{option.name}</div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </>
+            )}
 
-            {/* Add to Cart Button */}
             <button
               onClick={safeProductData.stock > 0 ? () => handleAddToCart(safeProductData._id) : null}
               disabled={!safeProductData._id || !safeProductData.isActive || safeProductData.stock === 0}
-              className="w-full bg-[#BA8E49] text-white py-2 px-6 rounded-md font-bold text-lg hover:bg-[#BA8E49] disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+              className="inline-flex items-center justify-center rounded-md bg-[#BA8E49] px-6 py-2 text-xs sm:text-sm font-semibold tracking-[0.12em] text-white hover:bg-[#a67b38] disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
             >
-              {safeProductData.stock > 0   ? "ADD TO CART" : "OUT OF STOCK"}
-        
+              {safeProductData.stock > 0 ? "ADD TO CART" : "OUT OF STOCK"}
             </button>
           </div>
           
@@ -308,9 +386,15 @@ const GemstonePageViewPage = () => {
 
         {/* Product Details Section */}
         <div className="mt-12 rounded-lg">
-          <h2 className="text-xl font-bold text-gray-900 text-center mb-6 bg-[#BA8E4980] p-3 rounded">
-            Product Details: {safeProductData.name} -{" "}
-            {safeProductData.weightCarat > 0 ? `${safeProductData.weightCarat} carats` : "Weight not specified"}
+          <h2 className="text-base sm:text-xl font-bold text-gray-900 text-center mb-6 bg-[#BA8E4980] p-3 rounded break-words">
+            Product Details: {safeProductData.name}
+            {isJewellery
+              ? safeProductData.jewelleryType
+                ? ` - ${formatLabel(safeProductData.jewelleryType)}`
+                : ""
+              : safeProductData.weightCarat > 0
+                ? ` - ${safeProductData.weightCarat} carats`
+                : ""}
           </h2>
 
           <div className="mb-8">
@@ -319,7 +403,7 @@ const GemstonePageViewPage = () => {
 
           {/* Benefits Icons */}
           {safeProductData.features.length > 0 && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8 w-[70%]">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8 w-full">
               {safeProductData.features.map((feature, index) => (
                 <div key={index} className="flex items-center space-x-3">
                   <div className="w-6 h-6 rounded-full bg- border border-[#BA8E49] flex items-center justify-center flex-shrink-0">
@@ -333,96 +417,68 @@ const GemstonePageViewPage = () => {
 
           {/* Specifications Table */}
           <div className="bg-white rounded-lg border border-gray-300 overflow-hidden">
-            <table className="w-full">
-              <tbody>
-                <tr className="border-b border-gray-200">
-                  <td className="px-4 py-3 font-medium text-gray-700">Gemstone</td>
-                  <td className="px-2 py-3 text-center">:</td>
-                  <td className="px-4 py-3 text-gray-900">{safeProductData.name}</td>
-                  <td className="px-4 py-3 font-medium text-gray-700">Treatment</td>
-                  <td className="px-2 py-3 text-center">:</td>
-                  <td className="px-4 py-3 text-gray-900">{safeProductData.treatment}</td>
-                  <td className="px-4 py-3 font-medium text-gray-700">Treatment Type</td>
-                  <td className="px-2 py-3 text-center">:</td>
-                  <td className="px-4 py-3 text-gray-900">{safeProductData.treatmentType}</td>
-                </tr>
-                <tr className="border-b border-gray-200 bg-[#F5F5F5]">
-                  <td className="px-4 py-3 font-medium text-gray-700">Certification</td>
-                  <td className="px-2 py-3 text-center">:</td>
-                  <td className="px-4 py-3 text-gray-900">{safeProductData.certification}</td>
-                  <td className="px-4 py-3 font-medium text-gray-700">Shape</td>
-                  <td className="px-2 py-3 text-center">:</td>
-                  <td className="px-4 py-3 text-gray-900">{safeProductData.shape}</td>
-                  <td className="px-4 py-3 font-medium text-gray-700">Composition</td>
-                  <td className="px-2 py-3 text-center">:</td>
-                  <td className="px-4 py-3 text-gray-900">{safeProductData.composition}</td>
-                </tr>
-                <tr className="border-b border-gray-200">
-                  <td className="px-4 py-3 font-medium text-gray-700">Return Policy</td>
-                  <td className="px-2 py-3 text-center">:</td>
-                  <td className="px-4 py-3 text-gray-900">
-                    <span className="text-black">
+            {isJewellery ? (
+              <SpecGrid
+                rows={[
+                  ["Jewellery", safeProductData.name],
+                  ["Type", formatLabel(safeProductData.jewelleryType)],
+                  ["Metal", formatLabel(safeProductData.metal)],
+                  ["Purity", safeProductData.goldPurity || "Not specified"],
+                  ["Size", safeProductData.size || "Not specified"],
+                  [
+                    "Weight (grams)",
+                    safeProductData.weight > 0 ? safeProductData.weight : "Not specified",
+                  ],
+                ]}
+              />
+            ) : (
+              <SpecGrid
+                rows={[
+                  ["Gemstone", safeProductData.name],
+                  ["Treatment", safeProductData.treatment],
+                  ["Treatment Type", safeProductData.treatmentType],
+                  ["Certification", safeProductData.certification],
+                  ["Shape", safeProductData.shape],
+                  ["Composition", safeProductData.composition],
+                  [
+                    "Return Policy",
+                    <span key="returns" className="text-black">
                       10 Day Money-Back <span className="text-[#BA8E49]">return policy</span>
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 font-medium text-gray-700">Weight (carat)</td>
-                  <td className="px-2 py-3 text-center">:</td>
-                  <td className="px-4 py-3 text-gray-900">
-                    {safeProductData.weightCarat > 0 ? safeProductData.weightCarat : "Not specified"}
-                  </td>
-                  <td className="px-4 py-3 font-medium text-gray-700">Colour</td>
-                  <td className="px-2 py-3 text-center">:</td>
-                  <td className="px-4 py-3 text-gray-900">{safeProductData.colour}</td>
-                </tr>
-                <tr className="border-b border-gray-200 bg-[#F5F5F5]">
-                  <td className="px-4 py-3 font-medium text-gray-700">Exact Dimensions</td>
-                  <td className="px-2 py-3 text-center">:</td>
-                  <td className="px-4 py-3 text-gray-900">
-                    {safeProductData.dimensions.length > 0 &&
+                    </span>,
+                  ],
+                  [
+                    "Weight (carat)",
+                    safeProductData.weightCarat > 0 ? safeProductData.weightCarat : "Not specified",
+                  ],
+                  ["Colour", safeProductData.colour],
+                  [
+                    "Exact Dimensions",
+                    safeProductData.dimensions.length > 0 &&
                     safeProductData.dimensions.width > 0 &&
                     safeProductData.dimensions.height > 0
                       ? `${safeProductData.dimensions.length}x${safeProductData.dimensions.width}x${safeProductData.dimensions.height} mm`
-                      : "Not specified"}
-                  </td>
-                  <td className="px-4 py-3 font-medium text-gray-700">Origin</td>
-                  <td className="px-2 py-3 text-center">:</td>
-                  <td className="px-4 py-3 text-gray-900">{safeProductData.origin}</td>
-                  <td className="px-4 py-3 font-medium text-gray-700">Specific Gravity</td>
-                  <td className="px-2 py-3 text-center">:</td>
-                  <td className="px-4 py-3 text-gray-900">{safeProductData.specificGravity}</td>
-                </tr>
-                <tr className="border-b border-gray-200">
-                  <td className="px-4 py-3 font-medium text-gray-700">Refractive Index</td>
-                  <td className="px-2 py-3 text-center">:</td>
-                  <td className="px-4 py-3 text-gray-900">
-                    {safeProductData.refractiveIndex.min > 0 && safeProductData.refractiveIndex.max > 0
+                      : "Not specified",
+                  ],
+                  ["Origin", safeProductData.origin],
+                  ["Specific Gravity", safeProductData.specificGravity],
+                  [
+                    "Refractive Index",
+                    safeProductData.refractiveIndex.min > 0 && safeProductData.refractiveIndex.max > 0
                       ? `${safeProductData.refractiveIndex.min} - ${safeProductData.refractiveIndex.max}`
-                      : "Not specified"}
-                  </td>
-                  <td className="px-4 py-3 font-medium text-gray-700">Dimension Type</td>
-                  <td className="px-2 py-3 text-center">:</td>
-                  <td className="px-4 py-3 text-gray-900">{safeProductData.dimensionType}</td>
-                  <td className="px-4 py-3 font-medium text-gray-700">Weight (ratti)</td>
-                  <td className="px-2 py-3 text-center">:</td>
-                  <td className="px-4 py-3 text-gray-900">
-                    {safeProductData.weightRatti > 0 ? safeProductData.weightRatti : "Not specified"}
-                  </td>
-                </tr>
-                <tr>
-                  <td className="px-4 py-3 font-medium text-gray-700 bg-[#F5F5F5]">Weight (grams)</td>
-                  <td className="px-2 py-3 text-center">:</td>
-                  <td className="px-4 py-3 text-gray-900">
-                    {safeProductData.weight > 0 ? safeProductData.weight : "Not specified"}
-                  </td>
-                  <td className="px-4 py-3"></td>
-                  <td className="px-2 py-3"></td>
-                  <td className="px-4 py-3"></td>
-                  <td className="px-4 py-3"></td>
-                  <td className="px-2 py-3"></td>
-                  <td className="px-4 py-3"></td>
-                </tr>
-              </tbody>
-            </table>
+                      : "Not specified",
+                  ],
+                  ["Dimension Type", safeProductData.dimensionType],
+                  [
+                    "Weight (ratti)",
+                    safeProductData.weightRatti > 0 ? safeProductData.weightRatti : "Not specified",
+                  ],
+                  [
+                    "Weight (grams)",
+                    safeProductData.weight > 0 ? safeProductData.weight : "Not specified",
+                  ],
+                ]}
+              />
+            )}
           </div>
         </div>
       </div>

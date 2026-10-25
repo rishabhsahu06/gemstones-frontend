@@ -92,6 +92,9 @@ function Products() {
       }
       params.append("sort", sortQuery)
 
+      // Keep jewellery items off the gemstone catalogue
+      params.append("productType", "gemstone")
+
       // Pagination
       params.append("page", page.toString())
       params.append("limit", "20")
