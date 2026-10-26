@@ -45,9 +45,7 @@ function HomePage() {
       <TrustMarquee />
       <Authenticity />
 
-      <section id="stones">
-        <PerfectSTones />
-      </section>
+      <PerfectSTones />
 
       <section id="jewellery">
         <LuxuryGemstones />

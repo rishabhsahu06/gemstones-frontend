@@ -1,10 +1,15 @@
 "use client";
-import { Suspense, useState, useEffect, useCallback } from "react";
+import { Suspense, useState, useEffect, useCallback, useRef } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import Image from "next/image";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
+import { Loader2, ShoppingCart } from "lucide-react";
 import api from "@/lib/axios";
+import useAccessToken from "@/hooks/userSession";
+import { useApi } from "@/hooks/useApi";
+import AuthModal from "@/app/components/auth-model/authModel";
+import { toast } from "react-toastify";
 
 const TYPE_FROM_CAT = {
   pendants: "pendants",
@@ -23,59 +28,59 @@ const formatLabel = (value) =>
         .replace(/\b\w/g, (letter) => letter.toUpperCase())
     : "";
 
+const formatPrice = (value) =>
+  Number(value || 0).toLocaleString("en-IN");
+
 const HeroSkeleton = () => (
-  <div className="w-full h-[300px] sm:h-[400px] lg:h-[600px] bg-gray-200 animate-pulse">
-    <div className="w-full h-full bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 bg-[length:400%_100%] animate-[shimmer_2s_ease-in-out_infinite]"></div>
-  </div>
+  <div className="w-full h-[180px] sm:h-[280px] lg:h-[420px] bg-[#f3efe6] animate-pulse" />
 );
 
 const FilterSkeleton = () => (
-  <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 lg:gap-8 mb-8 sm:mb-12 max-w-4xl mx-auto">
+  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mb-8 max-w-5xl mx-auto">
     {[1, 2, 3].map((i) => (
-      <div key={i} className="flex-1">
-        <div className="w-full h-12 bg-gray-200 rounded-md animate-pulse">
-          <div className="w-full h-full bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 bg-[length:400%_100%] animate-[shimmer_2s_ease-in-out_infinite] rounded-md"></div>
-        </div>
-      </div>
+      <div key={i} className="h-11 bg-[#f3efe6] rounded-lg animate-pulse" />
     ))}
   </div>
 );
 
 const ProductCardSkeleton = () => (
-  <div className="group cursor-pointer">
-    <div className="aspect-square overflow-hidden rounded-lg bg-gray-200 mb-2 sm:mb-3 animate-pulse">
-      <div className="w-full h-full bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 bg-[length:400%_100%] animate-[shimmer_2s_ease-in-out_infinite]"></div>
+  <div className="rounded-2xl border border-[#ebe4d6] bg-white overflow-hidden">
+    <div className="aspect-[4/5] bg-[#f7f5f0] animate-pulse" />
+    <div className="p-4 space-y-3">
+      <div className="h-3 w-16 bg-[#f3efe6] rounded" />
+      <div className="h-5 w-3/4 bg-[#f3efe6] rounded" />
+      <div className="h-4 w-1/3 bg-[#f3efe6] rounded" />
+      <div className="h-10 w-full bg-[#f3efe6] rounded-full" />
     </div>
-    <div className="w-3/4 h-4 bg-gray-200 rounded mx-auto animate-pulse"></div>
-  </div>
-);
-
-const TitleSkeleton = () => (
-  <div className="flex flex-col items-center justify-center mt-8 sm:mt-12 mb-6 sm:mb-8">
-    <div className="w-80 h-8 sm:h-10 lg:h-12 bg-gray-200 rounded mb-2 sm:mb-4 animate-pulse"></div>
-    <div className="w-32 h-6 bg-gray-200 rounded animate-pulse"></div>
   </div>
 );
 
 function Jewelry() {
   const searchParams = useSearchParams();
+  const pathname = usePathname();
   const catFromUrl = searchParams.get("cat");
+  const { accessToken } = useAccessToken();
+  const { post } = useApi();
+  const pendingProductId = useRef(null);
 
   const [isLoading, setIsLoading] = useState(true);
   const [heroImageLoaded, setHeroImageLoaded] = useState(false);
-  const [loadedImages, setLoadedImages] = useState(new Set());
   const [errorImages, setErrorImages] = useState(new Set());
   const [items, setItems] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [selectedFilter, setSelectedFilter] = useState("");
   const [selectedMetal, setSelectedMetal] = useState("");
   const [selectedType, setSelectedType] = useState(TYPE_FROM_CAT[catFromUrl] || "");
-  const [error, setError] = useState("");
+  const [loadError, setLoadError] = useState("");
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [addingId, setAddingId] = useState(null);
+
+  const returnPath = searchParams.toString() ? `${pathname}?${searchParams.toString()}` : pathname;
 
   const fetchJewellery = useCallback(async () => {
     try {
       setIsLoading(true);
-      setError("");
+      setLoadError("");
       const response = await api.get("/products", {
         params: {
           productType: "jewellery",
@@ -101,7 +106,7 @@ function Jewelry() {
       setItems(mapped);
     } catch (err) {
       console.error("Failed to load jewellery", err);
-      setError("Failed to load jewellery. Please try again.");
+      setLoadError("Failed to load jewellery. Please try again.");
       setItems([]);
     } finally {
       setIsLoading(false);
@@ -136,10 +141,6 @@ function Jewelry() {
     setFilteredData(filtered);
   }, [items, selectedFilter, selectedMetal, selectedType]);
 
-  const handleImageLoad = useCallback((id) => {
-    setLoadedImages((prev) => new Set([...prev, id]));
-  }, []);
-
   const handleImageError = useCallback((id) => {
     setErrorImages((prev) => new Set([...prev, id]));
   }, []);
@@ -150,14 +151,51 @@ function Jewelry() {
     setSelectedType("");
   };
 
+  const handleAddCarWithToken = async (id, token = accessToken) => {
+    try {
+      setAddingId(id);
+      await post(
+        "/cart",
+        { productId: id, quantity: 1 },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      toast.success("Added to cart");
+    } catch (err) {
+      if (err.response?.status === 401) {
+        pendingProductId.current = id;
+        setIsAuthModalOpen(true);
+        toast.error("Please log in to add items to your cart.");
+      } else if (err.response?.status === 400) {
+        toast.error(err.response.data?.message || "This piece could not be added.");
+      } else {
+        toast.error(err.response?.data?.message || "Failed to add to cart. Please try again.");
+      }
+    } finally {
+      setAddingId(null);
+    }
+  };
+
+  const handleAddToCart = (id) => {
+    if (!accessToken) {
+      pendingProductId.current = id;
+      setIsAuthModalOpen(true);
+      return;
+    }
+    handleAddCarWithToken(id);
+  };
+
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen bg-[#fbfaf7]">
         <HeroSkeleton />
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <TitleSkeleton />
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
           <FilterSkeleton />
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 pb-12 sm:pb-16">
+          <div className="grid grid-cols-1 min-[520px]:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
             {Array(8)
               .fill(0)
               .map((_, i) => (
@@ -170,235 +208,244 @@ function Jewelry() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
-      <div className="relative">
+    <div className="min-h-screen bg-[#fbfaf7]">
+      <div className="relative bg-[#1a120c]">
         {!heroImageLoaded && <HeroSkeleton />}
         <Image
           src="/jwellery-banner.png"
-          alt="Jewelry Hero - Discover exquisite jewelry collections"
+          alt="Sunita Gemstones jewellery"
           width={1920}
-          height={600}
-          className={`w-full h-auto object-cover transition-opacity duration-500 ${
-            heroImageLoaded ? "opacity-100" : "opacity-0 absolute inset-0"
+          height={640}
+          className={`w-full h-auto transition-opacity duration-500 ${
+            heroImageLoaded ? "opacity-100" : "opacity-0"
           }`}
           onLoad={() => setHeroImageLoaded(true)}
           onError={() => setHeroImageLoaded(true)}
           priority
         />
-        <div className="absolute inset-0 bg-black/10"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-black/10" />
       </div>
 
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col items-center justify-center mt-8 sm:mt-12 mb-6 sm:mb-8">
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2 sm:mb-4 text-center">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+        <div className="text-center max-w-2xl mx-auto mb-8 sm:mb-10">
+          <p className="text-[11px] sm:text-xs tracking-[0.22em] uppercase text-[#BA8E49] mb-2">
+            Handcrafted jewellery
+          </p>
+          <h1 className="font-display text-[2rem] sm:text-4xl lg:text-5xl text-[#1c1915] leading-tight">
             Find Your Unique Aesthetic
           </h1>
-          <p className="text-lg sm:text-xl text-gray-600">Select Metal & Style</p>
+          <p className="mt-2 text-sm sm:text-base text-[#6b645b]">
+            Select a metal and style, then add a piece to your cart.
+          </p>
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 lg:gap-8 mb-8 sm:mb-12 max-w-4xl mx-auto">
-          <div className="flex-1">
-            <Select value={selectedFilter} onValueChange={setSelectedFilter}>
-              <SelectTrigger className="w-full h-12 text-base">
-                <SelectValue placeholder="Filter by Category" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Items</SelectItem>
-                <SelectItem value="new">New Arrivals</SelectItem>
-                <SelectItem value="popular">Popular</SelectItem>
-                <SelectItem value="sale">On Sale</SelectItem>
-              </SelectContent>
-            </Select>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mb-6 max-w-5xl mx-auto">
+          <div>
+          <Select value={selectedFilter} onValueChange={setSelectedFilter}>
+            <SelectTrigger className="w-full h-11 bg-white border-[#e6dfd2] text-sm">
+              <SelectValue placeholder="Filter by Category" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Items</SelectItem>
+              <SelectItem value="new">New Arrivals</SelectItem>
+              <SelectItem value="popular">Popular</SelectItem>
+              <SelectItem value="sale">On Sale</SelectItem>
+            </SelectContent>
+          </Select>
           </div>
 
-          <div className="flex-1">
-            <Select value={selectedMetal} onValueChange={setSelectedMetal}>
-              <SelectTrigger className="w-full h-12 text-base">
-                <SelectValue placeholder="Select Metal" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="gold">Gold</SelectItem>
-                <SelectItem value="silver">Silver</SelectItem>
-                <SelectItem value="platinum">Platinum</SelectItem>
-                <SelectItem value="rose-gold">Rose Gold</SelectItem>
-              </SelectContent>
-            </Select>
+          <div>
+          <Select value={selectedMetal} onValueChange={setSelectedMetal}>
+            <SelectTrigger className="w-full h-11 bg-white border-[#e6dfd2] text-sm">
+              <SelectValue placeholder="Select Metal" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="gold">Gold</SelectItem>
+              <SelectItem value="silver">Silver</SelectItem>
+              <SelectItem value="platinum">Platinum</SelectItem>
+              <SelectItem value="rose-gold">Rose Gold</SelectItem>
+            </SelectContent>
+          </Select>
           </div>
 
-          <div className="flex-1">
-            <Select value={selectedType} onValueChange={setSelectedType}>
-              <SelectTrigger className="w-full h-12 text-base">
-                <SelectValue placeholder="Jewelry Type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="rings">Rings</SelectItem>
-                <SelectItem value="pendants">Pendants</SelectItem>
-                <SelectItem value="necklaces">Necklaces</SelectItem>
-                <SelectItem value="bracelets">Bracelets</SelectItem>
-                <SelectItem value="earrings">Earrings</SelectItem>
-                <SelectItem value="anklets">Anklets</SelectItem>
-                <SelectItem value="chokers">Chokers</SelectItem>
-              </SelectContent>
-            </Select>
+          <div className="sm:col-span-2 lg:col-span-1">
+          <Select value={selectedType} onValueChange={setSelectedType}>
+            <SelectTrigger className="w-full h-11 bg-white border-[#e6dfd2] text-sm">
+              <SelectValue placeholder="Jewelry Type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="rings">Rings</SelectItem>
+              <SelectItem value="pendants">Pendants</SelectItem>
+              <SelectItem value="necklaces">Necklaces</SelectItem>
+              <SelectItem value="bracelets">Bracelets</SelectItem>
+              <SelectItem value="earrings">Earrings</SelectItem>
+              <SelectItem value="anklets">Anklets</SelectItem>
+              <SelectItem value="chokers">Chokers</SelectItem>
+            </SelectContent>
+          </Select>
           </div>
         </div>
 
-        <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+        <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div className="flex flex-wrap gap-2">
             {(selectedFilter || selectedMetal || selectedType) && (
               <button
                 onClick={resetFilters}
-                className="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded-full"
+                className="px-3 py-1.5 text-xs tracking-wide uppercase bg-white border border-[#e6dfd2] hover:border-[#BA8E49] rounded-full"
               >
-                Clear All Filters
+                Clear filters
               </button>
             )}
             {selectedFilter && (
-              <span className="px-3 py-1 text-sm bg-blue-100 text-blue-800 rounded-full">
-                Category: {selectedFilter}
+              <span className="px-3 py-1.5 text-xs bg-white text-[#5c564e] border border-[#e6dfd2] rounded-full">
+                {formatLabel(selectedFilter)}
               </span>
             )}
             {selectedMetal && (
-              <span className="px-3 py-1 text-sm bg-green-100 text-green-800 rounded-full">
-                Metal: {formatLabel(selectedMetal)}
+              <span className="px-3 py-1.5 text-xs bg-white text-[#5c564e] border border-[#e6dfd2] rounded-full">
+                {formatLabel(selectedMetal)}
               </span>
             )}
             {selectedType && (
-              <span className="px-3 py-1 text-sm bg-purple-100 text-purple-800 rounded-full">
-                Type: {formatLabel(selectedType)}
+              <span className="px-3 py-1.5 text-xs bg-white text-[#5c564e] border border-[#e6dfd2] rounded-full">
+                {formatLabel(selectedType)}
               </span>
             )}
           </div>
-          <p className="text-sm text-gray-600">
-            {filteredData.length} {filteredData.length === 1 ? "item" : "items"} found
+          <p className="text-xs tracking-wide uppercase text-[#8a8176]">
+            {filteredData.length} {filteredData.length === 1 ? "piece" : "pieces"}
           </p>
         </div>
 
-        {error ? (
+        {loadError ? (
           <div className="text-center py-16">
-            <h3 className="text-xl font-semibold mb-2">{error}</h3>
+            <h3 className="text-xl font-display text-[#1c1915] mb-3">{loadError}</h3>
             <button
               onClick={fetchJewellery}
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              className="px-6 py-2.5 bg-[#1c1915] text-white text-sm rounded-full hover:bg-[#BA8E49]"
             >
               Retry
             </button>
           </div>
         ) : filteredData.length === 0 ? (
-          <div className="text-center py-16">
-            <div className="text-6xl mb-4">💎</div>
-            <h3 className="text-xl font-semibold mb-2">No jewelry found</h3>
-            <p className="text-gray-600 mb-4">
+          <div className="text-center py-16 px-4">
+            <h3 className="text-2xl font-display text-[#1c1915] mb-2">No jewellery found</h3>
+            <p className="text-sm text-[#6b645b] mb-5 max-w-md mx-auto">
               {items.length === 0
                 ? "Jewellery added from the admin portal will appear here."
-                : "Try adjusting your filters to see more results"}
+                : "Try another metal, type, or category."}
             </p>
             {items.length > 0 && (
               <button
                 onClick={resetFilters}
-                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                className="px-6 py-2.5 bg-[#1c1915] text-white text-sm rounded-full hover:bg-[#BA8E49]"
               >
-                Clear Filters
+                Clear filters
               </button>
             )}
           </div>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 pb-12 sm:pb-16">
-            {filteredData.map((item, index) => {
-              const isLoaded = loadedImages.has(item.id);
+          <div className="grid grid-cols-1 min-[520px]:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5 lg:gap-6 pb-8">
+            {filteredData.map((item) => {
               const hasError = errorImages.has(item.id);
-              const price = item.discountedPrice || item.originalPrice;
+              const salePrice = Number(item.discountedPrice || item.originalPrice || 0);
+              const originalPrice = Number(item.originalPrice || 0);
+              const onSale = originalPrice > salePrice && salePrice > 0;
+              const outOfStock = !item.isAvailable || Number(item.stock) === 0;
+              const isAdding = addingId === item.id;
 
               return (
-                <Link
+                <article
                   key={item.id}
-                  href={`/products/${item.id}`}
-                  className="group cursor-pointer transform transition-all duration-300 hover:scale-105 hover:shadow-lg block"
-                  style={{
-                    animationDelay: `${index * 50}ms`,
-                    animation: "fadeInUp 0.6s ease-out forwards",
-                  }}
+                  className="flex flex-col h-full bg-white rounded-2xl border border-[#ebe4d6] overflow-hidden shadow-[0_8px_24px_rgba(28,25,21,0.04)]"
                 >
-                  <div className="aspect-square overflow-hidden rounded-lg bg-gray-50 mb-2 sm:mb-3 relative">
-                    {!isLoaded && !hasError && (
-                      <div className="absolute inset-0 bg-gray-200 animate-pulse"></div>
-                    )}
+                  <Link
+                    href={`/products/${item.id}`}
+                    className="relative block aspect-[4/5] bg-[#f7f5f0]"
+                  >
                     <Image
                       src={item.image || "/placeholder.svg"}
-                      alt={`${item.title} - Premium jewelry piece`}
-                      width={300}
-                      height={300}
-                      className={`w-full h-full object-cover transition-all duration-500 group-hover:scale-110 ${
-                        isLoaded ? "opacity-100" : "opacity-0"
-                      }`}
-                      onLoad={() => handleImageLoad(item.id)}
+                      alt={item.title || "Jewellery"}
+                      fill
+                      sizes="(max-width: 520px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                      className="object-contain object-center p-3 sm:p-4"
                       onError={() => handleImageError(item.id)}
                     />
                     {hasError && (
-                      <div className="absolute inset-0 bg-gray-100 flex items-center justify-center">
-                        <p className="text-xs text-gray-500">Image not available</p>
+                      <div className="absolute inset-0 flex items-center justify-center px-4 text-center">
+                        <p className="text-xs text-[#8a8176]">Image not available</p>
                       </div>
                     )}
-                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300 rounded-lg">
-                      <div className="absolute bottom-2 left-2 right-2">
-                        <div className="bg-white/90 backdrop-blur-sm rounded px-2 py-1 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300 opacity-0 group-hover:opacity-100">
-                          <p className="text-xs text-gray-700 capitalize">
-                            {formatLabel(item.metal)} • {formatLabel(item.type)}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <p className="text-center text-sm sm:text-base font-medium text-gray-800 group-hover:text-gray-600">
-                    {item.title}
-                  </p>
-                  {price > 0 && (
-                    <p className="text-center text-sm text-[#BA8E49] font-semibold mt-1">
-                      Rs. {Number(price).toLocaleString()}
-                    </p>
-                  )}
-                  {item.category !== "all" && (
-                    <div className="text-center mt-1">
-                      <span
-                        className={`inline-block px-2 py-1 text-xs rounded-full ${
-                          item.category === "new"
-                            ? "bg-green-100 text-green-800"
-                            : item.category === "popular"
-                              ? "bg-blue-100 text-blue-800"
-                              : item.category === "sale"
-                                ? "bg-red-100 text-red-800"
-                                : "bg-gray-100 text-gray-800"
-                        }`}
-                      >
+                    {item.category !== "all" && (
+                      <span className="absolute top-3 left-3 px-2.5 py-1 text-[10px] tracking-wide uppercase bg-white/95 text-[#1c1915] rounded-full">
                         {item.category}
                       </span>
+                    )}
+                    {outOfStock && (
+                      <span className="absolute top-3 right-3 px-2.5 py-1 text-[10px] tracking-wide uppercase bg-[#1c1915] text-white rounded-full">
+                        Sold out
+                      </span>
+                    )}
+                  </Link>
+
+                  <div className="flex flex-col flex-1 gap-2 p-3.5 sm:p-4">
+                    <p className="text-[11px] tracking-[0.16em] uppercase text-[#BA8E49] min-h-[1rem]">
+                      {[formatLabel(item.type), formatLabel(item.metal)].filter(Boolean).join(" · ")}
+                    </p>
+                    <Link href={`/products/${item.id}`}>
+                      <h2 className="font-display text-xl sm:text-[1.35rem] leading-snug text-[#1c1915] line-clamp-2 hover:text-[#BA8E49]">
+                        {item.title}
+                      </h2>
+                    </Link>
+                    <div className="mt-auto pt-2 flex items-end justify-between gap-3">
+                      <div className="min-w-0">
+                        {salePrice > 0 ? (
+                          <p className="text-base font-medium text-[#1c1915]">
+                            ₹{formatPrice(salePrice)}
+                          </p>
+                        ) : (
+                          <p className="text-sm text-[#8a8176]">Price on request</p>
+                        )}
+                        {onSale && (
+                          <p className="text-xs text-[#8a8176] line-through">₹{formatPrice(originalPrice)}</p>
+                        )}
+                      </div>
                     </div>
-                  )}
-                </Link>
+                    <button
+                      type="button"
+                      onClick={() => handleAddToCart(item.id)}
+                      disabled={outOfStock || isAdding}
+                      className="mt-1 inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#1c1915] px-4 py-2.5 text-xs sm:text-sm tracking-wide text-white transition-colors hover:bg-[#BA8E49] disabled:cursor-not-allowed disabled:bg-[#cfc8bc]"
+                    >
+                      {isAdding ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <ShoppingCart className="h-4 w-4" />
+                      )}
+                      {outOfStock ? "Out of stock" : isAdding ? "Adding..." : "Add to Cart"}
+                    </button>
+                  </div>
+                </article>
               );
             })}
           </div>
         )}
       </div>
 
-      <style jsx>{`
-        @keyframes shimmer {
-          0% { background-position: -400% 0; }
-          100% { background-position: 400% 0; }
-        }
-
-        @keyframes fadeInUp {
-          from {
-            opacity: 0;
-            transform: translateY(20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-      `}</style>
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => {
+          pendingProductId.current = null;
+          setIsAuthModalOpen(false);
+        }}
+        redirectTo={returnPath}
+        onSuccess={async (session) => {
+          const id = pendingProductId.current;
+          pendingProductId.current = null;
+          if (!id || !session?.accessToken) return;
+          await handleAddCarWithToken(id, session.accessToken);
+        }}
+      />
     </div>
   );
 }
@@ -407,7 +454,7 @@ export default function JewelryPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-white">
+        <div className="min-h-screen bg-[#fbfaf7]">
           <HeroSkeleton />
         </div>
       }

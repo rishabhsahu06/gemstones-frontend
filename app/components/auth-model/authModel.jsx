@@ -3,11 +3,11 @@ import { signIn, getSession } from "next-auth/react"
 import { useState, useEffect } from "react"
 import { useRouter, usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { KeyRound, Smartphone, ShieldCheck } from "lucide-react"
+import { KeyRound, Smartphone, ShieldCheck, X } from "lucide-react"
 import { countryCodes } from "@/app/constant/constant"
 import { toast } from "react-toastify"
 import {
@@ -246,7 +246,13 @@ export default function AuthModal({ isOpen, onClose, redirectTo, onSuccess }) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[420px] border-0 bg-[var(--background)] p-0 overflow-hidden shadow-2xl rounded-2xl gap-0">
+      <DialogContent showCloseButton={false} className="sm:max-w-[420px] border-0 bg-[var(--background)] p-0 overflow-hidden shadow-2xl rounded-2xl gap-0">
+        <DialogClose
+          className="absolute top-3 right-3 z-20 flex h-8 w-8 items-center justify-center rounded-full text-white/90 transition-colors hover:bg-white/15 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+          aria-label="Close"
+        >
+          <X className="h-4 w-4" />
+        </DialogClose>
         <div className="relative bg-[var(--ink)] px-6 pt-7 pb-8 text-center overflow-hidden">
           <div
             className="pointer-events-none absolute inset-0 opacity-40"
@@ -298,18 +304,18 @@ export default function AuthModal({ isOpen, onClose, redirectTo, onSuccess }) {
                       {phoneHint}
                     </span>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex h-12 items-stretch overflow-hidden rounded-xl border border-[var(--border)] bg-white focus-within:ring-2 focus-within:ring-[var(--gold)]/35">
                     <Select
                       value={countryCode}
                       onValueChange={setCountryCode}
                       disabled={isLoading}
                     >
-                      <SelectTrigger className={`w-[118px] rounded-xl ${fieldClass}`}>
+                      <SelectTrigger className="h-12! w-[7.5rem] shrink-0 rounded-none border-0 border-r border-[var(--border)] bg-transparent px-3 py-0 shadow-none focus:ring-0 focus-visible:ring-0">
                         <SelectValue>
-                          <div className="flex items-center gap-1.5">
+                          <span className="flex items-center gap-1.5 leading-none">
                             <span className="text-base leading-none">{selectedCountry?.flag}</span>
-                            <span className="font-medium text-sm">{countryCode}</span>
-                          </div>
+                            <span className="text-sm font-medium leading-none">{countryCode}</span>
+                          </span>
                         </SelectValue>
                       </SelectTrigger>
                       <SelectContent className="max-h-[280px]">
@@ -338,7 +344,7 @@ export default function AuthModal({ isOpen, onClose, redirectTo, onSuccess }) {
                       placeholder={countryCode === "+91" ? "98765 43210" : "Mobile number"}
                       value={phoneDisplay}
                       onChange={handlePhoneChange}
-                      className={`flex-1 rounded-xl text-base tracking-wide ${fieldClass}`}
+                      className="h-12! min-w-0 flex-1 rounded-none border-0 bg-transparent px-3 py-0 text-base tracking-wide shadow-none focus-visible:ring-0 md:text-base"
                       disabled={isLoading}
                     />
                   </div>

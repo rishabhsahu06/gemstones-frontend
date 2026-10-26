@@ -6,10 +6,28 @@ import Image from "next/image"
 import { Menu, Search, User, X, ChevronDown, ShoppingCart } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
-import { useRouter, usePathname } from "next/navigation"
+import { usePathname } from "next/navigation"
 import { signOut } from "next-auth/react"
 import api from "@/lib/axios"
 import { AnimatePresence, motion } from "motion/react"
+
+const formatStoneLabel = (value) =>
+  value
+    ? String(value)
+        .replace(/-/g, " ")
+        .replace(/\b\w/g, (letter) => letter.toUpperCase())
+    : ""
+
+const formatStoneSize = (product) => {
+  if (product.weightRatti) return `${product.weightRatti} ratti`
+  if (product.weightCarat) return `${product.weightCarat} ct`
+  if (product.size) return String(product.size)
+  const { length, width, height } = product.dimensions || {}
+  const dims = [length, width, height].filter((value) => value)
+  if (dims.length) return `${dims.join(" × ")} mm`
+  if (product.weight) return `${product.weight} g`
+  return ""
+}
 
 const ANNOUNCEMENTS = [
   "✦ Free astrologer consultation with every order",
@@ -32,7 +50,6 @@ function Header() {
   const gemstonesDropdownRef = useRef(null)
   const mobileMenuRef = useRef(null)
   const hoverTimeoutRef = useRef(null)
-  const router = useRouter()
   const pathname = usePathname()
 
   // ── Scroll detection ──────────────────────────────────────────
@@ -86,24 +103,38 @@ function Header() {
     try {
       setIsLoadingGemstones(true)
       setGemstonesError(null)
-      const response = await api.get("/products/primary-categories")
-      if (response.data.success && response.data.data) {
-        const transformedCategories = [
-          {
-            title: "Primary Categories",
-            gemstones: response.data.data.map((item) => ({
-              id: item.id,
-              name: item.displayName,
-              slug: item.name,
-              image: `/gemstones/${item.name.toLowerCase().replace(/\s+/g, "-")}.png`,
-              image2: item.primaryCategoryImage,
-            })),
-          },
-        ]
-        setGemstoneCategories(transformedCategories)
-      } else {
-        throw new Error("Invalid API response format")
-      }
+      const response = await api.get("/products", {
+        params: {
+          productType: "gemstone",
+          isAvailable: true,
+          limit: 100,
+        },
+      })
+      const products = response.data?.data || []
+      const groups = new Map()
+
+      products.forEach((product) => {
+        const slug = product.primaryCategory || "other-gemstones"
+        if (slug === "jewellery") return
+        if (!groups.has(slug)) {
+          groups.set(slug, {
+            slug,
+            name: formatStoneLabel(slug),
+            products: [],
+          })
+        }
+        groups.get(slug).products.push({
+          id: product._id,
+          name: product.name,
+          shape: product.shape || "",
+          size: formatStoneSize(product),
+          image: product.images?.[0]?.url || "",
+        })
+      })
+
+      setGemstoneCategories(
+        [...groups.values()].sort((a, b) => a.name.localeCompare(b.name))
+      )
     } catch (error) {
       console.error("Error fetching gemstone categories:", error)
       setGemstonesError("Failed to load gemstone categories")
@@ -224,12 +255,6 @@ function Header() {
     setIsGemstonesDropdownOpen((v) => !v)
   }
 
-  const handleGemstoneClick = (gemstone, event) => {
-    event.stopPropagation()
-    closeAllDropdowns()
-    router.push(`/gemStone/${gemstone.slug}`)
-  }
-
   // ── Nav link colour for scrolled state ───────────────────────
   const navLinkColor = scrolled ? "text-ink-foreground/80" : "text-gray-700"
 
@@ -324,8 +349,8 @@ function Header() {
 
                 <div
                   className={cn(
-                    "absolute top-full left-1/2 transform -translate-x-1/2 mt-2 bg-white rounded-lg shadow-xl border border-gray-200 z-50 transition-all duration-200",
-                    "w-[280px] sm:w-[400px] md:w-[500px] lg:w-[600px]",
+                    "absolute top-full left-0 mt-2 bg-white rounded-lg shadow-xl border border-gray-200 z-50 transition-all duration-200",
+                    "w-[min(92vw,640px)]",
                     isGemstonesDropdownOpen
                       ? "opacity-100 visible translate-y-0"
                       : "opacity-0 invisible -translate-y-2"
@@ -346,32 +371,41 @@ function Header() {
                       </button>
                     </div>
                   ) : gemstoneCategories.length > 0 ? (
-                    <div className="p-5">
-                      {gemstoneCategories.map((category, categoryIndex) => (
-                        <div key={categoryIndex} className="space-y-4">
-                          <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">
-                            {category.title}
-                          </h3>
-                          <div className="grid grid-cols-2 gap-3">
-                            {category.gemstones.map((gemstone) => (
+                    <div className="max-h-[70vh] overflow-y-auto p-4 sm:p-5">
+                      {gemstoneCategories.map((category) => (
+                        <div key={category.slug} className="mb-4 last:mb-0">
+                          <Link
+                            href={`/gemStone/${category.slug}`}
+                            onClick={() => setIsGemstonesDropdownOpen(false)}
+                            className="block border-b border-[#efe8dc] pb-1.5 text-base text-[#1c1915] hover:text-[#BA8E49]"
+                            style={{ fontFamily: "var(--font-display)" }}
+                          >
+                            {category.name}
+                          </Link>
+                          <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-1">
+                            {category.products.map((stone) => (
                               <Link
-                                key={gemstone.id}
-                                href={`/gemStone/${gemstone.slug}`}
-                                className="flex items-center space-x-3 text-gray-600 hover:text-[#BA8E49] transition-colors group p-2 rounded hover:bg-gray-50"
+                                key={stone.id}
+                                href={`/products/${stone.id}`}
+                                className="flex items-center gap-3 rounded-md px-2 py-2 text-gray-700 hover:bg-[#f7f5f0] hover:text-[#BA8E49]"
                                 onClick={() => setIsGemstonesDropdownOpen(false)}
                               >
-                                <div className="w-6 h-6 rounded-full overflow-hidden flex-shrink-0 bg-gray-200">
-                                  <Image
-                                    src={gemstone.image2 || gemstone.image}
-                                    alt={gemstone.name}
-                                    width={24}
-                                    height={24}
-                                    className="w-full h-full object-cover"
-                                    onError={(e) => { e.target.style.display = "none" }}
-                                  />
-                                </div>
-                                <span className="text-sm group-hover:text-[#BA8E49]">
-                                  {gemstone.name}
+                                <span className="relative h-10 w-10 shrink-0 overflow-hidden rounded-md bg-[#f3efe6]">
+                                  {stone.image ? (
+                                    <Image
+                                      src={stone.image}
+                                      alt=""
+                                      fill
+                                      sizes="40px"
+                                      className="object-contain p-0.5"
+                                    />
+                                  ) : null}
+                                </span>
+                                <span className="min-w-0">
+                                  <span className="block truncate text-sm">{stone.name}</span>
+                                  <span className="block truncate text-xs text-[#8a8176]">
+                                    {[stone.shape, stone.size].filter(Boolean).join(" · ") || category.name}
+                                  </span>
                                 </span>
                               </Link>
                             ))}
@@ -578,7 +612,7 @@ function Header() {
               <div
                 className={cn(
                   "overflow-hidden transition-all duration-300",
-                  isGemstonesDropdownOpen ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"
+                  isGemstonesDropdownOpen ? "max-h-[60vh] opacity-100 overflow-y-auto" : "max-h-0 opacity-0"
                 )}
               >
                 {isLoadingGemstones ? (
@@ -589,30 +623,31 @@ function Header() {
                     <button onClick={fetchGemstoneCategories} className="mt-1 text-sm" style={{ color: "var(--gold)" }}>Retry</button>
                   </div>
                 ) : (
-                  <div className="pl-4 space-y-4 pt-2">
-                    {gemstoneCategories.map((category, categoryIndex) => (
-                      <div key={categoryIndex} className="space-y-2">
-                        <h4 className="text-sm font-medium" style={{ color: "var(--gold-soft)" }}>{category.title}</h4>
+                  <div className="pl-2 space-y-4 pt-2">
+                    {gemstoneCategories.map((category) => (
+                      <div key={category.slug} className="space-y-2">
+                        <Link
+                          href={`/gemStone/${category.slug}`}
+                          onClick={toggleMenu}
+                          className="text-sm font-medium"
+                          style={{ color: "var(--gold-soft)" }}
+                        >
+                          {category.name}
+                        </Link>
                         <div className="pl-3 space-y-2">
-                          {category.gemstones.map((gemstone) => (
-                            <button
-                              key={gemstone.id}
-                              onClick={(e) => { handleGemstoneClick(gemstone, e); toggleMenu() }}
-                              className="flex items-center space-x-2 text-sm transition-colors w-full text-left"
+                          {category.products.map((stone) => (
+                            <Link
+                              key={stone.id}
+                              href={`/products/${stone.id}`}
+                              onClick={toggleMenu}
+                              className="block text-sm"
                               style={{ color: "var(--ink-foreground)" }}
                             >
-                              <div className="w-4 h-4 rounded-full overflow-hidden flex-shrink-0 bg-gray-600">
-                                <Image
-                                  src={gemstone.image}
-                                  alt={gemstone.name}
-                                  width={16}
-                                  height={16}
-                                  className="w-full h-full object-cover"
-                                  onError={(e) => { e.target.style.display = "none" }}
-                                />
-                              </div>
-                              <span>{gemstone.name}</span>
-                            </button>
+                              <span className="block">{stone.name}</span>
+                              <span className="block text-xs opacity-70">
+                                {[stone.shape, stone.size].filter(Boolean).join(" · ")}
+                              </span>
+                            </Link>
                           ))}
                         </div>
                       </div>
